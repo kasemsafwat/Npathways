@@ -3,6 +3,7 @@ import dotenv from 'dotenv';
 import { Server } from 'socket.io';
 import cors from 'cors';
 import connectDB from './config/db.js';
+import examRouter from './routes/exam.route.js';
 
 dotenv.config();
 
@@ -15,6 +16,8 @@ app.use(cors());
 app.get('/', (req, res) => {
   res.send('Server is working');
 });
+
+app.use('/api/exam', examRouter);
 
 const port = process.env.PORT || 3000;
 const host = process.env.HOST || 'http://localhost';
@@ -33,10 +36,10 @@ let userNumber = 0;
 io.on('connection', (socket) => {
   console.log(`User #${++userNumber} connected`);
   socket.on('sendMessage', (message) => {
-    console.log(message);
+    // console.log(message);
     io.emit('messageSent', message);
   });
   socket.on('disconnect', () => {
-    console.log('User disconnected');
+    // console.log('User disconnected');
   });
 });
