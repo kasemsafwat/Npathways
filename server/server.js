@@ -3,8 +3,11 @@ import dotenv from 'dotenv';
 import { Server } from 'socket.io';
 import cors from 'cors';
 import connectDB from './config/db.js';
+// 
+import routes from "./routes/index.js"
 import examRouter from './routes/exam.route.js';
 
+// 
 dotenv.config();
 
 const app = express();
@@ -13,6 +16,9 @@ connectDB();
 app.use(express.json());
 app.use(cors());
 
+// 
+app.use('/api',routes)
+// 
 app.get('/', (req, res) => {
   res.send('Server is working');
 });
