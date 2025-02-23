@@ -1,0 +1,23 @@
+body {
+  background-color: #333;
+}
+.chat-container {
+  background-color: #444;
+  padding: 10px;
+  border-radius: 10px;
+  margin-top: 10px;
+}
+.chat-message {
+  background-color: #666;
+  padding: 10px;
+  border-radius: 10px;
+  margin-bottom: 10px;
+}
+.send-button {
+  background-color: #0f0;
+  color: #fff;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
