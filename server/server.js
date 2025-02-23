@@ -3,6 +3,7 @@ import dotenv from 'dotenv';
 import { Server } from 'socket.io';
 import cors from 'cors';
 import connectDB from './config/db.js';
+import cookieParser from 'cookie-parser';
 // 
 import routes from "./routes/index.js"
 import examRouter from './routes/exam.route.js';
@@ -14,6 +15,7 @@ const app = express();
 connectDB();
 
 app.use(express.json());
+app.use(cookieParser())
 app.use(cors());
 
 // 
