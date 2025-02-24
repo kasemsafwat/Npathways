@@ -23,6 +23,15 @@ const userSchema=new Schema ({
         trim:true,
         required:true,
         minlength:8
+    },
+    // token:[{
+    //     type:String,
+    //     expires:"2d",
+    //     trim:true
+    // }]
+    tokens: {
+        type: [String], 
+        default: [] 
     }
 })
 
@@ -37,6 +46,6 @@ userSchema.pre('save',async function (next) {
             return next(error)
     }
 })
-
+ 
 const User=mongoose.model('user',userSchema)
 export default User

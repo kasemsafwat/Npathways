@@ -24,7 +24,7 @@ app.use('/api',routes)
 app.get('/', (req, res) => {
   res.send('Server is working');
 });
-
+ 
 app.use('/api/exam', examRouter);
 
 const port = process.env.PORT || 3000;
@@ -51,3 +51,6 @@ io.on('connection', (socket) => {
     // console.log('User disconnected');
   });
 });
+
+
+ 

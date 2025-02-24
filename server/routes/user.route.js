@@ -1,9 +1,10 @@
-import express from 'express';
-const router=express.Router()
-import userController from "../controllers/user.controller.js"
-import {newUserValidation} from "../middleware/auth.middleware.js" 
- 
+import express from "express";
+import userController from "../controllers/user.controller.js";
+import { newUserValidation, loginValidation } from "../middleware/auth.middleware.js";
 
-router.post('/singup',newUserValidation,userController.newUser)
-router.post('/login')
-export default router
+const router = express.Router();
+
+router.post("/signup", newUserValidation, userController.newUser);
+router.post("/login", loginValidation, userController.login);
+
+export default router;
