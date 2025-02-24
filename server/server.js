@@ -4,28 +4,25 @@ import { Server } from 'socket.io';
 import cors from 'cors';
 import connectDB from './config/db.js';
 import cookieParser from 'cookie-parser';
-// 
-import routes from "./routes/index.js"
-import examRouter from './routes/exam.route.js';
+//
+import routes from './routes/index.js';
 
-// 
+//
 dotenv.config();
 
 const app = express();
 connectDB();
 
 app.use(express.json());
-app.use(cookieParser())
+app.use(cookieParser());
 app.use(cors());
 
-// 
-app.use('/api',routes)
-// 
+//
+app.use('/api', routes);
+//
 app.get('/', (req, res) => {
   res.send('Server is working');
 });
- 
-app.use('/api/exam', examRouter);
 
 const port = process.env.PORT || 3000;
 const host = process.env.HOST || 'http://localhost';
@@ -51,6 +48,3 @@ io.on('connection', (socket) => {
     // console.log('User disconnected');
   });
 });
-
-
- 

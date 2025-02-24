@@ -29,6 +29,17 @@ class ExamController {
     try {
       const { name, questions, timeLimit } = req.body;
 
+      for (const question of questions) {
+        const trueAnswerCount = question.answers.filter(
+          (answer) => answer.isCorrect
+        ).length;
+        if (trueAnswerCount === 0) {
+          return res
+            .status(400)
+            .json({ error: 'At least one true answer is required' });
+        }
+      }
+
       const newExam = await ExamModel.create({
         name,
         questions,
@@ -45,6 +56,17 @@ class ExamController {
     try {
       const { id } = req.params;
       const { name, questions, timeLimit } = req.body;
+
+      for (const question of questions) {
+        const trueAnswerCount = question.answers.filter(
+          (answer) => answer.isCorrect
+        ).length;
+        if (trueAnswerCount === 0) {
+          return res
+            .status(400)
+            .json({ error: 'At least one true answer is required' });
+        }
+      }
 
       const exam = await ExamModel.findById(id);
       if (!exam) {
