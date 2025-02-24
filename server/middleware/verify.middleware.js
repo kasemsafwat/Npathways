@@ -4,6 +4,7 @@ import Joi from 'joi';
 // before sendin it to the database
 
 const examRoute = '/api/exam';
+const courseRoute = '/api/course';
 
 const createExamSchema = Joi.object({
   name: Joi.string().required(),
@@ -60,6 +61,17 @@ const exampleExam = {
   timeLimit: 60,
 };
 
+const exampleCourse = {
+  name: 'Course 1',
+  requiredExams: [
+    {
+      _id: '123',
+    },
+  ],
+  instructors: [],
+  lessons: ['Lesson 1', 'Lesson 2', 'Lesson 3'],
+};
+
 const updateExamSchema = Joi.object({
   name: Joi.string(),
   questions: Joi.array().items(
@@ -79,12 +91,46 @@ const updateExamSchema = Joi.object({
   timeLimit: Joi.number(),
 });
 
+const createCourseSchema = Joi.object({
+  name: Joi.string().required(),
+  requiredExams: Joi.array().items(
+    Joi.string()
+      .regex(/^[0-9a-fA-F]{24}$/)
+      .message('Enter a valid id')
+  ),
+  instructors: Joi.array().items(
+    Joi.string()
+      .regex(/^[0-9a-fA-F]{24}$/)
+      .message('Enter a valid id')
+  ),
+  lessons: Joi.array().items(Joi.string()),
+});
+
+const updateCourseSchema = Joi.object({
+  name: Joi.string(),
+  requiredExams: Joi.array().items(
+    Joi.string()
+      .regex(/^[0-9a-fA-F]{24}$/)
+      .message('Enter a valid id')
+  ),
+  instructors: Joi.array().items(
+    Joi.string()
+      .regex(/^[0-9a-fA-F]{24}$/)
+      .message('Enter a valid id')
+  ),
+  lessons: Joi.array().items(Joi.string()),
+});
+
 function getSchema(link, method) {
   if (method !== 'POST' && method !== 'PUT') return null;
   if (link === `${examRoute}/createExam`) {
     return createExamSchema;
   } else if (link.includes(`${examRoute}/updateExam`)) {
     return updateExamSchema;
+  } else if (link === `${courseRoute}/createCourse`) {
+    return createCourseSchema;
+  } else if (link.includes(`${courseRoute}/updateCourse`)) {
+    return updateCourseSchema;
   }
   return null;
 }
