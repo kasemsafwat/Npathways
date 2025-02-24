@@ -47,8 +47,8 @@ const userController = {
     
             user.tokens.push(token); 
             await user.save(); 
-            console.log("Updated User:", user);
-            console.log("Updated User:", user);
+            // console.log("Updated User:", user);
+            // console.log("Updated User:", user);
             return res.status(200).send({
                 message: "Login successfully",
                 token: token
@@ -60,7 +60,17 @@ const userController = {
                 message: error.message
             });
         }
-    }
+    },
+    // deleteUser:async(req,res)=>{
+    //     try {
+    //         let {id}=req.params
+    //         res.send()
+    //     }catch(error){
+    //         return res.status(500).send({
+    //             message: error.message
+    //         });
+    //     }
+    // }
 };
 
 export default userController;

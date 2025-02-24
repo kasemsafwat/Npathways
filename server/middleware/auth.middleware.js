@@ -1,31 +1,41 @@
-import {newUserSchema,loginSchema} from "../services/userValidation.service.js"
-export function newUserValidation(req, res, next) {
+import User from "../models/user.model.js"
+import jwt from "jsonwebtoken"
+export const authentication=async(req,res,next)=>{
         try {
-            let { error } = newUserSchema.validate(req.body);
-            if (error) {
-                let errMsg = error.details[0].message;
-                return res.status(403).send({
-                    message: errMsg
-                });
+            console.log(req.cookies);
+            if(!req.cookies){
+                return res.status(401).send({
+                    message:"Unauthorized user"
+                })
             }
-            next();
-        } catch (error) {
-            return res.status(500).send({
-                message: error.message
-            });
-        }
-}
-export function loginValidation(req, res, next) {
-        try {
-            let { error } = loginSchema.validate(req.body);
-            if (error) {
-                let errMsg = error.details[0].message;
-                return res.status(403).send({
-                    message: errMsg
-                });
+            let token =req?.cookies?.access_token?.split(" ")[1]
+            let secretKey=process.env.SECRET_KEY
+            let valid =await jwt.verify(token,secretKey)
+            if(!valid){
+                return res.status(401).send({
+                    message:"Unauthorized user"
+                })
             }
-            next();
-        } catch (error) {
+            let user=await User.findById(valid.id)
+            if(!user){
+                return res.status(401).send({
+                    message:"Unauthorized user"
+                })
+            }
+            // console.log(user);
+           if(!user.tokens.includes(token)) {
+                return res.status(401).send({
+                    message:"Unauthorized user"
+                })
+           }
+            // console.log(valid);
+
+            delete user.tokens
+            delete user.password
+            req.user=user
+            // return res.send(user)
+            next()
+        }catch(error){
             return res.status(500).send({
                 message: error.message
             });
