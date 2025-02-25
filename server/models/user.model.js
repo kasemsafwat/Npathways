@@ -36,7 +36,24 @@ const userSchema=new Schema ({
     image:{
         type:String,
         trim:true
-    }
+    },
+    // /////
+    courses: [{
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Course"   
+     }],
+    //  track ==> array
+     track: [{
+      type: String,
+      trim: true,
+      enum: ["Web Development", "Data Science", "Mobile Development"],   
+      default: "Web Development"
+      }],
+      level: {
+        type: Number,
+        default: 1
+        }
+    // //////
 })
 
 userSchema.pre('save', async function (next) {

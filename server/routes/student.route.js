@@ -13,4 +13,11 @@ router.route("/")
         .patch(authentication,StudentControlller.updateStudent)
 router.post("/update/password",authentication,StudentControlller.updatePassword)
 
+// /////////////////////////
+// http://localhost:5024/api/student/upgrade/67bd24b18d620a7262603f09
+router.post("/upgrade/:userId",authentication,StudentControlller.upgradeToStudent);
+// http://localhost:5024/api/student/add-course/67bbcddfa4f2e3c840d5720f
+router.post("/add-course/:userId", authentication,StudentControlller.addCourseToStudent);
+
+
 export default router;
