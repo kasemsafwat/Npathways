@@ -14,6 +14,11 @@ class CourseController {
   static async getCourseById(req, res) {
     try {
       const { id } = req.params;
+
+      if (!id.match(/^[0-9a-fA-F]{24}$/)) {
+        return res.status(400).json({ error: 'Invalid course ID' });
+      }
+
       const course = await CourseModel.findById(id);
       if (!course) {
         return res.status(404).json({ error: 'Course not found' });
@@ -46,6 +51,10 @@ class CourseController {
       const { id } = req.params;
       const { name, requiredExams, instructors, lessons } = req.body;
 
+      if (!id.match(/^[0-9a-fA-F]{24}$/)) {
+        return res.status(400).json({ error: 'Invalid course ID' });
+      }
+
       const course = await CourseModel.findByIdAndUpdate(
         id,
         { name, requiredExams, instructors, lessons },
@@ -64,6 +73,11 @@ class CourseController {
   static async deleteCourse(req, res) {
     try {
       const { id } = req.params;
+
+      if (!id.match(/^[0-9a-fA-F]{24}$/)) {
+        return res.status(400).json({ error: 'Invalid course ID' });
+      }
+
       const deletedCourse = await CourseModel.findByIdAndDelete(id);
       if (!deletedCourse) {
         return res.status(404).json({ error: 'Course not found' });

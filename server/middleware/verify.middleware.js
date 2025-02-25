@@ -5,27 +5,7 @@ import Joi from 'joi';
 
 const examRoute = '/api/exam';
 const courseRoute = '/api/course';
-
-const createExamSchema = Joi.object({
-  name: Joi.string().required(),
-  questions: Joi.array()
-    .items(
-      Joi.object({
-        question: Joi.string().required(),
-        answers: Joi.array().items(
-          Joi.object({
-            answer: Joi.string().required(),
-            isCorrect: Joi.boolean().default(false),
-          })
-        ),
-        difficulty: Joi.string()
-          .valid('easy', 'medium', 'hard')
-          .default('medium'),
-      })
-    )
-    .required(),
-  timeLimit: Joi.number().required(),
-});
+const chatRoute = '/api/chat';
 
 const exampleExam = {
   name: 'Exam 1',
@@ -71,6 +51,27 @@ const exampleCourse = {
   instructors: [],
   lessons: ['Lesson 1', 'Lesson 2', 'Lesson 3'],
 };
+
+const createExamSchema = Joi.object({
+  name: Joi.string().required(),
+  questions: Joi.array()
+    .items(
+      Joi.object({
+        question: Joi.string().required(),
+        answers: Joi.array().items(
+          Joi.object({
+            answer: Joi.string().required(),
+            isCorrect: Joi.boolean().default(false),
+          })
+        ),
+        difficulty: Joi.string()
+          .valid('easy', 'medium', 'hard')
+          .default('medium'),
+      })
+    )
+    .required(),
+  timeLimit: Joi.number().required(),
+});
 
 const updateExamSchema = Joi.object({
   name: Joi.string(),
@@ -121,6 +122,13 @@ const updateCourseSchema = Joi.object({
   lessons: Joi.array().items(Joi.string()),
 });
 
+const sendMessageSchema = Joi.object({
+  message: Joi.string().trim().min(1).required().messages({
+    'string.empty': 'Enter a message',
+    'any.required': 'Enter a message',
+  }),
+});
+
 function getSchema(link, method) {
   if (method !== 'POST' && method !== 'PUT') return null;
   if (link === `${examRoute}/createExam`) {
@@ -131,6 +139,8 @@ function getSchema(link, method) {
     return createCourseSchema;
   } else if (link.includes(`${courseRoute}/updateCourse`)) {
     return updateCourseSchema;
+  } else if (link.includes(`${chatRoute}/sendMessage`)) {
+    return sendMessageSchema;
   }
   return null;
 }
