@@ -3,7 +3,7 @@ import jwt from 'jsonwebtoken';
 
 export const authentication = async (req, res, next) => {
   try {
-    console.log(req.cookies);
+    // console.log(req.cookies);
     if (!req.cookies) {
       return res.status(401).send({
         message: 'Unauthorized user',
@@ -45,3 +45,5 @@ export const authentication = async (req, res, next) => {
     });
   }
 };
+
+ 

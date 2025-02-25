@@ -32,6 +32,10 @@ const userSchema=new Schema ({
     tokens: {
         type: [String], 
         default: [] 
+    },
+    image:{
+        type:String,
+        trim:true
     }
 })
 
