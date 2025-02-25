@@ -1,11 +1,14 @@
 import User from '../models/user.model.js';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
+import { get } from 'mongoose';
 
 const userController = {
   newUser: async (req, res) => {
     try {
       let data = req.body;
+      data.email = data.email.toLowerCase();
+
       let duplicateEmail = await User.findOne({ email: data.email });
       if (duplicateEmail) {
         return res.status(403).send({
@@ -28,6 +31,7 @@ const userController = {
   login: async (req, res) => {
     try {
       let { email, password } = req.body;
+      email = email.toLowerCase();
       let user = await User.findOne({ email });
       if (!user) {
         return res.status(404).send({
@@ -57,6 +61,24 @@ const userController = {
       });
     } catch (error) {
       console.error('Login Error:', error);
+      return res.status(500).send({
+        message: error.message,
+      });
+    }
+  },
+  getAllUsers: async (req, res) => {
+    try {
+      let users = await User.find();
+      // remove the password from the response
+      users = users.map((user) => {
+        let userObject = user.toObject();
+        delete userObject.password;
+        delete userObject.tokens;
+        return userObject;
+      });
+      return res.status(200).send(users);
+    } catch (error) {
+      console.error('Get All Users Error:', error);
       return res.status(500).send({
         message: error.message,
       });

@@ -1,60 +1,64 @@
-import mongoose from "mongoose";
-const Schema=mongoose.Schema
-import bcrypt from "bcrypt"
-const userSchema=new Schema ({
-    firstName:{
-        type:String,
-        trim:true,
-        required:true
-    },
-    lastName:{
-        type:String,
-        trim:true,
-        required:true
-    },
-    email :{
-        type:String,
-        trim:true,
-        required:true,
-        unique:true
-    },
-    password :{
-        type:String,
-        trim:true,
-        required:true,
-        minlength:8
-    },
-    // token:[{
-    //     type:String,
-    //     expires:"2d",
-    //     trim:true
-    // }]
-    tokens: {
-        type: [String], 
-        default: [] 
-    },
-    image:{
-        type:String,
-        trim:true
-    },
-    // /////
-    courses: [{
+import mongoose from 'mongoose';
+const Schema = mongoose.Schema;
+import bcrypt from 'bcrypt';
+const userSchema = new Schema({
+  firstName: {
+    type: String,
+    trim: true,
+    required: true,
+  },
+  lastName: {
+    type: String,
+    trim: true,
+    required: true,
+  },
+  email: {
+    type: String,
+    trim: true,
+    required: true,
+    unique: true,
+  },
+  password: {
+    type: String,
+    trim: true,
+    required: true,
+    minlength: 8,
+  },
+  // token:[{
+  //     type:String,
+  //     expires:"2d",
+  //     trim:true
+  // }]
+  tokens: {
+    type: [String],
+    default: [],
+  },
+  image: {
+    type: String,
+    trim: true,
+  },
+  // /////
+  courses: [
+    {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "Course"   
-     }],
-    //  track ==> array
-     track: [{
+      ref: 'Course',
+    },
+  ],
+  //  track ==> array
+  track: [
+    {
       type: String,
       trim: true,
-      enum: ["Web Development", "Data Science", "Mobile Development"],   
-      default: "Web Development"
-      }],
-      level: {
-        type: Number,
-        default: 1
-        }
-    // //////
-})
+      enum: ['Web Development', 'Data Science', 'Mobile Development'],
+      default: 'Web Development',
+    },
+  ],
+  level: {
+    type: Number,
+    default: 1,
+  },
+  // //////
+});
 
 userSchema.pre('save', async function (next) {
   try {
@@ -69,5 +73,5 @@ userSchema.pre('save', async function (next) {
   }
 });
 
-const User = mongoose.model('user', userSchema);
+const User = mongoose.model('User', userSchema);
 export default User;
