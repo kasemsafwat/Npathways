@@ -19,8 +19,9 @@ const userController = {
         message: 'Account Created Successfully',
       });
     } catch (error) {
+      console.error('New User Error:', error);
       return res.status(500).send({
-        message: 'userController: ' + error.message,
+        message: error.message,
       });
     }
   },
@@ -57,7 +58,7 @@ const userController = {
     } catch (error) {
       console.error('Login Error:', error);
       return res.status(500).send({
-        message: 'userController: ' + error.message,
+        message: error.message,
       });
     }
   },
@@ -67,7 +68,7 @@ const userController = {
   //         res.send()
   //     }catch(error){
   //         return res.status(500).send({
-  //             message: 'userController: ' + error.message
+  //             message: error.message
   //         });
   //     }
   // }
