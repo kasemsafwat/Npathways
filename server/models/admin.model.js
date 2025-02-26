@@ -38,6 +38,10 @@ const adminSchema=new Schema({
         type: [String], 
         default: [] 
     },
+    image:{
+        type:String,
+        trim:true
+    }
 })
 
 
