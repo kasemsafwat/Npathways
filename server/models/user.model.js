@@ -43,12 +43,13 @@ const userSchema=new Schema ({
       ref: "Course"   
      }],
     //  track ==> array
-     track: [{
+    // todo  just track array
+     track: {
       type: String,
       trim: true,
       enum: ["Web Development", "Data Science", "Mobile Development"],   
       default: "Web Development"
-      }],
+      },
       level: {
         type: Number,
         default: 1

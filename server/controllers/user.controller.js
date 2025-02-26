@@ -62,16 +62,6 @@ const userController = {
       });
     }
   },
-  // deleteUser:async(req,res)=>{
-  //     try {
-  //         let {id}=req.params
-  //         res.send()
-  //     }catch(error){
-  //         return res.status(500).send({
-  //             message: error.message
-  //         });
-  //     }
-  // }
 };
 
 export default userController;
