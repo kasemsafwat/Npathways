@@ -84,6 +84,32 @@ const userController = {
       });
     }
   },
+  searchUser: async (req, res) => {
+    try {
+      let { search } = req.query;
+      let users = await User.find({
+        $or: [
+          { firstName: { $regex: search, $options: 'i' } },
+          { lastName: { $regex: search, $options: 'i' } },
+          { email: { $regex: search, $options: 'i' } },
+        ],
+      });
+
+      users = users.map((user) => {
+        let userObject = user.toObject();
+        delete userObject.password;
+        delete userObject.tokens;
+        return userObject;
+      });
+
+      return res.status(200).send(users);
+    } catch (error) {
+      console.error('Search User Error:', error);
+      return res.status(500).send({
+        message: error.message,
+      });
+    }
+  },
   // deleteUser:async(req,res)=>{
   //     try {
   //         let {id}=req.params

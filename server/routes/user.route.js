@@ -11,6 +11,7 @@ const router = express.Router();
 router.post('/signup', newUserValidation, userController.newUser);
 router.post('/login', loginValidation, userController.login);
 router.get('/all', userController.getAllUsers);
+router.get('/search', userController.searchUser);
 
 // router.delete("/:id",authentication,userController.deleteUser)
 export default router;
