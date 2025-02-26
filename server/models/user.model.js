@@ -47,18 +47,24 @@ const userSchema = new Schema({
   //  track ==> array
   track: [
     {
+      ref: "Course"   
+     }],
+    //  track ==> array
+    // todo  just track array
+     track: {
       type: String,
       trim: true,
       enum: ['Web Development', 'Data Science', 'Mobile Development'],
       default: 'Web Development',
     },
-  ],
+  // ],
   level: {
     type: Number,
     default: 1,
   },
   // //////
 });
+     
 
 userSchema.pre('save', async function (next) {
   try {

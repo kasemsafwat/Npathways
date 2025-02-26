@@ -6,6 +6,7 @@ import courseRouter from './course.route.js';
 import chatRouter from './chat.route.js';
 import userRouter from './user.route.js';
 
+import adminRouter from './admin.route.js'
 // The prefix is /api
 const router = express.Router();
 
@@ -15,5 +16,6 @@ router.use('/student', studentRouter);
 router.use('/course', courseRouter);
 router.use('/chat', chatRouter);
 router.use('/user', userRouter);
+router.use('/admin',adminRouter)
 
 export default router;
