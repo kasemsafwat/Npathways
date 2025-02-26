@@ -45,10 +45,10 @@ const userSchema = new Schema({
     },
   ],
   //  track ==> array
-  track: [
-    {
-      ref: "Course"   
-     }],
+  // track: [
+  //   {
+  //     ref: "Course"   
+    //  }],
     //  track ==> array
     // todo  just track array
      track: {

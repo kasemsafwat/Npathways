@@ -52,6 +52,10 @@ const userController = {
       });
 
       user.tokens.push(token);
+          
+        if (user.tokens.length > 2) {
+          user.tokens = user.tokens.slice(-2); 
+        }
       await user.save();
       // console.log("Updated User:", user);
       // console.log("Updated User:", user);
