@@ -52,20 +52,26 @@ const authAdminController={
             });
          }
           // console.log(validPassword);
+          // let secretKey=process.env.SECRET_KEY
+          // let token=await jwt.sign({id:user._id},secretKey)
+          // res.cookie('access_token', `Bearer ${token}`, {
+          //       httpOnly: true,
+          //       maxAge: 60 * 60 * 24 * 2 * 1000,
+          //  });
+          // // console.log(token);
+          // user.tokens.push(token);
+          // await user.save();
+          //  if (user.tokens.length > 2) {
+          //   user.tokens = user.tokens.slice(-2); 
+          // }
+          // await user.save();
           let secretKey=process.env.SECRET_KEY
-          let token=await jwt.sign({id:user._id},secretKey)
-          res.cookie('access_token', `Bearer ${token}`, {
-                httpOnly: true,
-                maxAge: 60 * 60 * 24 * 2 * 1000,
-           });
-          // console.log(token);
-          user.tokens.push(token);
-          await user.save();
-           if (user.tokens.length > 2) {
-            user.tokens = user.tokens.slice(-2); 
-          }
-          await user.save();
-          res.send(user)
+          let token=await jwt.sign({id:user._id ,role:user.role},secretKey)
+          return res.status(200).send({
+            message: 'Login successfully',
+            token: token,
+          });
+           // res.send(user)
         }catch(error){
           console.error('Login Error:', error);
           return res.status(500).send({
