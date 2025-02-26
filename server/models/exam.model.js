@@ -32,6 +32,6 @@ const ExamSchema = new Schema(
   { timestamps: true }
 );
 
-const ExamModel = model('exam', ExamSchema);
+const ExamModel = model('Exam', ExamSchema);
 
 export default ExamModel;

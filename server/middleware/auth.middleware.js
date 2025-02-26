@@ -40,10 +40,9 @@ export const authentication = async (req, res, next) => {
     // return res.send(user)
     next();
   } catch (error) {
+    console.error('Authentication Error:', error);
     return res.status(500).send({
       message: 'Authentication: ' + error.message,
     });
   }
 };
-
- 
