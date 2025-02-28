@@ -22,8 +22,15 @@ const StudentControlller = {
         try{
             if(req.file){
                 var image=`/api/student/${req.file.filename}`
-            }
-            let user=await User.findByIdAndUpdate(req.user._id,{...req.body,image},{new:true})
+            } 
+            const { password, ...updateData } = req.body;
+
+            let user = await User.findByIdAndUpdate(
+            req.user._id,
+            { ...updateData, image },
+            { new: true }
+            );
+
             res.send(user)
         }catch(error){
             return res.status(500).send({
@@ -119,6 +126,36 @@ const StudentControlller = {
                     message: 'userController: ' + error.message
                 }); 
             }
+    },
+
+    createNewStudent:async(req,res)=>{
+        try {
+            const data = req.body;
+            const duplicatedEmail = await User.findOne({ email: data.email });
+            if (duplicatedEmail) {
+                return res.status(403).send({
+                    message: 'This email is already registered. Please use a different email.',
+                });
+            }
+
+            const student = new User({
+                firstName: data.firstName,
+                lastName: data.lastName,
+                email: data.email,
+                password: data.password,
+                courses:data.course || [],
+                track:data.track,
+                level:data.level,
+              });
+            await student.save();
+            const studentObject = student.toObject();
+            delete studentObject.password;
+            res.status(201).send({ message: 'student created successfully', student: studentObject });
+    
+        }catch(error){
+            console.error('Error creating Student: ', error);
+            res.status(500).send({ message: error });
+        }
     }
 
 }

@@ -1,6 +1,6 @@
 import {newUserSchema ,loginSchema} from "../services/adminValidation.service.js"
 
-export function newUserValidation (req,res,next){
+export function newAdminValidation (req,res,next){
         try {
                 let {error}=newUserSchema.validate(req.body)
                 if(error){

@@ -8,10 +8,10 @@ import { protectRoutes  ,allowTo} from '../middleware/AuthAdmin.middleware.js';
 const router = express.Router();
 
 
+
 // Admine 
 router.route('/:id')
     .delete(protectRoutes, allowTo('admin'),StudentControlller.deleteStudent);
-
 
 router.route("/")
         .get(authentication,StudentControlller.getStudent)
@@ -23,6 +23,8 @@ router.post("/update/password",authentication,StudentControlller.updatePassword)
 router.post("/upgrade/:userId",authentication,StudentControlller.upgradeToStudent);
 // http://localhost:5024/api/student/add-course/67bbcddfa4f2e3c840d5720f
 router.post("/add-course/:userId", authentication,StudentControlller.addCourseToStudent);
+
+
 
 
 export default router;

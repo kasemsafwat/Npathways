@@ -73,7 +73,7 @@ const AdminControlller = {
             });   
         }
     },
-//    ///////////////////////////////////////////////
+//    //////////////Admin/////////////////////////////////
    
   getAllInstructors: async (req, res) => {
     try {
@@ -95,7 +95,33 @@ const AdminControlller = {
     } catch (error) {
         res.status(500).send({ message: 'Error Get instructor: ' + error.message });
     }
-},
+  },
+  createInstructor:async(req,res)=>{
+        try {
+            const data = req.body;
+            const duplicatedEmail = await Admin.findOne({ email: data.email });
+            if (duplicatedEmail) {
+                return res.status(403).send({
+                    message: 'This email is already registered. Please use a different email.',
+                });
+            }
+           const instructor = new Admin({
+            firstName: data.firstName,
+            lastName: data.lastName,
+            email: data.email,
+            password: data.password,
+            role: 'instructor',
+          });
+        await instructor.save();
+        const instructorObject = instructor.toObject();
+        delete instructorObject.password;
+        res.status(201).send({ message: 'Instructor created successfully', instructor: instructorObject });
+
+        }catch(error){
+            console.error('Error creating instructor: ', error);
+            res.status(500).send({ message: error });
+        }
+    }
 
 
    
