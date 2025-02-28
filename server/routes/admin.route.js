@@ -28,11 +28,14 @@ router.route("/")
 
 router.post("/update/password",protectRoutes,allowTo('admin','instructor'),AdminControlller.updatePassword)
 
-// /////////////////Get instructor ///////////////////////////////////////
+// /////////////////Function Use Admin  ///////////////////////////////////////
 router.get("/AllInstructor",protectRoutes,allowTo('admin'),AdminControlller.getAllInstructors)
 router.get('/instructors/:id', protectRoutes,allowTo('admin'),AdminControlller.getOneInstructor);
 router.post('/createNewInstructor',protectRoutes,allowTo('admin'),newAdminValidation,AdminControlller.createInstructor)
 router.post('/create-NewStudent',protectRoutes,allowTo('admin'),CompletStudentValidation,StudentControlller.createNewStudent)
+
+router.put('/users/:userId',protectRoutes,allowTo('admin'),CompletStudentValidation,StudentControlller.updateUserByAdmin);
+router.put('/updateData/:adminId',protectRoutes,allowTo('admin'), newAdminValidation ,AdminControlller.updateAdminData);
 
 // ///////////Function Admin And Instructor /////////////////
 export default router;

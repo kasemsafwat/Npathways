@@ -156,6 +156,38 @@ const StudentControlller = {
             console.error('Error creating Student: ', error);
             res.status(500).send({ message: error });
         }
+    },
+    updateUserByAdmin:async(req,res)=>{
+        try {
+            const { userId } = req.params;
+            const updateData = req.body;
+            const user = await User.findById(userId);
+            if (!user) {
+            return res.status(404).send({ message: 'User not found' });
+            }
+             if (updateData.email && updateData.email !== user.email) {
+                const duplicatedEmail = await User.findOne({ email: updateData.email });
+                if (duplicatedEmail) {
+                return res.status(403).send({
+                    message: 'This email is already registered. Please use a different email.',
+                });
+                }
+            }
+             if (updateData.password) {
+                updateData.password = await bcrypt.hash(updateData.password, 8);
+            }
+             const updatedUser = await User.findByIdAndUpdate(
+                userId,
+                { $set: updateData }, 
+                { new: true, runValidators: true }
+            );
+            const updatedUserObject = updatedUser.toObject();
+            delete updatedUserObject.password;
+            res.status(200).send({ message: 'User updated successfully', user: updatedUserObject });
+        }catch(error){
+            console.error('Error updating user by admin: ', error);
+            res.status(500).send({ message: error.message })
+        }
     }
 
 }

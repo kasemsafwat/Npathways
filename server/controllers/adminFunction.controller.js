@@ -121,7 +121,39 @@ const AdminControlller = {
             console.error('Error creating instructor: ', error);
             res.status(500).send({ message: error });
         }
-    }
+    },
+updateAdminData :async (req, res) => {
+        try {
+          const { adminId } = req.params;
+          const updateData = req.body; 
+          const admin = await Admin.findById(adminId);
+          if (!admin) {
+            return res.status(404).json({ message: 'Admin not found' });
+          }
+       if (updateData.email && updateData.email !== admin.email) {
+            const duplicatedEmail = await Admin.findOne({ email: updateData.email });
+            if (duplicatedEmail) {
+              return res.status(403).json({
+                message: 'This email is already registered. Please use a different email.',
+              });
+            }
+          }
+           if (updateData.password) {
+            updateData.password = await bcrypt.hash(updateData.password, 8);
+          }
+      
+           const updatedAdmin = await Admin.findByIdAndUpdate(
+            adminId,
+            { $set: updateData }, 
+            { new: true, runValidators: true }
+          );
+          const updatedAdminObject = updatedAdmin.toObject();
+          delete updatedAdminObject.password;
+        res.status(200).json({ message: 'Admin updated successfully', admin: updatedAdminObject });
+        } catch (error) {
+          console.error('Error updating admin: ', error);
+          res.status(500).json({ message: error.message });  }
+},
 
 
    
