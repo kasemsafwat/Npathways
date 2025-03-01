@@ -37,14 +37,46 @@ const io = new Server(server, {
   },
 });
 
+const users = new Map();
 let userNumber = 0;
 io.on('connection', (socket) => {
-  console.log(`User #${++userNumber} connected`);
-  socket.on('sendMessage', (message) => {
-    // console.log(message);
-    io.emit('messageSent', message);
+  const userId = socket.handshake.query.userId || `User#${++userNumber}`;
+
+  console.log(`${userId} connected:`, socket.id);
+
+  socket.join('general');
+  users.set(userId, socket.id);
+  console.log(`${userId} joined general chat`);
+
+  socket.on('sendMessageToGeneral', ({ message }) => {
+    const newMessage = {
+      senderId: userId,
+      message,
+      timestamp: new Date(),
+    };
+
+    io.to('general').emit('receiveMessage', newMessage);
   });
+
+  socket.on('joinChat', ({ chatId }) => {
+    socket.join(chatId);
+    console.log(`${userId} joined chat ${chatId}`);
+  });
+
+  socket.on('sendMessage', async ({ chatId, message }) => {
+    const newMessage = {
+      senderId: userId,
+      message,
+      timestamp: new Date(),
+    };
+
+    io.to(chatId).emit('receiveMessage', newMessage);
+  });
+
   socket.on('disconnect', () => {
-    // console.log('User disconnected');
+    console.log(`${userId} disconnected:`, socket.id);
+    users.forEach((value, key) => {
+      if (value === socket.id) users.delete(key);
+    });
   });
 });
