@@ -1,7 +1,7 @@
 import { Box, Typography, useTheme } from "@mui/material";
 import { format } from "date-fns";
 
-const MessageCloud = ({ message, isSent, timestamp }) => {
+const MessageCloud = ({ message, isSent, timestamp, sender }) => {
   const theme = useTheme();
 
   return (
@@ -47,7 +47,19 @@ const MessageCloud = ({ message, isSent, timestamp }) => {
             mt: 0.5,
           }}
         >
-          Hazem
+          {timestamp}
+        </Typography>
+
+        <Typography
+          variant="caption"
+          display="block"
+          sx={{
+            textAlign: isSent ? "right" : "left",
+            color: isSent ? "rgba(255,255,255,0.7)" : "text.secondary",
+            mt: 0.5,
+          }}
+        >
+          {sender}
         </Typography>
       </Box>
     </Box>
