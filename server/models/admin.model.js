@@ -41,7 +41,13 @@ const adminSchema=new Schema({
     image:{
         type:String,
         trim:true
-    }
+    },
+    changePasswordAt: Date,
+    status: {
+        type: String,
+        enum: ['available', 'unavailable'],
+        default: 'available',
+    },
 })
 
 

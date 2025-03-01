@@ -50,10 +50,15 @@ const AdminControlller = {
                })
            }
            admin.password=newPassword
+           admin.changePasswordAt = Date.now();
+           console.log(admin.changePasswordAt);
+           
            await admin.save()
+           console.log(admin)
            res.send({
-               message:"Password Update"
-           })
+               message:"Password Update",
+               admin,
+            })
        }catch(error){
            return res.status(500).send({
                message: 'AdminController: ' + error.message
@@ -156,7 +161,6 @@ updateAdminData :async (req, res) => {
 },
 
 
-   
 }
 
 export default AdminControlller;

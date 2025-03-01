@@ -1,6 +1,9 @@
 import Admin from "../models/admin.model.js";
+import User from '../models/user.model.js';
+import Course from '../models/course.model.js'
 import bcrypt from "bcrypt"
 import jwt from "jsonwebtoken"
+
 const authAdminController={
      register:async (req,res)=>{
             try{
@@ -78,8 +81,49 @@ const authAdminController={
             message: error.message,
           });
         }
-     }
+     },
      
+
+    //  Dashboard Of Admin
+    getDashboard_Admin :async (req, res) => {
+      try {
+        const [totalStudents,activeStudents,
+          totalCourses,publishedCourses,
+          totalInstructors,availableInstructors,] = await Promise.all([
+                  User.countDocuments(),
+                  User.countDocuments({ status: 'active' }),
+                  Course.countDocuments(),
+                 Course.countDocuments({ status: 'published' }),
+                 Admin.countDocuments({ role: 'instructor' }),
+                 Admin.countDocuments({ role: 'instructor', status: 'available' }),
+            ]);
+          res.status(200).send({
+            message: 'Dashboard Admin : ',
+            data: {
+              students: {
+                total: totalStudents,
+                active: activeStudents,
+              },
+              courses: {
+                total: totalCourses,
+                published: publishedCourses,
+              },
+              instructors: {
+                total: totalInstructors,
+                available: availableInstructors,
+              },
+            },
+          });    
+      }
+      catch(error){
+        res.status(500).send({
+          message: 'dashboard Conts: ' + error.message,
+        });
+      
+      }
+    },
+
+    // Dashboard Of Instructor
      
 }
 

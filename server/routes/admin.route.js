@@ -37,5 +37,10 @@ router.post('/create-NewStudent',protectRoutes,allowTo('admin'),CompletStudentVa
 router.put('/users/:userId',protectRoutes,allowTo('admin'),CompletStudentValidation,StudentControlller.updateUserByAdmin);
 router.put('/updateData/:adminId',protectRoutes,allowTo('admin'), newAdminValidation ,AdminControlller.updateAdminData);
 
-// ///////////Function Admin And Instructor /////////////////
+// ///////////Function Admin  /////////////////
+
+
+// ///  Dashborad
+router.get('/dashboard',protectRoutes,allowTo('admin'),authAdminController.getDashboard_Admin);
+
 export default router;

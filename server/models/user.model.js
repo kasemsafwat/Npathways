@@ -62,7 +62,13 @@ const userSchema = new Schema({
     type: Number,
     default: 1,
   },
+  status: {
+    type: String,
+    enum: ['active', 'inactive'],
+    default: 'active',
+  },
   // //////
+
 });
      
 
