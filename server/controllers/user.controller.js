@@ -44,7 +44,7 @@ const userController = {
           message: 'Invalid Email Or Password',
         });
       }
-      let secretKey = process.env.SECRET_KEY;
+      let secretKey = process.env.SECRET_KEY || 'secretKey';
       let token = jwt.sign({ id: user._id }, secretKey, { expiresIn: '2d' });
       res.cookie('access_token', `Bearer ${token}`, {
         httpOnly: true,
