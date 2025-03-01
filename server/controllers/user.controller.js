@@ -63,6 +63,9 @@ const userController = {
         message: 'Login successfully',
         token: token,
         userId: user._id,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        email: user.email,
       });
     } catch (error) {
       console.error('Login Error:', error);
@@ -73,7 +76,8 @@ const userController = {
   },
   getAllUsers: async (req, res) => {
     try {
-      let users = await User.find();
+      const userId = req.user._id;
+      let users = await User.find({ _id: { $ne: userId.toString() } });
       // remove the password from the response
       users = users.map((user) => {
         let userObject = user.toObject();
@@ -93,6 +97,7 @@ const userController = {
     try {
       let { search } = req.query;
       let users = await User.find({
+        $and: [{ _id: { $ne: req.user._id } }],
         $or: [
           { firstName: { $regex: search, $options: 'i' } },
           { lastName: { $regex: search, $options: 'i' } },

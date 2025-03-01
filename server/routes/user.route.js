@@ -10,9 +10,9 @@ const router = express.Router();
 
 router.post('/signup', newUserValidation, userController.newUser);
 router.post('/login', loginValidation, userController.login);
-router.get('/all', userController.getAllUsers);
-router.get('/search', userController.searchUser);
-router.get('/:id', userController.getUserById);
+router.get('/all', authentication, userController.getAllUsers);
+router.get('/search', authentication, userController.searchUser);
+router.get('/:id', authentication, userController.getUserById);
 
 // ///////////////////
 
