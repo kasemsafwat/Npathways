@@ -2,11 +2,18 @@ import { Schema, model } from 'mongoose';
 
 const chatModel = Schema(
   {
-    users: [{ type: Schema.Types.ObjectId, ref: 'User' }],
+    users: [
+      {
+        userId: { type: Schema.Types.ObjectId, ref: 'User' },
+        userName: { type: String, trim: true },
+        _id: false,
+      },
+    ],
     messages: [
       {
         content: { type: String, trim: true },
-        sender: { type: Schema.Types.ObjectId, ref: 'User' },
+        senderId: { type: Schema.Types.ObjectId, ref: 'User' },
+        userName: { type: String, trim: true },
         time: { type: Date, default: Date.now },
       },
     ],
