@@ -1,0 +1,7 @@
+.sidebar {
+  background-color: #1C59A1; /* Light background */
+  padding: 20px;
+  color: aliceblue;
+  box-shadow: -2px 0 5px rgba(0, 0, 0, 0.1); /* Shadow for depth */
+  overflow-y: auto; /* Allow scrolling if content is too long */
+}
