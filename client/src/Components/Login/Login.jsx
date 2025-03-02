@@ -1,9 +1,10 @@
-import React from "react";
+import React, { useState } from "react";
 import { TextField, Button, Container, Grid, Typography } from "@mui/material";
 import { useFormik } from "formik";
 import * as Yup from "yup";
+import axios from "axios";
 
-const validationSchema = Yup.object({
+const validationSchema = Yup.object().shape({
   email: Yup.string()
     .email("Invalid email address")
     .required("Email is required"),
@@ -16,21 +17,32 @@ const validationSchema = Yup.object({
 });
 
 const Login = () => {
-  const [showPassword, setShowPassword] = React.useState(false);
-
+  const [showPassword, setShowPassword] = useState(false);
+  const [apiError, setApiError] = useState(null);
+  const initialValues = {
+    email: "",
+    password: "",
+  };
   const handleShowPassword = () => {
     setShowPassword(!showPassword);
   };
-
+  async function sendDataToAPI(values) {
+    try {
+      setApiError(null);
+      let { data } = await axios.post(`http://localhost:5024/api/user/login`, values);
+      console.log(data);
+      if (data.message === "Login successfully") {
+      localStorage.setItem("userToken",data.token)
+console.log('Login successfully')      }
+    } catch (error) {
+      console.log(error);
+      setApiError(error.response.data.message);
+    }
+  }
   const formik = useFormik({
-    initialValues: {
-      email: "",
-      password: "",
-    },
-    validationSchema: validationSchema,
-    onSubmit: (values) => {
-      console.log("Form submitted:", values);
-    },
+    initialValues,
+    validationSchema,
+    onSubmit: sendDataToAPI,
   });
 
   return (
@@ -50,8 +62,16 @@ const Login = () => {
         <Typography variant="h4" align="center" gutterBottom>
           Login
         </Typography>
+        {apiError ? (
+        <div className="alert alert-danger mb-2" role="alert">
+          {apiError}
+        </div>
+      ) : (
+        ""
+      )}
         <form onSubmit={formik.handleSubmit}>
           <Grid container spacing={5}>
+        
             <Grid item xs={12}>
               <TextField
                 fullWidth
@@ -102,7 +122,7 @@ const Login = () => {
                 {showPassword ? "Hide Password" : "Show Password"}
               </Button>
             </Grid>
-            <Grid item xs={12} >
+            <Grid item xs={12}>
               <Button
                 variant="contained"
                 type="submit"
