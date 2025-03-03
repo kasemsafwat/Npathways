@@ -1,10 +1,26 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import NavBar from "../NavBar/NavBar";
 import SideBar from "../SideBar/SideBar";
 import SingleExam from "../SingleExam/SingleExam";
+import axios from "axios";
 
 export default function ExamPage() {
-   const exams = Array.from({ length: 8 }, (_, index) => index + 1);
+  const [exams, setExams] = useState([]);
+
+  async function getExams() {
+    try {
+      const response = await axios.get(`http://localhost:5024/api/exam/`);
+      console.log(response);
+      setExams(response.data);
+    } catch (error) {
+      console.error("Error fetching exams:", error);
+    }
+  }
+
+  useEffect(() => {
+    getExams();
+  }, []);
+
   return (
     <>
       <div className="">
@@ -22,9 +38,7 @@ export default function ExamPage() {
                 {exams.map((exam, index) => (
                   <div key={index} className="col-12 col-md-6 col-lg-3 mb-4">
                     <SingleExam
-                      title={exam.title}
-                      description={exam.description}
-                      image={exam.image}
+                      exam = {exam}
                     />
                   </div>
                 ))}
