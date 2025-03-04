@@ -9,10 +9,7 @@ const validationSchema = Yup.object().shape({
     .email("Invalid email address")
     .required("Email is required"),
   password: Yup.string()
-    .matches(
-      /^[A-Z][a-z0-9]{3,8}$/,
-      "Invalid password (must start with a capital letter and be 4-9 characters long)"
-    )
+    .min(8, "Password must be at least 8 characters")
     .required("Required"),
 });
 
@@ -29,11 +26,16 @@ const Login = () => {
   async function sendDataToAPI(values) {
     try {
       setApiError(null);
-      let { data } = await axios.post(`http://localhost:5024/api/user/login`, values);
+      let { data } = await axios.post(
+        `http://localhost:5024/api/user/login`,
+        values,
+        { withCredentials: true }
+      );
       console.log(data);
       if (data.message === "Login successfully") {
-      localStorage.setItem("userToken",data.token)
-console.log('Login successfully')      }
+        localStorage.setItem("userId", data.userId);
+        localStorage.setItem("userName", `${data.firstName} ${data.lastName}`);
+      }
     } catch (error) {
       console.log(error);
       setApiError(error.response.data.message);
@@ -63,15 +65,14 @@ console.log('Login successfully')      }
           Login
         </Typography>
         {apiError ? (
-        <div className="alert alert-danger mb-2" role="alert">
-          {apiError}
-        </div>
-      ) : (
-        ""
-      )}
+          <div className="alert alert-danger mb-2" role="alert">
+            {apiError}
+          </div>
+        ) : (
+          ""
+        )}
         <form onSubmit={formik.handleSubmit}>
           <Grid container spacing={5}>
-        
             <Grid item xs={12}>
               <TextField
                 fullWidth
