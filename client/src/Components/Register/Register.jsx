@@ -11,10 +11,7 @@ const validationSchema = Yup.object().shape({
     .email("Invalid email address")
     .required("Email is required"),
   password: Yup.string()
-    .matches(
-      /^[A-Z][a-z0-9]{3,8}$/,
-      "Invalid password (must start with a capital letter and be 4-9 characters long)"
-    )
+    .min(8, "Password must be at least 8 characters")
     .required("Required"),
 });
 
@@ -50,7 +47,7 @@ const Register = () => {
   const formik = useFormik({
     initialValues,
     validationSchema,
-    onSubmit:sendDataToAPI,
+    onSubmit: sendDataToAPI,
   });
 
   return (
@@ -71,12 +68,12 @@ const Register = () => {
           Register
         </Typography>
         {apiError ? (
-        <div className="alert alert-danger my-2" role="alert">
-          {apiError}
-        </div>
-      ) : (
-        ""
-      )}
+          <div className="alert alert-danger my-2" role="alert">
+            {apiError}
+          </div>
+        ) : (
+          ""
+        )}
         <form onSubmit={formik.handleSubmit}>
           <Grid container spacing={4}>
             <Grid item xs={12}>
