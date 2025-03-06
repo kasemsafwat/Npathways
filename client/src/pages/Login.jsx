@@ -123,11 +123,22 @@ const Login = () => {
                 {showPassword ? "Hide Password" : "Show Password"}
               </Button>
             </Grid>
-            <Grid item xs={12}>
+            <Grid
+              item
+              xs={12}
+              sx={{
+                display: "flex",
+                justifyContent: "center",
+              }}
+            >
               <Button
                 variant="contained"
                 type="submit"
-                style={{ width: "100%", backgroundColor: "black" }}
+                style={{
+                  backgroundColor: "#4A3AFF",
+                  padding: "10px 70px",
+                  fontSize: "16px",
+                }}
               >
                 Login
               </Button>

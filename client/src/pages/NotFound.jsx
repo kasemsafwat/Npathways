@@ -1,12 +1,12 @@
-import React from 'react';
-// import { useNavigate } from 'react-router-dom';
+import React from "react";
+import { useNavigate } from "react-router-dom";
 
 const NotFoundPage = () => {
-  // const navigate = useNavigate();
+  const navigate = useNavigate();
 
-  // const handleGoHome = () => {
-  //   navigate('/');
-  // };
+  const handleGoHome = () => {
+    navigate("/");
+  };
 
   return (
     <div className="d-flex flex-column align-items-center justify-content-center vh-100 bg-light">
@@ -18,10 +18,7 @@ const NotFoundPage = () => {
         <p className="lead">
           The page you’re looking for doesn’t exist or has been moved.
         </p>
-        <button
-          className="btn btn-primary btn-lg"
-          // onClick={handleGoHome}
-        >
+        <button className="btn btn-primary btn-lg" onClick={handleGoHome}>
           Go to Homepage
         </button>
       </div>

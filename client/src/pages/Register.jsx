@@ -169,11 +169,23 @@ const Register = () => {
               </Button>
             </Grid>
 
-            <Grid item xs={12} style={{ marginTop: "-30px" }}>
+            <Grid
+              item
+              xs={12}
+              style={{
+                display: "flex",
+                justifyContent: "center",
+                marginTop: "-10px",
+              }}
+            >
               <Button
                 variant="contained"
                 type="submit"
-                style={{ width: "100%", backgroundColor: "black" }}
+                style={{
+                  backgroundColor: "#4A3AFF",
+                  padding: "10px 70px",
+                  fontSize: "16px",
+                }}
               >
                 Register
               </Button>
