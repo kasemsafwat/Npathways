@@ -1,68 +1,81 @@
 import React from "react";
-import "./NavBar.css";
+import { AppBar, Toolbar, Typography, Button } from "@mui/material";
+import { Link } from "react-router-dom";
 
-
-
-export default function NavBar() {
+function Navbar() {
   return (
-    <>
-      <div>
-        {/* Navbar at the Top */}
-        <nav className="navbar navbar-expand-lg bg-body-tertiary">
-          <div className="container">
-            <button
-              className="navbar-toggler"
-              type="button"
-              data-bs-toggle="collapse"
-              data-bs-target="#navbarTogglerDemo03"
-              aria-controls="navbarTogglerDemo03"
-              aria-expanded="false"
-              aria-label="Toggle navigation"
-            >
-              <span className="navbar-toggler-icon" />
-            </button>
-            <a className="navbar-brand" href="#">
-              NPAthWAY
-            </a>
-            <div className="collapse navbar-collapse" id="navbarTogglerDemo03">
-              {/* Center the links using mx-auto */}
-              <ul className="navbar-nav mx-auto mb-2 mb-lg-0">
-                <li className="nav-item">
-                  <a className="nav-link" href="#">
-                    Services
-                  </a>
-                </li>
-                <li className="nav-item">
-                  <a className="nav-link" href="#">
-                    About Us
-                  </a>
-                </li>
-                <li className="nav-item">
-                  <a className="nav-link" href="#">
-                    Services
-                  </a>
-                </li>
-                <li className="nav-item">
-                  <a className="nav-link" href="#">
-                    About Us
-                  </a>
-                </li>
-              </ul>
-              <form className="d-flex" role="search">
-                <input
-                  className="form-control"
-                  type="search"
-                  placeholder="Search"
-                  aria-label="Search"
-                />
-                <button className="btn btn-outline-success" type="submit">
-                  Search
-                </button>
-              </form>
-            </div>
-          </div>
-        </nav>
-      </div>
-    </>
+    <AppBar
+      position="static"
+      sx={{ padding: "0 20px", backgroundColor: "white", borderRadius: "8px" }}
+      elevation={0}
+    >
+      <Toolbar sx={{ justifyContent: "center" }}>
+        <Typography
+          variant="h6"
+          component="div"
+          sx={{ flexGrow: 1, color: "#4A3AFF", fontWeight: "bold" }}
+        >
+          Npathways
+        </Typography>
+        <Button
+          sx={{ color: "#5D5A88", textTransform: "none", borderRadius: "8px" }}
+          component={Link}
+          to="/"
+        >
+          Home
+        </Button>
+        <Button
+          sx={{ color: "#5D5A88", textTransform: "none", borderRadius: "8px" }}
+          component={Link}
+          to="/about"
+        >
+          About
+        </Button>
+        <Button
+          sx={{ color: "#5D5A88", textTransform: "none", borderRadius: "8px" }}
+          component={Link}
+          to="/resources"
+        >
+          Resources
+        </Button>
+        <Button
+          sx={{ color: "#5D5A88", textTransform: "none", borderRadius: "8px" }}
+          component={Link}
+          to="/contact"
+        >
+          Contact
+        </Button>
+        <Button
+          sx={{
+            color: "#5D5A88",
+            backgroundColor: "#ffff",
+            border: "1px solid #D4D2E3",
+            textTransform: "none",
+            borderRadius: "8px",
+            marginRight: "10px",
+          }}
+          variant="contained"
+          component={Link}
+          to="/login"
+        >
+          Login
+        </Button>
+        <Button
+          sx={{
+            color: "white",
+            backgroundColor: "#4A3AFF",
+            textTransform: "none",
+            borderRadius: "8px",
+          }}
+          variant="contained"
+          component={Link}
+          to="/register"
+        >
+          Register
+        </Button>
+      </Toolbar>
+    </AppBar>
   );
 }
+
+export default Navbar;
