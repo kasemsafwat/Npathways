@@ -1,5 +1,5 @@
 import axios from "axios";
-import socket from "./socket";
+// import socket from "./socket";
 
 export function login(email, password) {
   axios
@@ -19,11 +19,4 @@ export function login(email, password) {
     .catch((err) => {
       console.error("Couldn't login", err);
     });
-}
-
-export function sendMessagetoGeneral(message) {
-  socket.emit("sendMessageToGeneral", { message });
-}
-export function reciveMessageFromGeneral() {
-  socket.on("receiveMessageFromGeneral");
 }
