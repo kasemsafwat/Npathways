@@ -1,8 +1,10 @@
-import React from "react";
+import React, { useContext } from "react";
 import { AppBar, Toolbar, Typography, Button } from "@mui/material";
 import { Link } from "react-router-dom";
+import { AuthContext } from "../../contexts/AuthContext";
 
 function Navbar() {
+  const { isAuthenticated, logout } = useContext(AuthContext);
   return (
     <AppBar
       position="static"
@@ -45,34 +47,52 @@ function Navbar() {
         >
           Contact
         </Button>
-        <Button
-          sx={{
-            color: "#5D5A88",
-            backgroundColor: "#ffff",
-            border: "1px solid #D4D2E3",
-            textTransform: "none",
-            borderRadius: "8px",
-            marginRight: "10px",
-          }}
-          variant="contained"
-          component={Link}
-          to="/login"
-        >
-          Login
-        </Button>
-        <Button
-          sx={{
-            color: "white",
-            backgroundColor: "#4A3AFF",
-            textTransform: "none",
-            borderRadius: "8px",
-          }}
-          variant="contained"
-          component={Link}
-          to="/register"
-        >
-          Register
-        </Button>
+        {isAuthenticated && (
+          <Button
+            sx={{
+              color: "white",
+              backgroundColor: "#4A3AFF",
+              textTransform: "none",
+              borderRadius: "8px",
+            }}
+            variant="contained"
+            onClick={logout}
+          >
+            Logout
+          </Button>
+        )}
+        {!isAuthenticated && (
+          <>
+            <Button
+              sx={{
+                color: "#5D5A88",
+                backgroundColor: "#ffff",
+                border: "1px solid #D4D2E3",
+                textTransform: "none",
+                borderRadius: "8px",
+                marginRight: "10px",
+              }}
+              variant="contained"
+              component={Link}
+              to="/login"
+            >
+              Login
+            </Button>
+            <Button
+              sx={{
+                color: "white",
+                backgroundColor: "#4A3AFF",
+                textTransform: "none",
+                borderRadius: "8px",
+              }}
+              variant="contained"
+              component={Link}
+              to="/register"
+            >
+              Register
+            </Button>
+          </>
+        )}
       </Toolbar>
     </AppBar>
   );

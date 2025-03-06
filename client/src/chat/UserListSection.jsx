@@ -20,7 +20,7 @@ const UserListSection = () => {
           sx={{
             borderRadius: "15px",
             textTransform: "none",
-            backgroundColor: "#ff7a55",
+            backgroundColor: "#04CD00",
           }}
           onClick={switchToGeneralChat}
         >
@@ -36,7 +36,7 @@ const UserListSection = () => {
         borderRadius={8}
       >
         <Typography variant="h6" fontWeight={500}>
-          23 Members
+          Members
         </Typography>
         <Box display="flex" flexDirection="column" mt={2}>
           {users.map((user) => (

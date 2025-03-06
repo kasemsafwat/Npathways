@@ -9,6 +9,7 @@ import "@fortawesome/fontawesome-free/css/all.min.css";
 
 import { createTheme, ThemeProvider } from "@mui/material";
 import { BrowserRouter } from "react-router";
+import { AuthProvider } from "./contexts/AuthContext";
 
 const theme = createTheme({
   typography: {
@@ -18,7 +19,9 @@ const theme = createTheme({
 createRoot(document.getElementById("root")).render(
   <BrowserRouter>
     <ThemeProvider theme={theme}>
-      <App />
+      <AuthProvider>
+        <App />
+      </AuthProvider>
     </ThemeProvider>
   </BrowserRouter>
 );

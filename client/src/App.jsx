@@ -8,6 +8,7 @@ import Navbar from "./components/NavBar/Navbar";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import NotFound from "./pages/NotFound";
+// import Chat from "./chat/Chat";
 const Layout = ({ children }) => {
   return (
     <div className="app">
@@ -27,6 +28,8 @@ function App() {
         <Route path="/" element={<Home />} />
         <Route path="login" element={<Login />} />
         <Route path="register" element={<Register />} />
+        {/* <Route path="chat" element={<Chat />} /> */}
+
         {/* <Route path="/about" element={<About />} /> */}
         {/* <Route path="/contact" element={<Contact />} /> */}
         <Route path="*" element={<NotFound />} />

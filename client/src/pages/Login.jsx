@@ -1,8 +1,10 @@
-import React, { useState } from "react";
+import React, { useState, useContext } from "react";
 import { TextField, Button, Container, Grid, Typography } from "@mui/material";
 import { useFormik } from "formik";
 import * as Yup from "yup";
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
+import { AuthContext } from "../contexts/AuthContext";
 
 const validationSchema = Yup.object().shape({
   email: Yup.string()
@@ -16,6 +18,8 @@ const validationSchema = Yup.object().shape({
 const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [apiError, setApiError] = useState(null);
+  const navigate = useNavigate();
+  const { login } = useContext(AuthContext);
   const initialValues = {
     email: "",
     password: "",
@@ -35,6 +39,8 @@ const Login = () => {
       if (data.message === "Login successfully") {
         localStorage.setItem("userId", data.userId);
         localStorage.setItem("userName", `${data.firstName} ${data.lastName}`);
+        login();
+        navigate("/");
       }
     } catch (error) {
       console.log(error);
