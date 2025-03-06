@@ -4,10 +4,7 @@ import examimage from "../../assets/Rectangle 72.png";
 export default function SingleExam({exam}) {
   return (
     <>
-      {/* Main Content */}
       <div className="container" style={{ marginTop: "56px" }}>
-        {/* Card 1 */}
-
         <div className="card">
           <img src={examimage} className="card-img-top" alt="..." />
           <div className="card-body">
