@@ -21,20 +21,14 @@ function App() {
         <Button onClick={handleLogin}>Login</Button>
         <Chat />
       </div> */}
-
       {/* <Register/> */}
-
       <Register/>
-
       {/* <Login /> */}
       {/* <ExamPage></ExamPage> */}
       {/* <NavBar></NavBar> */}
       {/* <h2>Hey</h2> */}
-
       {/* <Exam></Exam> */}
       {/* <FinishedExam></FinishedExam> */}
-=======
-
       {/* <div>
         <Button onClick={handleLogin}>Login</Button>
       </div> */}
