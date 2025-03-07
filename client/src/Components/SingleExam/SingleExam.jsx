@@ -1,7 +1,7 @@
-import React from 'react'
+import React from "react";
 import examimage from "../../assets/Rectangle 72.png";
 
-export default function SingleExam({exam}) {
+export default function SingleExam({ exam }) {
   return (
     <>
       <div className="container" style={{ marginTop: "56px" }}>
@@ -13,9 +13,7 @@ export default function SingleExam({exam}) {
               Some quick example text to build on the card title and make up the
               bulk of the content.
             </p>
-            <p className="card-text">
-              {exam.timeLimit} min
-            </p>
+            <p className="card-text">{exam.timeLimit} min</p>
             <a href="#" className="btn btn-primary">
               Go To Exam
             </a>
