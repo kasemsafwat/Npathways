@@ -1,8 +1,18 @@
 import React, { useState } from "react";
-import { TextField, Checkbox, Button, IconButton } from "@mui/material";
+import {
+  TextField,
+  Checkbox,
+  Button,
+  IconButton,
+  Select,
+  MenuItem,
+  FormControl,
+  InputLabel,
+} from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import RemoveIcon from "@mui/icons-material/Remove";
 import DeleteIcon from "@mui/icons-material/Delete";
+import axios from "axios";
 
 const QuizComponent = () => {
   const [questions, setQuestions] = useState([
@@ -13,17 +23,21 @@ const QuizComponent = () => {
         { id: Date.now(), checked: false, text: "" },
         { id: Date.now() + 1, checked: false, text: "" },
       ],
+      difficulty: "medium",
     },
   ]);
+  const [timeLimit, setTimeLimit] = useState(60);
+  const [subjectName, setSubjectName] = useState("");
 
   const handleAddQuestion = () => {
     const newQuestion = {
-      id: Date.now(), // Unique ID for the new question
+      id: Date.now(),
       questionText: "",
       answers: [
         { id: Date.now(), checked: false, text: "" },
         { id: Date.now() + 1, checked: false, text: "" },
       ],
+      difficulty: "medium",
     };
     setQuestions([...questions, newQuestion]);
   };
@@ -74,7 +88,7 @@ const QuizComponent = () => {
               ...question,
               answers: question.answers.map((answer) =>
                 answer.id === answerId
-                  ? { ...answer, checked: true } 
+                  ? { ...answer, checked: true }
                   : { ...answer, checked: false }
               ),
             }
@@ -108,6 +122,64 @@ const QuizComponent = () => {
     );
   };
 
+  const handleDifficultyChange = (questionId, difficulty) => {
+    setQuestions(
+      questions.map((question) =>
+        question.id === questionId
+          ? { ...question, difficulty }
+          : question
+      )
+    );
+  };
+
+  const validateData = () => {
+    for (const question of questions) {
+      if (!question.questionText.trim()) {
+        alert("Please fill in all question texts.");
+        return false;
+      }
+      for (const answer of question.answers) {
+        if (!answer.text.trim()) {
+          alert("Please fill in all answers.");
+          return false;
+        }
+      }
+      const hasCorrectAnswer = question.answers.some((answer) => answer.checked);
+      if (!hasCorrectAnswer) {
+        alert("Each question must have at least one correct answer.");
+        return false;
+      }
+    }
+    return true;
+  };
+
+  const handleSubmit = async () => {
+    if (!validateData()) return;
+
+    const formattedData = {
+      name: subjectName,
+      questions: questions.map((question) => ({
+        question: question.questionText,
+        answers: question.answers.map((answer) => ({
+          answer: answer.text,
+          isCorrect: answer.checked,
+        })),
+        difficulty: question.difficulty,
+      })),
+      timeLimit: timeLimit,
+    };
+
+    try {
+      const response = await axios.post(
+        "http://localhost:5024/api/exam/createExam",
+        formattedData
+      );
+      console.log("Exam created successfully:", response.data);
+    } catch (error) {
+      console.error("Error creating exam:", error);
+    }
+  };
+
   return (
     <div className="container mt-5">
       <div className="mb-4">
@@ -124,6 +196,20 @@ const QuizComponent = () => {
           variant="filled"
           size="small"
           label="Enter Subject Name here"
+          value={subjectName}
+          onChange={(e) => setSubjectName(e.target.value)}
+        />
+      </div>
+      <div className="mb-4">
+        <TextField
+          fullWidth
+          id="time-limit"
+          variant="filled"
+          size="small"
+          label="Time Limit (in minutes)"
+          type="number"
+          value={timeLimit}
+          onChange={(e) => setTimeLimit(parseInt(e.target.value))}
         />
       </div>
       {questions.map((question) => (
@@ -156,6 +242,21 @@ const QuizComponent = () => {
                   handleQuestionTextChange(question.id, e.target.value)
                 }
               />
+            </div>
+            <div className="my-4">
+              <FormControl fullWidth>
+                <InputLabel sx={{marginBlock:'-10px'}}>Difficulty</InputLabel>
+                <Select
+                  value={question.difficulty}
+                  onChange={(e) =>
+                    handleDifficultyChange(question.id, e.target.value)
+                  }
+                >
+                  <MenuItem value="easy">Easy</MenuItem>
+                  <MenuItem value="medium">Medium</MenuItem>
+                  <MenuItem value="hard">Hard</MenuItem>
+                </Select>
+              </FormControl>
             </div>
             <h5 className="card-title">Answers</h5>
             {question.answers.map((answer) => (
@@ -200,6 +301,14 @@ const QuizComponent = () => {
         onClick={handleAddQuestion}
       >
         Add Question
+      </Button>
+      <Button
+        variant="contained"
+        color="primary"
+        style={{ marginLeft: "10px" }}
+        onClick={handleSubmit}
+      >
+        Submit Exam
       </Button>
     </div>
   );
