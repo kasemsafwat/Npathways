@@ -29,28 +29,30 @@ const CreateExam = () => {
   ]);
   const [timeLimit, setTimeLimit] = useState(60);
   const [subjectName, setSubjectName] = useState("");
-  const { examId } = useParams(); 
+  const { examId } = useParams();
   const navigate = useNavigate();
 
   useEffect(() => {
     if (examId) {
       const fetchExamData = async () => {
         try {
-          const response = await axios.get(`http://localhost:5024/api/exam/${examId}`);
+          const response = await axios.get(
+        `http://localhost:5024/api/exam/${examId}`
+          );
           const { name, timeLimit, questions } = response.data;
           setSubjectName(name);
           setTimeLimit(timeLimit);
           setQuestions(
-            questions.map((q) => ({
-              id: Date.now(),
-              questionText: q.question,
-              answers: q.answers.map((a) => ({
-                id: Date.now(),
-                checked: a.isCorrect,
-                text: a.answer,
-              })),
-              difficulty: q.difficulty,
-            }))
+        questions.map((q, qIndex) => ({
+          id: qIndex,
+          questionText: q.question,
+          answers: q.answers.map((a, aIndex) => ({
+            id: qIndex * 1000 + aIndex,
+            checked: a.isCorrect,
+            text: a.answer,
+          })),
+          difficulty: q.difficulty,
+        }))
           );
         } catch (error) {
           console.error("Error fetching exam data:", error);
@@ -156,9 +158,7 @@ const CreateExam = () => {
   const handleDifficultyChange = (questionId, difficulty) => {
     setQuestions(
       questions.map((question) =>
-        question.id === questionId
-          ? { ...question, difficulty }
-          : question
+        question.id === questionId ? { ...question, difficulty } : question
       )
     );
   };
@@ -175,7 +175,9 @@ const CreateExam = () => {
           return false;
         }
       }
-      const hasCorrectAnswer = question.answers.some((answer) => answer.checked);
+      const hasCorrectAnswer = question.answers.some(
+        (answer) => answer.checked
+      );
       if (!hasCorrectAnswer) {
         alert("Each question must have at least one correct answer.");
         return false;
@@ -202,13 +204,19 @@ const CreateExam = () => {
 
     try {
       if (examId) {
-        await axios.put(`http://localhost:5024/api/exam/updateExam/${examId}`, formattedData);
+        await axios.put(
+          `http://localhost:5024/api/exam/updateExam/${examId}`,
+          formattedData
+        );
         console.log("Exam updated successfully");
       } else {
-        await axios.post("http://localhost:5024/api/exam/createExam", formattedData);
+        await axios.post(
+          "http://localhost:5024/api/exam/createExam",
+          formattedData
+        );
         console.log("Exam created successfully");
       }
-      navigate("/examDetails"); 
+      navigate("/examDetails");
     } catch (error) {
       console.error("Error saving exam:", error);
     }
@@ -246,12 +254,12 @@ const CreateExam = () => {
           onChange={(e) => setTimeLimit(parseInt(e.target.value))}
         />
       </div>
-      {questions.map((question) => (
+      {questions.map((question, qIndex) => (
         <div key={question.id} className="card mb-4">
           <div className="card-body">
             <div className="d-flex justify-content-between align-items-center">
               <h5 className="card-title">
-                Question {questions.indexOf(question) + 1}
+                Question {qIndex + 1}
                 <i
                   className="fa-solid fa-star fa-xs"
                   style={{ color: "#FFD43B" }}
@@ -267,7 +275,7 @@ const CreateExam = () => {
             <div className="my-4">
               <TextField
                 fullWidth
-                id="filled-basic"
+                id={`question-${question.id}`}
                 variant="filled"
                 size="small"
                 label="Enter your question here"
@@ -279,7 +287,9 @@ const CreateExam = () => {
             </div>
             <div className="my-4">
               <FormControl fullWidth>
-                <InputLabel sx={{marginBlock:"-10px"}}>Difficulty</InputLabel>
+                <InputLabel sx={{ marginBlock: "-10px" }}>
+                  Difficulty
+                </InputLabel>
                 <Select
                   value={question.difficulty}
                   onChange={(e) =>
