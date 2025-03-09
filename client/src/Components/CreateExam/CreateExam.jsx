@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   TextField,
   Checkbox,
@@ -13,9 +13,9 @@ import AddIcon from "@mui/icons-material/Add";
 import RemoveIcon from "@mui/icons-material/Remove";
 import DeleteIcon from "@mui/icons-material/Delete";
 import axios from "axios";
-import { useNavigate } from "react-router";
+import { useNavigate, useParams } from "react-router-dom";
 
-const QuizComponent = () => {
+const CreateExam = () => {
   const [questions, setQuestions] = useState([
     {
       id: Date.now(),
@@ -29,7 +29,36 @@ const QuizComponent = () => {
   ]);
   const [timeLimit, setTimeLimit] = useState(60);
   const [subjectName, setSubjectName] = useState("");
-  let navigate=useNavigate();
+  const { examId } = useParams(); 
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (examId) {
+      const fetchExamData = async () => {
+        try {
+          const response = await axios.get(`http://localhost:5024/api/exam/${examId}`);
+          const { name, timeLimit, questions } = response.data;
+          setSubjectName(name);
+          setTimeLimit(timeLimit);
+          setQuestions(
+            questions.map((q) => ({
+              id: Date.now(),
+              questionText: q.question,
+              answers: q.answers.map((a) => ({
+                id: Date.now(),
+                checked: a.isCorrect,
+                text: a.answer,
+              })),
+              difficulty: q.difficulty,
+            }))
+          );
+        } catch (error) {
+          console.error("Error fetching exam data:", error);
+        }
+      };
+      fetchExamData();
+    }
+  }, [examId]);
 
   const handleAddQuestion = () => {
     const newQuestion = {
@@ -172,14 +201,16 @@ const QuizComponent = () => {
     };
 
     try {
-      const response = await axios.post(
-        "http://localhost:5024/api/exam/createExam",
-        formattedData
-      );
-      console.log("Exam created successfully:", response.data);
-      navigate("/examDetails");
+      if (examId) {
+        await axios.put(`http://localhost:5024/api/exam/updateExam/${examId}`, formattedData);
+        console.log("Exam updated successfully");
+      } else {
+        await axios.post("http://localhost:5024/api/exam/createExam", formattedData);
+        console.log("Exam created successfully");
+      }
+      navigate("/examDetails"); 
     } catch (error) {
-      console.error("Error creating exam:", error);
+      console.error("Error saving exam:", error);
     }
   };
 
@@ -248,7 +279,7 @@ const QuizComponent = () => {
             </div>
             <div className="my-4">
               <FormControl fullWidth>
-                <InputLabel sx={{marginBlock:'-10px'}}>Difficulty</InputLabel>
+                <InputLabel sx={{marginBlock:"-10px"}}>Difficulty</InputLabel>
                 <Select
                   value={question.difficulty}
                   onChange={(e) =>
@@ -311,10 +342,10 @@ const QuizComponent = () => {
         style={{ marginLeft: "10px" }}
         onClick={handleSubmit}
       >
-        Submit Exam
+        {examId ? "Update Exam" : "Create Exam"}
       </Button>
     </div>
   );
 };
 
-export default QuizComponent;
+export default CreateExam;

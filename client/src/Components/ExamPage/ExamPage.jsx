@@ -1,4 +1,6 @@
 import React, { useEffect, useState } from "react";
+// import NavBar from "../NavBar/NavBar";
+// import SideBar from "../SideBar/SideBar";
 import axios from "axios";
 import "./ExamPage.css";
 import { Link, useNavigate } from "react-router-dom";
@@ -8,6 +10,9 @@ export default function ExamPage() {
   let navigate = useNavigate();
   function handleCreateExam() {
     navigate("/createExam");
+  }
+  function handleEditExam(examId) {
+    navigate(`/createExam/${examId}`); 
   }
   async function getExams() {
     try {
@@ -67,9 +72,10 @@ export default function ExamPage() {
                   <td>{exam.timeLimit} Min</td>
                   <td>{exam.questions.length}</td>
                   <td>
-                    <i
+                  <i
                       className="fa-solid fa-pen-to-square fa-lg"
-                      style={{ color: "#5a57ff" }}
+                      style={{ color: "#5a57ff", cursor: "pointer" }}
+                      onClick={() => handleEditExam(exam._id)} 
                     ></i>
                   </td>
                   <td>

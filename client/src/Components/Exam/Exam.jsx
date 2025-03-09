@@ -20,7 +20,9 @@ let navigate = useNavigate();
       setLoading(false);
     }
   }
-
+function handllrNavigate(){
+  navigate('/finishExam')
+}
   useEffect(() => {
     if (timeLeft > 0) {
       const timer = setInterval(() => {
@@ -85,7 +87,7 @@ let navigate = useNavigate();
                 </div>
               ))}
               <div className="d-flex justify-content-between m-3">
-                <button onClick={navigate('/finishExam')} type="button" className="btn btn-outline-primary">
+                <button type="button" onClick={handllrNavigate} className="btn btn-outline-primary">
                   Submit
                 </button>
               </div>
