@@ -13,6 +13,7 @@ import AddIcon from "@mui/icons-material/Add";
 import RemoveIcon from "@mui/icons-material/Remove";
 import DeleteIcon from "@mui/icons-material/Delete";
 import axios from "axios";
+import { useNavigate } from "react-router";
 
 const QuizComponent = () => {
   const [questions, setQuestions] = useState([
@@ -28,6 +29,7 @@ const QuizComponent = () => {
   ]);
   const [timeLimit, setTimeLimit] = useState(60);
   const [subjectName, setSubjectName] = useState("");
+  let navigate=useNavigate();
 
   const handleAddQuestion = () => {
     const newQuestion = {
@@ -175,6 +177,7 @@ const QuizComponent = () => {
         formattedData
       );
       console.log("Exam created successfully:", response.data);
+      navigate("/examDetails");
     } catch (error) {
       console.error("Error creating exam:", error);
     }

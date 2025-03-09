@@ -8,7 +8,10 @@ import Navbar from "./components/NavBar/Navbar";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import NotFound from "./pages/NotFound";
-// import Chat from "./chat/Chat";
+import ExamPage from "./Components/ExamPage/ExamPage";
+import CreateExam from "./Components/CreateExam/CreateExam";
+import Exam from "./Components/Exam/Exam";
+import FinishedExam from "./Components/FinishedExam/FinishedExam";
 const Layout = ({ children }) => {
   return (
     <div className="app">
@@ -28,8 +31,12 @@ function App() {
         <Route path="/" element={<Home />} />
         <Route path="login" element={<Login />} />
         <Route path="register" element={<Register />} />
+        <Route path="/examDetails" element={<ExamPage/>} />
+        <Route path="/createExam" element={<CreateExam/>} />
+        <Route path="/finishExam" element={<FinishedExam/>} />
+        <Route path="/exam/:id" element={<Exam/>} />
+
         {/* ADD YOUR ELEMENT */}
-        <Route path="exams/:id" element={<Register />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
     </Layout>

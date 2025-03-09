@@ -1,12 +1,14 @@
 import React, { useEffect, useState } from "react";
-// import NavBar from "../NavBar/NavBar";
-// import SideBar from "../SideBar/SideBar";
 import axios from "axios";
 import "./ExamPage.css";
+import { Link, useNavigate } from "react-router-dom";
 
 export default function ExamPage() {
   const [exams, setExams] = useState([]);
-
+  let navigate = useNavigate();
+  function handleCreateExam() {
+    navigate("/createExam");
+  }
   async function getExams() {
     try {
       const response = await axios.get(`http://localhost:5024/api/exam/`);
@@ -20,7 +22,7 @@ export default function ExamPage() {
   useEffect(() => {
     getExams();
   }, []);
-async function deleteExam(examId) {
+  async function deleteExam(examId) {
     try {
       const response = await axios.delete(
         `http://localhost:5024/api/exam/deleteExam/${examId}`
@@ -35,7 +37,7 @@ async function deleteExam(examId) {
     <div className="container mt-5">
       <div className="d-flex justify-content-between align-items-center">
         <h1 className="">Exams</h1>
-        <button className="plus">
+        <button className="plus" onClick={handleCreateExam}>
           <i className="fa-solid fa-plus fa-lg"></i> Create Exam
         </button>
       </div>
@@ -54,7 +56,14 @@ async function deleteExam(examId) {
             <tbody>
               {exams.map((exam, index) => (
                 <tr key={index}>
-                  <td>{exam.name}</td>
+                  <td>
+                    <Link
+                      to={`/exam/${exam._id}`}
+                      className="text-decoration-none text-dark"
+                    >
+                      {exam.name}{" "}
+                    </Link>
+                  </td>
                   <td>{exam.timeLimit} Min</td>
                   <td>{exam.questions.length}</td>
                   <td>
