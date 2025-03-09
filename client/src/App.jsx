@@ -28,10 +28,8 @@ function App() {
         <Route path="/" element={<Home />} />
         <Route path="login" element={<Login />} />
         <Route path="register" element={<Register />} />
-        {/* <Route path="chat" element={<Chat />} /> */}
-
-        {/* <Route path="/about" element={<About />} /> */}
-        {/* <Route path="/contact" element={<Contact />} /> */}
+        {/* ADD YOUR ELEMENT */}
+        <Route path="exams/:id" element={<Register />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
     </Layout>
