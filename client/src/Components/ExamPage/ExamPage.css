@@ -1,0 +1,23 @@
+.plus {
+  color: #5a57ff;
+  border-color: #5a57ff;
+  border-radius: 8px;
+  border-width: 1px;
+  background-color: #fff;
+  font-weight: 600;
+  padding: 5px 10px;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.plus:hover {
+  color: #fff;
+  background-color: #5a57ff;
+}
+
+.plus:hover .fa-plus {
+  color: #fff;
+}
+.fa-solid{
+  cursor: pointer;
+}

@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from "react";
-import NavBar from "../NavBar/NavBar";
-import SideBar from "../SideBar/SideBar";
-import SingleExam from "../SingleExam/SingleExam";
+// import NavBar from "../NavBar/NavBar";
+// import SideBar from "../SideBar/SideBar";
 import axios from "axios";
+import "./ExamPage.css";
 
 export default function ExamPage() {
   const [exams, setExams] = useState([]);
@@ -20,40 +20,62 @@ export default function ExamPage() {
   useEffect(() => {
     getExams();
   }, []);
-
+async function deleteExam(examId) {
+    try {
+      const response = await axios.delete(
+        `http://localhost:5024/api/exam/deleteExam/${examId}`
+      );
+      console.log("Exam deleted successfully:", response.data);
+      getExams();
+    } catch (error) {
+      console.error("Error deleting exam:", error);
+    }
+  }
   return (
-    <>
-      <div className="">
-        <div className="position-fixed w-100 top-0 z-3">
-          <NavBar />
-        </div>
-
-        {/* Main Content and Sidebar */}
-        <div className="container-fluid" style={{ marginTop: "56px" }}>
-          <div className="row">
-            {/* Main Content (Exams) */}
-            <div className="col-md-10 col-8">
-              <div className="row justify-content-center">
-                {exams.map((exam, index) => (
-                  <div key={index} className="col-12 col-md-6 col-lg-3 mb-4">
-                    <SingleExam
-                      exam = {exam}
-                    />
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* Sidebar */}
-            <div
-              className="col-md-2 col-4 position-fixed end-0 vh-100 "
-              style={{ top: "56px", zIndex: 2, padding: 0 }}
-            >
-              <SideBar />
-            </div>
-          </div>
+    <div className="container mt-5">
+      <div className="d-flex justify-content-between align-items-center">
+        <h1 className="">Exams</h1>
+        <button className="plus">
+          <i className="fa-solid fa-plus fa-lg"></i> Create Exam
+        </button>
+      </div>
+      <div className="row">
+        <div className="mt-5 shadow-sm p-3 mb-5 bg-white rounded-4">
+          <table className="table table-striped">
+            <thead>
+              <tr>
+                <th scope="col">Exam Name</th>
+                <th scope="col">Duration</th>
+                <th scope="col">Question</th>
+                <th scope="col"></th>
+                <th scope="col"></th>
+              </tr>
+            </thead>
+            <tbody>
+              {exams.map((exam, index) => (
+                <tr key={index}>
+                  <td>{exam.name}</td>
+                  <td>{exam.timeLimit} Min</td>
+                  <td>{exam.questions.length}</td>
+                  <td>
+                    <i
+                      className="fa-solid fa-pen-to-square fa-lg"
+                      style={{ color: "#5a57ff" }}
+                    ></i>
+                  </td>
+                  <td>
+                    <i
+                      className="fa-solid fa-trash-can fa-lg"
+                      style={{ color: "#5a57ff" }}
+                      onClick={() => deleteExam(exam._id)}
+                    ></i>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
       </div>
-    </>
+    </div>
   );
 }

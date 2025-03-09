@@ -1,23 +1,22 @@
 import React, { useEffect, useState } from "react";
-import NavBar from "../NavBar/NavBar";
 import SideBar from "../SideBar/SideBar";
 import axios from "axios";
 
 export default function Exam() {
-  const [exam, setExam] = useState(null); // Initialize as null
-  const [loading, setLoading] = useState(true); // Add a loading state
-  const [timeLeft, setTimeLeft] = useState(0); // State for countdown timer
+  const [exam, setExam] = useState(null);
+  const [loading, setLoading] = useState(true); 
+  const [timeLeft, setTimeLeft] = useState(0); 
 
   async function getQuestion() {
     try {
       const { data } = await axios.get(
         `http://localhost:5024/api/exam/67c4e7eeef76b6cdb876290c`
       );
-      setExam(data); // Set the exam data
-      setTimeLeft(data.timeLimit * 60); // Convert minutes to seconds for countdown
-      setLoading(false); // Set loading to false after data is fetched
+      setExam(data); 
+      setTimeLeft(data.timeLimit * 60); 
+      setLoading(false); 
     } catch (error) {
-      setLoading(false); // Set loading to false even if there's an error
+      setLoading(false);
     }
   }
 
@@ -44,11 +43,11 @@ export default function Exam() {
   }, []);
 
   if (loading) {
-    return <p>Loading ...</p>; // Show loading message while fetching data
+    return <p>Loading ...</p>;
   }
 
   if (!exam) {
-    return <p>No exam data found.</p>; // Handle case where exam data is not available
+    return <p>No exam data found.</p>; 
   }
 
   return (
@@ -57,10 +56,8 @@ export default function Exam() {
         <NavBar />
       </div>
 
-      {/* Main Content and Sidebar */}
       <div className="container mx-auto" style={{ marginTop: "56px" }}>
         <div className="row">
-          {/* Exam Title and Timer */}
           <div className="d-flex mt-5 justify-content-around">
             <h2>{exam.name || "Exam Title"}</h2>
             <p className=" fs-3">
@@ -69,7 +66,6 @@ export default function Exam() {
             </p>
           </div>
 
-          {/* Main Content (Exams) */}
           <div className="container mt-5">
             <div className="card mx-5">
               {exam.questions.map((question, index) => (
@@ -81,7 +77,7 @@ export default function Exam() {
                       <input
                         className="form-check-input"
                         type="radio"
-                        name={`options-${index}`} // Unique name for each question
+                        name={`options-${index}`} 
                         id={`option-${index}-${answerIndex}`}
                       />
                       <label
@@ -95,7 +91,6 @@ export default function Exam() {
                   <hr />
                 </div>
               ))}
-
               <div className="d-flex justify-content-between m-3">
                 <button type="button" className="btn btn-primary">
                   Submit
