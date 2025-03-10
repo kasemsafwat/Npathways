@@ -12,7 +12,7 @@ export default function ExamPage() {
     navigate("/createExam");
   }
   function handleEditExam(examId) {
-    navigate(`/createExam/${examId}`); 
+    navigate(`/createExam/${examId}`);
   }
   async function getExams() {
     try {
@@ -72,10 +72,10 @@ export default function ExamPage() {
                   <td>{exam.timeLimit} Min</td>
                   <td>{exam.questions.length}</td>
                   <td>
-                  <i
+                    <i
                       className="fa-solid fa-pen-to-square fa-lg"
                       style={{ color: "#5a57ff", cursor: "pointer" }}
-                      onClick={() => handleEditExam(exam._id)} 
+                      onClick={() => handleEditExam(exam._id)}
                     ></i>
                   </td>
                   <td>
