@@ -54,6 +54,13 @@ function Navbar() {
         >
           Contact
         </Button>
+        <Button
+          sx={{ color: "#5D5A88", textTransform: "none", borderRadius: "8px" }}
+          component={Link}
+          to="/user"
+        >
+          Profile
+        </Button>
         {isAuthenticated && (
           <Button
             sx={{

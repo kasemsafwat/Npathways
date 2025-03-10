@@ -20,6 +20,8 @@
     "bootstrap": "^5.3.3",
     "date-fns": "^4.1.0",
     "formik": "^2.4.6",
+    "jsonwebtoken": "^9.0.2",
+    "jwt-decode": "^4.0.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "react-router": "^7.2.0",

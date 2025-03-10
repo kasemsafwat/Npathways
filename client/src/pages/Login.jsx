@@ -5,6 +5,8 @@ import * as Yup from "yup";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { AuthContext } from "../contexts/AuthContext";
+import { jwtDecode } from "jwt-decode";
+
 
 const validationSchema = Yup.object().shape({
   email: Yup.string()
@@ -39,6 +41,11 @@ const Login = () => {
       if (data.message === "Login successfully") {
         localStorage.setItem("userId", data.userId);
         localStorage.setItem("userName", `${data.firstName} ${data.lastName}`);
+        // localStorage.setItem("token", data.token);
+        // const decoded = jwtDecode(data.token);
+        // console.log(decoded)
+        // localStorage.setItem("userId", decoded.id);
+
         login();
         navigate("/");
       }

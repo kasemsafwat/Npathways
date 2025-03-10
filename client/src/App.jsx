@@ -12,6 +12,7 @@ import ExamPage from "./Components/ExamPage/ExamPage";
 import CreateExam from "./Components/CreateExam/CreateExam";
 import Exam from "./Components/Exam/Exam";
 import FinishedExam from "./Components/FinishedExam/FinishedExam";
+import UserProfile from "./Components/UserProfile/UserProfile";
 const Layout = ({ children }) => {
   return (
     <div className="app">
@@ -35,6 +36,7 @@ function App() {
         <Route path="/createExam/:examId?" element={<CreateExam/>} />
         <Route path="/finishExam" element={<FinishedExam/>} />
         <Route path="/exam/:id" element={<Exam/>} />
+        <Route path="/user" element={<UserProfile/>} />
 
         {/* ADD YOUR ELEMENT */}
         <Route path="*" element={<NotFound />} />

@@ -6,6 +6,7 @@ import Joi from 'joi';
 const examRoute = '/api/exam';
 const courseRoute = '/api/course';
 const chatRoute = '/api/chat';
+const certificateRoute = '/api/certificate';
 
 const exampleExam = {
   name: 'Exam 1',
@@ -104,7 +105,16 @@ const createCourseSchema = Joi.object({
       .regex(/^[0-9a-fA-F]{24}$/)
       .message('Enter a valid id')
   ),
-  lessons: Joi.array().items(Joi.string()),
+  lessons: Joi.array().items(
+    Joi.object({
+      name: Joi.string().required(),
+      description: Joi.string(),
+      image: Joi.string(),
+      downloadLink: Joi.string(),
+    })
+  ),
+  description: Joi.string().required(),
+  image: Joi.string(),
 });
 
 const updateCourseSchema = Joi.object({
@@ -119,7 +129,16 @@ const updateCourseSchema = Joi.object({
       .regex(/^[0-9a-fA-F]{24}$/)
       .message('Enter a valid id')
   ),
-  lessons: Joi.array().items(Joi.string()),
+  lessons: Joi.array().items(
+    Joi.object({
+      name: Joi.string(),
+      description: Joi.string(),
+      image: Joi.string(),
+      downloadLink: Joi.string(),
+    })
+  ),
+  description: Joi.string(),
+  image: Joi.string(),
 });
 
 const sendMessageSchema = Joi.object({
@@ -127,6 +146,50 @@ const sendMessageSchema = Joi.object({
     'string.empty': 'Enter a message',
     'any.required': 'Enter a message',
   }),
+});
+
+const submitExamSchema = Joi.object({
+  examId: Joi.string().required(),
+  responses: Joi.array()
+    .items(
+      Joi.object({
+        question: Joi.string().required(),
+        selectedAnswers: Joi.array().items(Joi.string()),
+      }).required()
+    )
+    .required(),
+});
+
+const createCertificateSchema = Joi.object({
+  name: Joi.string().required().messages({
+    'string.empty': 'Certificate name is required',
+    'any.required': 'Certificate name is required',
+  }),
+  description: Joi.string().required().messages({
+    'string.empty': 'Certificate description is required',
+    'any.required': 'Certificate description is required',
+  }),
+  image: Joi.string(),
+  course: Joi.string()
+    .regex(/^[0-9a-fA-F]{24}$/)
+    .message('Enter a valid course id'),
+  pathway: Joi.string()
+    .regex(/^[0-9a-fA-F]{24}$/)
+    .message('Enter a valid pathway id'),
+  createdAt: Joi.date(),
+});
+
+const updateCertificateSchema = Joi.object({
+  name: Joi.string(),
+  description: Joi.string(),
+  image: Joi.string(),
+  course: Joi.string()
+    .regex(/^[0-9a-fA-F]{24}$/)
+    .message('Enter a valid course id'),
+  pathway: Joi.string()
+    .regex(/^[0-9a-fA-F]{24}$/)
+    .message('Enter a valid pathway id'),
+  createdAt: Joi.date(),
 });
 
 function getSchema(link, method) {
@@ -141,6 +204,12 @@ function getSchema(link, method) {
     return updateCourseSchema;
   } else if (link.includes(`${chatRoute}/sendMessage`)) {
     return sendMessageSchema;
+  } else if (link.includes(`${examRoute}/submitExam`)) {
+    return submitExamSchema;
+  } else if (link === `${certificateRoute}/createCertificate`) {
+    return createCertificateSchema;
+  } else if (link.includes(`${certificateRoute}/updateCertificate`)) {
+    return updateCertificateSchema;
   }
   return null;
 }
