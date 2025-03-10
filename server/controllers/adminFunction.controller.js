@@ -7,7 +7,12 @@ const AdminControlller = {
     deleteInstructor:async(req,res)=>{
         try {
            let {id}=req.params
-           await Admin.findByIdAndDelete(id)
+           let admin=await Admin.findByIdAndDelete(id)
+           if(!admin){
+            return res.status(404).send({
+                message:"Admin OR Instructor Not Found"
+            })
+           }
            res.send({
                message:"Account deleted "
            })

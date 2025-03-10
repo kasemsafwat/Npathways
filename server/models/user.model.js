@@ -24,11 +24,10 @@ const userSchema = new Schema({
     required: true,
     minlength: 8,
   },
-  // token:[{
-  //     type:String,
-  //     expires:"2d",
-  //     trim:true
-  // }]
+  phone :{
+    type:String
+  },
+ 
   tokens: {
     type: [String],
     default: [],
@@ -44,24 +43,28 @@ const userSchema = new Schema({
       ref: 'Course',
     },
   ],
-  //  track ==> array
-  // track: [
-  //   {
-  //     ref: "Course"   
-    //  }],
-    //  track ==> array
-    // todo  just track array
+ 
+    // todo  just track array ==> pathway
      track: {
-      type: String,
+      type: [String],
       trim: true,
       enum: ['Web Development', 'Data Science', 'Mobile Development'],
-      default: 'Web Development',
-    },
-  // ],
-  level: {
-    type: Number,
-    default: 1,
-  },
+     },
+  //  level :{
+  //   type:String,
+  //   trim: true,
+  //   enum: ['Entry', 'Mid', 'Advanced','Expert'],
+  //  },
+      level: {
+        type: Number,
+        // default: 1,
+      },
+    exams: [
+      {
+         type: mongoose.Schema.Types.ObjectId, 
+         ref: 'Exam',
+      },
+    ],
   status: {
     type: String,
     enum: ['active', 'inactive'],

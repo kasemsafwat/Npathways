@@ -14,8 +14,8 @@ function App() {
         <Button onClick={handleLogin}>Login</Button>
         <Chat />
       </div>
-      {/* <Register/> */}
-      {/* <Login/> */}
+      {/* <Register/>
+      <Login/> */}
     </>
   );
 }

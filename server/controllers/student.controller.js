@@ -8,7 +8,12 @@ const StudentControlller = {
      deleteStudent:async(req,res)=>{
          try {
             let {id}=req.params
-            await User.findByIdAndDelete(id)
+            let user=await User.findByIdAndDelete(id)
+            if(!user){
+                 return res.status(404).send({
+                    message:"User Not Found "
+                })
+            }
             res.send({
                 message:"Account deleted "
             })
@@ -107,20 +112,22 @@ const StudentControlller = {
                 const course = await Course.findById(courseId);
 
 
-                if (!user || !course) {
-                    return res.status(404).send({ message: "user or Course not found" });
-                }
+                if (!user) {
+                        return res.status(404).send({ message: "User not found" });
+                    }
+                    if (!course) {
+                        return res.status(404).send({ message: "Course not found" });
+                    }
+                     if (user.courses.includes(courseId)) {
+                        return res.status(400).send({ message: "Course already added to the user" });
+                    }
+                    user.courses.push(courseId);
+                    await user.save();
 
-                user.courses.push(courseId);
-                await user.save();
-
-                return res.status(200).send({
+                    return res.status(200).send({
                     message: "Course added to Student successfully",
-                    student
-                });
-
- 
-
+                    user 
+                    });
             }catch(error){
                 return res.status(500).send({
                     message: 'userController: ' + error.message
