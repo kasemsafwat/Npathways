@@ -6,6 +6,10 @@ const CourseSchema = new Schema(
       type: String,
       required: true,
     },
+    description: {
+      type: String,
+      required: true,
+    },
     requiredExams: [
       {
         type: Schema.Types.ObjectId,
@@ -18,7 +22,15 @@ const CourseSchema = new Schema(
         ref: 'User',
       },
     ],
-    lessons: [String],
+    lessons: [
+      {
+        name: { type: String, required: true },
+        description: { type: String },
+        image: { type: String },
+        downloadLink: { type: String },
+      },
+    ],
+    image: { type: String },
 
     // ////////////////////////////
     status: {
