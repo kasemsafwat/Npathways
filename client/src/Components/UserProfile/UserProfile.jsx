@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import "bootstrap/dist/css/bootstrap.min.css";
+import "./UserProfile.css"; // Import the CSS file
 
 const UserProfile = () => {
   const userId = localStorage.getItem("userId");
@@ -45,10 +46,9 @@ const UserProfile = () => {
                 <img
                   src={`https://ui-avatars.com/api/?name=${userData.firstName}+${userData.lastName}&background=random&size=150`}
                   alt="User Avatar"
-                  className="rounded-circle"
-                  style={{ width: "150px", height: "150px" }}
+                  className="rounded-circle avatar-img" // Use CSS class
                 />
-                <div className="mt-3">
+                <div className="my-5">
                   <button className="btn btn-outline-primary btn-sm me-2">
                     Upload New Photo
                   </button>
@@ -59,42 +59,46 @@ const UserProfile = () => {
               </div>
 
               {/* User Details */}
-              <div className="mb-3">
-                <label className="form-label fw-bold">First Name</label>
-                <p>{userData.firstName}</p>
+              <div className="row m-3">
+                <div className="col-6">
+                  <label className="form-label fw-bold">First Name</label>
+                  <p className="text-muted p-text">{userData.firstName}</p>
+                </div>
+                <div className="col-6">
+                  <label className="form-label fw-bold">Last Name</label>
+                  <p className="text-muted p-text">{userData.lastName}</p>
+                </div>
               </div>
 
-              <div className="mb-3">
-                <label className="form-label fw-bold">Last Name</label>
-                <p>{userData.lastName}</p>
+              <div className="row m-3">
+                <div className="col-6">
+                  <label className="form-label fw-bold">Email</label>
+                  <p className="text-muted p-text">{userData.email}</p>{" "}
+                  {/* Use CSS class */}
+                </div>
+                <div className="col-6">
+                  <label className="form-label fw-bold">Track</label>
+                  <p className="text-muted p-text">{userData.track}</p>
+                </div>
               </div>
 
-              <div className="mb-3">
-                <label className="form-label fw-bold">Email</label>
-                <p>{userData.email}</p>
-              </div>
-
-              <div className="mb-3">
-                <label className="form-label fw-bold">Track</label>
-                <p>{userData.track}</p>
-              </div>
-
-              <div className="mb-3">
-                <label className="form-label fw-bold">Level</label>
-                <p>{userData.level}</p>
-              </div>
-
-              <div className="mb-3">
-                <label className="form-label fw-bold">Status</label>
-                <p
-                  className={
-                    userData.status === "active"
-                      ? "text-success fw-bold"
-                      : "text-danger fw-bold"
-                  }
-                >
-                  {userData.status}
-                </p>
+              <div className="row m-3">
+                <div className="col-6">
+                  <label className="form-label fw-bold">Level</label>
+                  <p className="text-muted ">{userData.level}</p>
+                </div>
+                <div className="col-6">
+                  <label className="form-label fw-bold">Status</label>
+                  <p
+                    className={
+                      userData.status === "active"
+                        ? "status-active" // Use CSS class
+                        : "status-inactive" // Use CSS class
+                    }
+                  >
+                    {userData.status}
+                  </p>
+                </div>
               </div>
             </div>
           </div>
