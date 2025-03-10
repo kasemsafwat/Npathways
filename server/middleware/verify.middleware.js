@@ -104,7 +104,16 @@ const createCourseSchema = Joi.object({
       .regex(/^[0-9a-fA-F]{24}$/)
       .message('Enter a valid id')
   ),
-  lessons: Joi.array().items(Joi.string()),
+  lessons: Joi.array().items(
+    Joi.object({
+      name: Joi.string().required(),
+      description: Joi.string(),
+      image: Joi.string(),
+      downloadLink: Joi.string(),
+    })
+  ),
+  description: Joi.string().required(),
+  image: Joi.string(),
 });
 
 const updateCourseSchema = Joi.object({
@@ -119,7 +128,16 @@ const updateCourseSchema = Joi.object({
       .regex(/^[0-9a-fA-F]{24}$/)
       .message('Enter a valid id')
   ),
-  lessons: Joi.array().items(Joi.string()),
+  lessons: Joi.array().items(
+    Joi.object({
+      name: Joi.string(),
+      description: Joi.string(),
+      image: Joi.string(),
+      downloadLink: Joi.string(),
+    })
+  ),
+  description: Joi.string(),
+  image: Joi.string(),
 });
 
 const sendMessageSchema = Joi.object({
@@ -127,6 +145,18 @@ const sendMessageSchema = Joi.object({
     'string.empty': 'Enter a message',
     'any.required': 'Enter a message',
   }),
+});
+
+const submitExamSchema = Joi.object({
+  examId: Joi.string().required(),
+  responses: Joi.array()
+    .items(
+      Joi.object({
+        question: Joi.string().required(),
+        selectedAnswers: Joi.array().items(Joi.string()),
+      }).required()
+    )
+    .required(),
 });
 
 function getSchema(link, method) {
@@ -141,6 +171,8 @@ function getSchema(link, method) {
     return updateCourseSchema;
   } else if (link.includes(`${chatRoute}/sendMessage`)) {
     return sendMessageSchema;
+  } else if (link.includes(`${examRoute}/submitExam`)) {
+    return submitExamSchema;
   }
   return null;
 }
