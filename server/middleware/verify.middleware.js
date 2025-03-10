@@ -6,6 +6,7 @@ import Joi from 'joi';
 const examRoute = '/api/exam';
 const courseRoute = '/api/course';
 const chatRoute = '/api/chat';
+const certificateRoute = '/api/certificate';
 
 const exampleExam = {
   name: 'Exam 1',
@@ -159,6 +160,38 @@ const submitExamSchema = Joi.object({
     .required(),
 });
 
+const createCertificateSchema = Joi.object({
+  name: Joi.string().required().messages({
+    'string.empty': 'Certificate name is required',
+    'any.required': 'Certificate name is required',
+  }),
+  description: Joi.string().required().messages({
+    'string.empty': 'Certificate description is required',
+    'any.required': 'Certificate description is required',
+  }),
+  image: Joi.string(),
+  course: Joi.string()
+    .regex(/^[0-9a-fA-F]{24}$/)
+    .message('Enter a valid course id'),
+  pathway: Joi.string()
+    .regex(/^[0-9a-fA-F]{24}$/)
+    .message('Enter a valid pathway id'),
+  createdAt: Joi.date(),
+});
+
+const updateCertificateSchema = Joi.object({
+  name: Joi.string(),
+  description: Joi.string(),
+  image: Joi.string(),
+  course: Joi.string()
+    .regex(/^[0-9a-fA-F]{24}$/)
+    .message('Enter a valid course id'),
+  pathway: Joi.string()
+    .regex(/^[0-9a-fA-F]{24}$/)
+    .message('Enter a valid pathway id'),
+  createdAt: Joi.date(),
+});
+
 function getSchema(link, method) {
   if (method !== 'POST' && method !== 'PUT') return null;
   if (link === `${examRoute}/createExam`) {
@@ -173,6 +206,10 @@ function getSchema(link, method) {
     return sendMessageSchema;
   } else if (link.includes(`${examRoute}/submitExam`)) {
     return submitExamSchema;
+  } else if (link === `${certificateRoute}/createCertificate`) {
+    return createCertificateSchema;
+  } else if (link.includes(`${certificateRoute}/updateCertificate`)) {
+    return updateCertificateSchema;
   }
   return null;
 }
