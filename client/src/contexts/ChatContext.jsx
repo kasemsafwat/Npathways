@@ -93,7 +93,7 @@ export const ChatProvider = ({ children }) => {
     return () => {
       socket.off("receiveMessageFromGeneral");
     };
-  }, []);
+  }, [state.selectedChatId]);
 
   useEffect(() => {
     if (!state.selectedChatId) return;

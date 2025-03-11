@@ -1,0 +1,20 @@
+.avatar-img {
+  width: 150px;
+  height: 150px;
+}
+
+/* Email Text */
+.p-text {
+  letter-spacing: 0.1rem;
+}
+
+/* Status Text */
+.status-active {
+  color: green;
+  font-weight: bold;
+}
+
+.status-inactive {
+  color: red;
+  font-weight: bold;
+}

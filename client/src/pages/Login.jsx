@@ -1,36 +1,63 @@
-import React from "react";
+import React, { useState, useContext } from "react";
 import { TextField, Button, Container, Grid, Typography } from "@mui/material";
 import { useFormik } from "formik";
 import * as Yup from "yup";
+import axios from "axios";
+import { useNavigate } from "react-router-dom";
+import { AuthContext } from "../contexts/AuthContext";
+import { jwtDecode } from "jwt-decode";
 
-const validationSchema = Yup.object({
+
+const validationSchema = Yup.object().shape({
   email: Yup.string()
     .email("Invalid email address")
     .required("Email is required"),
   password: Yup.string()
-    .matches(
-      /^[A-Z][a-z0-9]{3,8}$/,
-      "Invalid password (must start with a capital letter and be 4-9 characters long)"
-    )
+    .min(8, "Password must be at least 8 characters")
     .required("Required"),
 });
 
 const Login = () => {
-  const [showPassword, setShowPassword] = React.useState(false);
-
+  const [showPassword, setShowPassword] = useState(false);
+  const [apiError, setApiError] = useState(null);
+  const navigate = useNavigate();
+  const { login } = useContext(AuthContext);
+  const initialValues = {
+    email: "",
+    password: "",
+  };
   const handleShowPassword = () => {
     setShowPassword(!showPassword);
   };
+  async function sendDataToAPI(values) {
+    try {
+      setApiError(null);
+      let { data } = await axios.post(
+        `http://localhost:5024/api/user/login`,
+        values,
+        { withCredentials: true }
+      );
+      console.log(data);
+      if (data.message === "Login successfully") {
+        localStorage.setItem("userId", data.userId);
+        localStorage.setItem("userName", `${data.firstName} ${data.lastName}`);
+        // localStorage.setItem("token", data.token);
+        // const decoded = jwtDecode(data.token);
+        // console.log(decoded)
+        // localStorage.setItem("userId", decoded.id);
 
+        login();
+        navigate("/");
+      }
+    } catch (error) {
+      console.log(error);
+      setApiError(error.response.data.message);
+    }
+  }
   const formik = useFormik({
-    initialValues: {
-      email: "",
-      password: "",
-    },
-    validationSchema: validationSchema,
-    onSubmit: (values) => {
-      console.log("Form submitted:", values);
-    },
+    initialValues,
+    validationSchema,
+    onSubmit: sendDataToAPI,
   });
 
   return (
@@ -50,6 +77,13 @@ const Login = () => {
         <Typography variant="h4" align="center" gutterBottom>
           Login
         </Typography>
+        {apiError ? (
+          <div className="alert alert-danger mb-2" role="alert">
+            {apiError}
+          </div>
+        ) : (
+          ""
+        )}
         <form onSubmit={formik.handleSubmit}>
           <Grid container spacing={5}>
             <Grid item xs={12}>
@@ -102,11 +136,22 @@ const Login = () => {
                 {showPassword ? "Hide Password" : "Show Password"}
               </Button>
             </Grid>
-            <Grid item xs={12} >
+            <Grid
+              item
+              xs={12}
+              sx={{
+                display: "flex",
+                justifyContent: "center",
+              }}
+            >
               <Button
                 variant="contained"
                 type="submit"
-                style={{ width: "100%", backgroundColor: "black" }}
+                style={{
+                  backgroundColor: "#4A3AFF",
+                  padding: "10px 70px",
+                  fontSize: "16px",
+                }}
               >
                 Login
               </Button>

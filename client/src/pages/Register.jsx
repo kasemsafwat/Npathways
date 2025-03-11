@@ -1,39 +1,59 @@
-import React from "react";
+import React, { useState } from "react";
 import { TextField, Button, Container, Grid, Typography } from "@mui/material";
 import { useFormik } from "formik";
 import * as Yup from "yup";
+import axios from "axios";
+import { useNavigate } from "react-router-dom";
 
-const validationSchema = Yup.object({
+const validationSchema = Yup.object().shape({
   firstName: Yup.string().required("First Name is required"),
   lastName: Yup.string().required("Last Name is required"),
-  email: Yup.string().email("Invalid email address").required("Email is required"),
-  phone: Yup.string()
-  .matches(/^(01[0125]\d{8}|02\d{8})$/, "Invalid number")
-  .required("Required"),
+  email: Yup.string()
+    .email("Invalid email address")
+    .required("Email is required"),
   password: Yup.string()
-      .matches(/^[A-Z][a-z0-9]{3,8}$/, "Invalid password (must start with a capital letter and be 4-9 characters long)")
-      .required("Required"),
+    .min(8, "Password must be at least 8 characters")
+    .required("Required"),
 });
 
 const Register = () => {
-  const [showPassword, setShowPassword] = React.useState(false);
+  const [apiError, setApiError] = useState(null);
+  const [showPassword, setShowPassword] = useState(false);
+  const navigate = useNavigate();
 
   const handleShowPassword = () => {
     setShowPassword(!showPassword);
   };
 
+  const initialValues = {
+    firstName: "",
+    lastName: "",
+    email: "",
+    password: "",
+  };
+
+  async function sendDataToAPI(values) {
+    try {
+      setApiError(null);
+      let { data } = await axios.post(
+        `http://localhost:5024/api/user/signup`,
+        values
+      );
+      console.log(data);
+      if (data.message === "Account Created Successfully") {
+        console.log("Account Created Successfully");
+        navigate("/login");
+      }
+    } catch (error) {
+      console.log(error);
+      setApiError(error.response.data.message);
+    }
+  }
+
   const formik = useFormik({
-    initialValues: {
-      firstName: "",
-      lastName: "",
-      email: "",
-      phone: "",
-      password: "",
-    },
-    validationSchema: validationSchema,
-    onSubmit: (values) => {
-      console.log("Form submitted:", values);
-    },
+    initialValues,
+    validationSchema,
+    onSubmit: sendDataToAPI,
   });
 
   return (
@@ -53,6 +73,13 @@ const Register = () => {
         <Typography variant="h4" align="center" gutterBottom>
           Register
         </Typography>
+        {apiError ? (
+          <div className="alert alert-danger my-2" role="alert">
+            {apiError}
+          </div>
+        ) : (
+          ""
+        )}
         <form onSubmit={formik.handleSubmit}>
           <Grid container spacing={4}>
             <Grid item xs={12}>
@@ -65,7 +92,9 @@ const Register = () => {
                 value={formik.values.firstName}
                 onChange={formik.handleChange}
                 onBlur={formik.handleBlur}
-                error={formik.touched.firstName && Boolean(formik.errors.firstName)}
+                error={
+                  formik.touched.firstName && Boolean(formik.errors.firstName)
+                }
               />
               {formik.touched.firstName && formik.errors.firstName && (
                 <div className="alert alert-danger mt-2">
@@ -84,7 +113,9 @@ const Register = () => {
                 value={formik.values.lastName}
                 onChange={formik.handleChange}
                 onBlur={formik.handleBlur}
-                error={formik.touched.lastName && Boolean(formik.errors.lastName)}
+                error={
+                  formik.touched.lastName && Boolean(formik.errors.lastName)
+                }
               />
               {formik.touched.lastName && formik.errors.lastName && (
                 <div className="alert alert-danger mt-2">
@@ -115,25 +146,6 @@ const Register = () => {
             <Grid item xs={12}>
               <TextField
                 fullWidth
-                label="Phone"
-                variant="outlined"
-                id="phone"
-                name="phone"
-                value={formik.values.phone}
-                onChange={formik.handleChange}
-                onBlur={formik.handleBlur}
-                error={formik.touched.phone && Boolean(formik.errors.phone)}
-              />
-              {formik.touched.phone && formik.errors.phone && (
-                <div className="alert alert-danger mt-2">
-                  {formik.errors.phone}
-                </div>
-              )}
-            </Grid>
-
-            <Grid item xs={12}>
-              <TextField
-                fullWidth
                 label="Password"
                 type={showPassword ? "text" : "password"}
                 variant="outlined"
@@ -142,7 +154,9 @@ const Register = () => {
                 value={formik.values.password}
                 onChange={formik.handleChange}
                 onBlur={formik.handleBlur}
-                error={formik.touched.password && Boolean(formik.errors.password)}
+                error={
+                  formik.touched.password && Boolean(formik.errors.password)
+                }
               />
               {formik.touched.password && formik.errors.password && (
                 <div className="alert alert-danger mt-2">
@@ -161,11 +175,23 @@ const Register = () => {
               </Button>
             </Grid>
 
-            <Grid item xs={12} style={{ marginTop: "-30px" }}>
+            <Grid
+              item
+              xs={12}
+              style={{
+                display: "flex",
+                justifyContent: "center",
+                marginTop: "-10px",
+              }}
+            >
               <Button
                 variant="contained"
                 type="submit"
-                style={{ width: "100%", backgroundColor: "black" }}
+                style={{
+                  backgroundColor: "#4A3AFF",
+                  padding: "10px 70px",
+                  fontSize: "16px",
+                }}
               >
                 Register
               </Button>

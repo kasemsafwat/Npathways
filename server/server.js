@@ -4,10 +4,8 @@ import { Server } from 'socket.io';
 import cors from 'cors';
 import connectDB from './config/db.js';
 import cookieParser from 'cookie-parser';
-//
 import routes from './routes/index.js';
 
-//
 dotenv.config();
 
 const app = express();

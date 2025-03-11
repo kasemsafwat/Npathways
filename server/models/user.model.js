@@ -43,37 +43,48 @@ const userSchema = new Schema({
       ref: 'Course',
     },
   ],
- 
-    // todo  just track array ==> pathway
-     track: {
-      type: [String],
-      trim: true,
-      enum: ['Web Development', 'Data Science', 'Mobile Development'],
-     },
-  //  level :{
-  //   type:String,
-  //   trim: true,
-  //   enum: ['Entry', 'Mid', 'Advanced','Expert'],
-  //  },
-      level: {
-        type: Number,
-        // default: 1,
-      },
-    exams: [
-      {
-         type: mongoose.Schema.Types.ObjectId, 
-         ref: 'Exam',
-      },
-    ],
+  //  track ==> array
+  // track: [
+  //   {
+  //     ref: "Course"
+  //  }],
+  //  track ==> array
+  // todo  just track array
+  track: {
+    type: String,
+    trim: true,
+    enum: ['Web Development', 'Data Science', 'Mobile Development'],
+    default: 'Web Development',
+  },
+  // ],
+  level: {
+    type: Number,
+    default: 1,
+  },
   status: {
     type: String,
     enum: ['active', 'inactive'],
     default: 'active',
   },
   // //////
-
+  certificates: [
+    {
+      id: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Certificate',
+        required: true,
+      },
+      name: {
+        type: String,
+        required: true,
+      },
+      acquiredAt: {
+        type: Date,
+        default: Date.now,
+      },
+    },
+  ],
 });
-     
 
 userSchema.pre('save', async function (next) {
   try {

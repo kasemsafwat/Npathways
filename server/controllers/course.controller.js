@@ -32,12 +32,15 @@ class CourseController {
 
   static async createCourse(req, res) {
     try {
-      const { name, requiredExams, instructors, lessons } = req.body;
+      const { name, description, requiredExams, instructors, lessons, image } =
+        req.body;
       const course = await CourseModel.create({
         name,
+        description,
         requiredExams,
         instructors,
         lessons,
+        image,
       });
       res.status(201).json(course);
     } catch (error) {
@@ -49,7 +52,8 @@ class CourseController {
   static async updateCourse(req, res) {
     try {
       const { id } = req.params;
-      const { name, requiredExams, instructors, lessons } = req.body;
+      const { name, description, requiredExams, instructors, lessons, image } =
+        req.body;
 
       if (!id.match(/^[0-9a-fA-F]{24}$/)) {
         return res.status(400).json({ error: 'Invalid course ID' });
@@ -57,7 +61,7 @@ class CourseController {
 
       const course = await CourseModel.findByIdAndUpdate(
         id,
-        { name, requiredExams, instructors, lessons },
+        { name, description, requiredExams, instructors, lessons, image },
         { new: true }
       );
       if (!course) {
