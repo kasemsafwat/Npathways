@@ -10,7 +10,6 @@ class CourseController {
       res.status(500).json({ error: 'Internal server error' });
     }
   }
-
   static async getCourseById(req, res) {
     try {
       const { id } = req.params;
