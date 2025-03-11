@@ -4,7 +4,7 @@ import Home from "./pages/Home";
 // import About from "./pages/About";
 // import Contact from "./pages/Contact";
 // import NotFound from "./pages/NotFound";
-import Navbar from "./components/NavBar/Navbar";
+import Navbar from "./Components/NavBar/NavBar"
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import NotFound from "./pages/NotFound";
@@ -13,6 +13,7 @@ import CreateExam from "./Components/CreateExam/CreateExam";
 import Exam from "./Components/Exam/Exam";
 import FinishedExam from "./Components/FinishedExam/FinishedExam";
 import UserProfile from "./Components/UserProfile/UserProfile";
+import Courses from "./Components/Courses/Courses";
 const Layout = ({ children }) => {
   return (
     <div className="app">
@@ -37,6 +38,8 @@ function App() {
         <Route path="/finishExam" element={<FinishedExam/>} />
         <Route path="/exam/:id" element={<Exam/>} />
         <Route path="/user" element={<UserProfile/>} />
+        <Route path="/courses" element={<Courses/>} />
+
 
         {/* ADD YOUR ELEMENT */}
         <Route path="*" element={<NotFound />} />
