@@ -1,6 +1,6 @@
-import mongoose from 'mongoose';
+import mongoose from "mongoose";
 const Schema = mongoose.Schema;
-import bcrypt from 'bcrypt';
+import bcrypt from "bcrypt";
 const userSchema = new Schema({
   firstName: {
     type: String,
@@ -24,10 +24,10 @@ const userSchema = new Schema({
     required: true,
     minlength: 8,
   },
-  phone :{
-    type:String
+  phone: {
+    type: String,
   },
- 
+
   tokens: {
     type: [String],
     default: [],
@@ -40,7 +40,7 @@ const userSchema = new Schema({
   courses: [
     {
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'Course',
+      ref: "Course",
     },
   ],
   //  track ==> array
@@ -50,12 +50,12 @@ const userSchema = new Schema({
   //  }],
   //  track ==> array
   // todo  just track array
-  track: {
-    type: String,
-    trim: true,
-    enum: ['Web Development', 'Data Science', 'Mobile Development'],
-    default: 'Web Development',
-  },
+  // track: {
+  //   type: String,
+  //   trim: true,
+  //   enum: ['Web Development', 'Data Science', 'Mobile Development'],
+  //   default: 'Web Development',
+  // },
   // ],
   level: {
     type: Number,
@@ -63,15 +63,15 @@ const userSchema = new Schema({
   },
   status: {
     type: String,
-    enum: ['active', 'inactive'],
-    default: 'active',
+    enum: ["active", "inactive"],
+    default: "active",
   },
   // //////
   certificates: [
     {
       id: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'Certificate',
+        ref: "Certificate",
         required: true,
       },
       name: {
@@ -84,20 +84,27 @@ const userSchema = new Schema({
       },
     },
   ],
+
+  pathways: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Pathway",
+    },
+  ],
 });
 
-userSchema.pre('save', async function (next) {
+userSchema.pre("save", async function (next) {
   try {
-    if (!this.isModified('password')) {
+    if (!this.isModified("password")) {
       return next();
     }
     this.password = await bcrypt.hash(this.password, 8);
     next();
   } catch (error) {
-    console.error('User pre save Error: ', error);
+    console.error("User pre save Error: ", error);
     return next(error);
   }
 });
 
-const User = mongoose.model('User', userSchema);
+const User = mongoose.model("User", userSchema);
 export default User;
