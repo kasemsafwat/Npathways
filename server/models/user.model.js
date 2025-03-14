@@ -36,7 +36,6 @@ const userSchema = new Schema({
     type: String,
     trim: true,
   },
-  // /////
   courses: [
     {
       type: mongoose.Schema.Types.ObjectId,
@@ -82,6 +81,7 @@ const userSchema = new Schema({
         type: Date,
         default: Date.now,
       },
+      _id: false,
     },
   ],
 
