@@ -1,5 +1,8 @@
+import React, { useEffect, useState } from "react";
+import axios from "axios";
 import {
   Avatar,
+  Button,
   Card,
   CardContent,
   Grid,
@@ -11,6 +14,45 @@ import {
 } from "@mui/material";
 
 function CoursesCard({ course }) {
+  const [isEnrolled, setIsEnrolled] = useState(false);
+
+  useEffect(() => {
+    const checkEnrollment = async () => {
+      try {
+        const userId = localStorage.getItem("userId");
+        console.log("User ID:", userId);
+        const response = await axios.get(
+          `http://localhost:5024/api/user/${userId}`,
+          {
+            withCredentials: true,
+          }
+        );
+        const enrolledCourses = response.data.courses;
+        setIsEnrolled(enrolledCourses.includes(course._id));
+      } catch (error) {
+        console.error("Error checking enrollment status:", error);
+      }
+    };
+
+    checkEnrollment();
+  }, [course._id]);
+
+  const handleEnroll = async () => {
+    try {
+      const response = await axios.post(
+        "http://localhost:5024/api/course/enrollInCourse",
+        {
+          courseId: course._id,
+        },
+        { withCredentials: true }
+      );
+      console.log("Enrolled successfully:", response.data);
+      setIsEnrolled(true);
+    } catch (error) {
+      console.error("Error enrolling in course:", error);
+    }
+  };
+
   return (
     <Grid item key={course._id} xs={12} sm={6} md={4}>
       <Card sx={{ height: "100%", display: "flex", flexDirection: "column" }}>
@@ -48,6 +90,15 @@ function CoursesCard({ course }) {
               No instructors assigned.
             </Typography>
           )}
+          <Button
+            variant="contained"
+            color="primary"
+            sx={{ mt: 2 }}
+            onClick={handleEnroll}
+            disabled={isEnrolled}
+          >
+            {isEnrolled ? "Enrolled" : "Enroll In"}
+          </Button>
         </CardContent>
       </Card>
     </Grid>
