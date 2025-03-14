@@ -4,25 +4,42 @@ import { useNavigate, useParams } from "react-router";
 
 export default function Exam() {
   const [exam, setExam] = useState(null);
-  const [loading, setLoading] = useState(true); 
-  const [timeLeft, setTimeLeft] = useState(0); 
-  const {id} = useParams();
-let navigate = useNavigate();
+  const [loading, setLoading] = useState(true);
+  const [timeLeft, setTimeLeft] = useState(0);
+  const [responses, setResponses] = useState([]);
+  const { id } = useParams();
+  let navigate = useNavigate();
+
   async function getQuestion() {
     try {
-      const { data } = await axios.get(
-        `http://localhost:5024/api/exam/${id}`
-      );
-      setExam(data); 
-      setTimeLeft(data.timeLimit * 60); 
-      setLoading(false); 
+      const { data } = await axios.get(`http://localhost:5024/api/exam/${id}`);
+      setExam(data);
+      setTimeLeft(data.timeLimit * 60);
+      setLoading(false);
     } catch (error) {
       setLoading(false);
     }
   }
-function handllrNavigate(){
-  navigate('/finishExam')
-}
+
+  function handleNavigate() {
+    const payload = {
+      examId: id,
+      responses: responses,
+    };
+
+    console.log(payload);
+    axios
+      .post("http://localhost:5024/api/exam/submitExam", payload, {
+        withCredentials: true,
+      })
+      .then((response) => {
+        navigate("/finishExam");
+      })
+      .catch((error) => {
+        console.error("There was an error submitting the exam!", error);
+      });
+  }
+
   useEffect(() => {
     if (timeLeft > 0) {
       const timer = setInterval(() => {
@@ -43,12 +60,23 @@ function handllrNavigate(){
     getQuestion();
   }, []);
 
+  const handleAnswerChange = (questionIndex, answer) => {
+    setResponses((prevResponses) => {
+      const newResponses = [...prevResponses];
+      newResponses[questionIndex] = {
+        question: exam.questions[questionIndex].question,
+        selectedAnswers: [answer],
+      };
+      return newResponses;
+    });
+  };
+
   if (loading) {
     return <p>Loading ...</p>;
   }
 
   if (!exam) {
-    return <p>No exam data found.</p>; 
+    return <p>No exam data found.</p>;
   }
 
   return (
@@ -72,8 +100,11 @@ function handllrNavigate(){
                       <input
                         className="form-check-input"
                         type="radio"
-                        name={`options-${index}`} 
+                        name={`options-${index}`}
                         id={`option-${index}-${answerIndex}`}
+                        onChange={() =>
+                          handleAnswerChange(index, answer.answer)
+                        }
                       />
                       <label
                         className="form-check-label"
@@ -87,7 +118,11 @@ function handllrNavigate(){
                 </div>
               ))}
               <div className="d-flex justify-content-between m-3">
-                <button type="button" onClick={handllrNavigate} className="btn btn-outline-primary">
+                <button
+                  type="button"
+                  onClick={handleNavigate}
+                  className="btn btn-outline-primary"
+                >
                   Submit
                 </button>
               </div>
@@ -95,8 +130,7 @@ function handllrNavigate(){
             <div
               className="col-md-2 col-4 position-fixed end-0 vh-100"
               style={{ top: "56px", zIndex: 2, padding: 0 }}
-            >
-            </div>
+            ></div>
           </div>
         </div>
       </div>
