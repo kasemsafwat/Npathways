@@ -12,9 +12,11 @@ import {
   ListItemText,
   Typography,
 } from "@mui/material";
+import { useNavigate } from "react-router-dom";
 
 function CoursesCard({ course }) {
   const [isEnrolled, setIsEnrolled] = useState(false);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const checkEnrollment = async () => {
@@ -49,7 +51,17 @@ function CoursesCard({ course }) {
       console.log("Enrolled successfully:", response.data);
       setIsEnrolled(true);
     } catch (error) {
-      console.error("Error enrolling in course:", error);
+      if (
+        error.response &&
+        error.response.data &&
+        error.response.data.examsNeeded
+      ) {
+        const examsNeeded = error.response.data.examsNeeded;
+        console.error("User has not passed all required exams:", examsNeeded);
+        navigate(`/exam/${examsNeeded[0]}`);
+      } else {
+        console.error("Error enrolling in course:", error);
+      }
     }
   };
 
