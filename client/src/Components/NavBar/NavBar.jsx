@@ -4,7 +4,7 @@ import { Link } from "react-router-dom";
 import { AuthContext } from "../../contexts/AuthContext";
 
 function Navbar() {
-  const { isAuthenticated, logout } = useContext(AuthContext);
+  const { isAuthenticated, logout, isEnrolled } = useContext(AuthContext);
   return (
     <AppBar
       position="static"
@@ -68,6 +68,21 @@ function Navbar() {
         >
           Profile
         </Button>
+        {!isEnrolled && isAuthenticated && (
+          <Button
+            sx={{
+              color: "white",
+              backgroundColor: "#4A3AFF",
+              textTransform: "none",
+              borderRadius: "8px",
+            }}
+            variant="contained"
+            component={Link}
+            to="/terms-and-conditions"
+          >
+            Enroll
+          </Button>
+        )}
         {isAuthenticated && (
           <Button
             sx={{

@@ -1,9 +1,11 @@
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import axios from "axios";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "./UserProfile.css"; // Import the CSS file
+import { AuthContext } from "../../contexts/AuthContext";
 
 const UserProfile = () => {
+  const { isAuthenticated } = useContext(AuthContext);
   const userId = localStorage.getItem("userId");
   const [userData, setUserData] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -27,7 +29,11 @@ const UserProfile = () => {
     };
     fetchUserData();
   }, [userId]);
-
+  if (!isAuthenticated) {
+    return (
+      <div className="text-center mt-5">Please login to view this page</div>
+    );
+  }
   if (loading) return <div className="text-center mt-5">Loading...</div>;
   if (error) return <div className="text-center text-danger mt-5">{error}</div>;
   if (!userData)

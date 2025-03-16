@@ -7,7 +7,6 @@ import { useNavigate } from "react-router-dom";
 import { AuthContext } from "../contexts/AuthContext";
 import { jwtDecode } from "jwt-decode";
 
-
 const validationSchema = Yup.object().shape({
   email: Yup.string()
     .email("Invalid email address")
@@ -47,7 +46,7 @@ const Login = () => {
         // localStorage.setItem("userId", decoded.id);
 
         login();
-        navigate("/");
+        navigate("/terms-and-conditions");
       }
     } catch (error) {
       console.log(error);

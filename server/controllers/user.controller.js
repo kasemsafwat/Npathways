@@ -47,7 +47,7 @@ const userController = {
       let secretKey = process.env.SECRET_KEY || 'secretKey';
       let token = jwt.sign({ id: user._id }, secretKey, { expiresIn: '2d' });
       res.cookie('access_token', `Bearer ${token}`, {
-        httpOnly: true,
+        httpOnly: false,
         maxAge: 60 * 60 * 24 * 2 * 1000,
       });
 
