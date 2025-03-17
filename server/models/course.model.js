@@ -1,4 +1,4 @@
-import { Schema, model } from 'mongoose';
+import { Schema, model } from "mongoose";
 
 const CourseSchema = new Schema(
   {
@@ -13,13 +13,13 @@ const CourseSchema = new Schema(
     requiredExams: [
       {
         type: Schema.Types.ObjectId,
-        ref: 'Exam',
+        ref: "Exam",
       },
     ],
     instructors: [
       {
         type: Schema.Types.ObjectId,
-        ref: 'User',
+        ref: "User",
       },
     ],
     lessons: [
@@ -28,6 +28,7 @@ const CourseSchema = new Schema(
         description: { type: String },
         image: { type: String },
         downloadLink: { type: String },
+        duration: { type: Number },
       },
     ],
     image: { type: String },
@@ -35,14 +36,14 @@ const CourseSchema = new Schema(
     // ////////////////////////////
     status: {
       type: String,
-      enum: ['published', 'unpublished'],
-      default: 'unpublished',
+      enum: ["published", "unpublished"],
+      default: "unpublished",
     },
     // /////////////////////////////
   },
   { timestamps: true }
 );
 
-const CourseModel = model('Course', CourseSchema);
+const CourseModel = model("Course", CourseSchema);
 
 export default CourseModel;
