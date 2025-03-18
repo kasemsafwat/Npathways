@@ -15,10 +15,11 @@ import FinishedExam from "./Components/FinishedExam/FinishedExam";
 import UserProfile from "./Components/UserProfile/UserProfile";
 import TermsAndConditions from "./pages/TermsAndConditions";
 import Courses from "./pages/Courses";
+import NavBarNew from "./Components/NavBar/NavBarNew";
 const Layout = ({ children }) => {
   return (
     <div className="app">
-      <Navbar />
+      <NavBarNew />
       <main className="content">{children}</main>
       <footer className="footer">
         <p>© 2025 NPathways</p>

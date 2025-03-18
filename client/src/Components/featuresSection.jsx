@@ -12,6 +12,7 @@ import {
 import Certification from "../assets/Certification.jpg";
 import illustration from "../assets/illustration.avif";
 import BIM from "../assets/BIM.jpg";
+import FeatureBox from "./FeatureBox";
 
 const FeaturesSection = () => {
   const features = [
@@ -37,8 +38,37 @@ const FeaturesSection = () => {
   ];
 
   return (
-    <Box sx={{ py: 8, backgroundColor: "#4A3AFF" }}>
+    <Box sx={{ py: 8, backgroundColor: "#F9F9F9" }}>
       <Container>
+        {/* make it rounded 30 */}
+        <Box
+          sx={{
+            backgroundColor: "#F0F0F0",
+            py: 1.2,
+            mb: 4,
+            textAlign: "center",
+            maxWidth: "200px", // Added maxWidth to make the box smaller
+            mx: "auto", // Center the box horizontally
+            // Make the box rounded
+            borderRadius: "30px",
+          }}
+        >
+          <Typography
+            variant="h6"
+            component="h4"
+            sx={{ color: "#5B5B5B", fontWeight: "bold" }}
+          >
+            Features
+          </Typography>
+        </Box>
+        <Typography
+          variant="h4"
+          component="h2"
+          align="center"
+          sx={{ mb: 4, fontWeight: "bold" }}
+        >
+          Why us?
+        </Typography>
         <Grid container spacing={4}>
           {features.map((feature, index) => (
             <Grid item xs={12} sm={4} key={index}>
@@ -46,10 +76,12 @@ const FeaturesSection = () => {
                 sx={{
                   height: "100%",
                   minHeight: "300px", // BOX SIZE
+                  minWidth: "400px", // BOX SIZE
                   display: "flex",
                   flexDirection: "column",
                   alignItems: "center",
                   backgroundColor: feature.backgroundColor,
+                  borderRadius: "20px", // Make the card rounded
                 }}
               >
                 <CardMedia

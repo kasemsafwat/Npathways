@@ -1,10 +1,10 @@
 import FeaturesSection from "../Components/featuresSection";
-import HeroSection from "../Components/HeroSection";
+import NewHeroSection from "../Components/Landing/NewHeroSection";
 
 function Home() {
   return (
     <>
-      <HeroSection />
+      <NewHeroSection />
       <FeaturesSection />
     </>
   );
