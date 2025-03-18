@@ -19,7 +19,8 @@ import NavBarNew from "./Components/NavBar/NavBarNew";
 const Layout = ({ children }) => {
   return (
     <div className="app">
-      <NavBarNew />
+      {/* <NavBarNew /> */}
+      <Navbar />
       <main className="content">{children}</main>
       <footer className="footer">
         <p>© 2025 NPathways</p>
@@ -29,6 +30,7 @@ const Layout = ({ children }) => {
 };
 
 function App() {
+  
   return (
     <>
       <Layout>

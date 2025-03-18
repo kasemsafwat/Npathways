@@ -20,7 +20,7 @@ const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [apiError, setApiError] = useState(null);
   const navigate = useNavigate();
-  const { login } = useContext(AuthContext);
+  const { login, isEnrolled, isLoading } = useContext(AuthContext);
   const initialValues = {
     email: "",
     password: "",
@@ -40,17 +40,19 @@ const Login = () => {
       if (data.message === "Login successfully") {
         localStorage.setItem("userId", data.userId);
         localStorage.setItem("userName", `${data.firstName} ${data.lastName}`);
-        // localStorage.setItem("token", data.token);
-        // const decoded = jwtDecode(data.token);
-        // console.log(decoded)
-        // localStorage.setItem("userId", decoded.id);
 
-        login();
-        navigate("/terms-and-conditions");
+        const isUserEnrolled = await login();
+        console.log("isEnrolled", isUserEnrolled);
+
+        if (isUserEnrolled) {
+          navigate("/");
+        } else {
+          navigate("/terms-and-conditions");
+        }
       }
     } catch (error) {
       console.log(error);
-      setApiError(error.response.data.message);
+      setApiError(error.response?.data?.message || "Login failed");
     }
   }
   const formik = useFormik({
