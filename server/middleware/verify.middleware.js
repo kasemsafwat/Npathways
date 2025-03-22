@@ -1,56 +1,56 @@
-import Joi from 'joi';
+import Joi from "joi";
 
 // Joi here verifies every input for the certain APIs
 // before sendin it to the database
 
-const examRoute = '/api/exam';
-const courseRoute = '/api/course';
-const chatRoute = '/api/chat';
-const certificateRoute = '/api/certificate';
+const examRoute = "/api/exam";
+const courseRoute = "/api/course";
+const chatRoute = "/api/chat";
+const certificateRoute = "/api/certificate";
 
 const exampleExam = {
-  name: 'Exam 1',
+  name: "Exam 1",
   questions: [
     {
-      question: 'Question 1',
+      question: "Question 1",
       answers: [
-        { answer: 'Answer 1', isCorrect: true },
-        { answer: 'Answer 2', isCorrect: false },
-        { answer: 'Answer 3', isCorrect: false },
+        { answer: "Answer 1", isCorrect: true },
+        { answer: "Answer 2", isCorrect: false },
+        { answer: "Answer 3", isCorrect: false },
       ],
-      difficulty: 'medium',
+      difficulty: "medium",
     },
     {
-      question: 'Question 2',
+      question: "Question 2",
       answers: [
-        { answer: 'Answer 1', isCorrect: false },
-        { answer: 'Answer 2', isCorrect: true },
-        { answer: 'Answer 3', isCorrect: false },
+        { answer: "Answer 1", isCorrect: false },
+        { answer: "Answer 2", isCorrect: true },
+        { answer: "Answer 3", isCorrect: false },
       ],
-      difficulty: 'easy',
+      difficulty: "easy",
     },
     {
-      question: 'Question 3',
+      question: "Question 3",
       answers: [
-        { answer: 'Answer 1', isCorrect: false },
-        { answer: 'Answer 2', isCorrect: false },
-        { answer: 'Answer 3', isCorrect: true },
+        { answer: "Answer 1", isCorrect: false },
+        { answer: "Answer 2", isCorrect: false },
+        { answer: "Answer 3", isCorrect: true },
       ],
-      difficulty: 'hard',
+      difficulty: "hard",
     },
   ],
   timeLimit: 60,
 };
 
 const exampleCourse = {
-  name: 'Course 1',
+  name: "Course 1",
   requiredExams: [
     {
-      _id: '123',
+      _id: "123",
     },
   ],
   instructors: [],
-  lessons: ['Lesson 1', 'Lesson 2', 'Lesson 3'],
+  lessons: ["Lesson 1", "Lesson 2", "Lesson 3"],
 };
 
 const createExamSchema = Joi.object({
@@ -66,8 +66,8 @@ const createExamSchema = Joi.object({
           })
         ),
         difficulty: Joi.string()
-          .valid('easy', 'medium', 'hard')
-          .default('medium'),
+          .valid("easy", "medium", "hard")
+          .default("medium"),
       })
     )
     .required(),
@@ -86,8 +86,8 @@ const updateExamSchema = Joi.object({
         })
       ),
       difficulty: Joi.string()
-        .valid('easy', 'medium', 'hard')
-        .default('medium'),
+        .valid("easy", "medium", "hard")
+        .default("medium"),
     })
   ),
   timeLimit: Joi.number(),
@@ -98,12 +98,12 @@ const createCourseSchema = Joi.object({
   requiredExams: Joi.array().items(
     Joi.string()
       .regex(/^[0-9a-fA-F]{24}$/)
-      .message('Enter a valid id')
+      .message("Enter a valid id")
   ),
   instructors: Joi.array().items(
     Joi.string()
       .regex(/^[0-9a-fA-F]{24}$/)
-      .message('Enter a valid id')
+      .message("Enter a valid id")
   ),
   lessons: Joi.array().items(
     Joi.object({
@@ -111,6 +111,7 @@ const createCourseSchema = Joi.object({
       description: Joi.string(),
       image: Joi.string(),
       downloadLink: Joi.string(),
+      duration: Joi.number(),
     })
   ),
   description: Joi.string().required(),
@@ -122,12 +123,12 @@ const updateCourseSchema = Joi.object({
   requiredExams: Joi.array().items(
     Joi.string()
       .regex(/^[0-9a-fA-F]{24}$/)
-      .message('Enter a valid id')
+      .message("Enter a valid id")
   ),
   instructors: Joi.array().items(
     Joi.string()
       .regex(/^[0-9a-fA-F]{24}$/)
-      .message('Enter a valid id')
+      .message("Enter a valid id")
   ),
   lessons: Joi.array().items(
     Joi.object({
@@ -135,6 +136,7 @@ const updateCourseSchema = Joi.object({
       description: Joi.string(),
       image: Joi.string(),
       downloadLink: Joi.string(),
+      duration: Joi.number(),
     })
   ),
   description: Joi.string(),
@@ -143,8 +145,8 @@ const updateCourseSchema = Joi.object({
 
 const sendMessageSchema = Joi.object({
   message: Joi.string().trim().min(1).required().messages({
-    'string.empty': 'Enter a message',
-    'any.required': 'Enter a message',
+    "string.empty": "Enter a message",
+    "any.required": "Enter a message",
   }),
 });
 
@@ -162,20 +164,20 @@ const submitExamSchema = Joi.object({
 
 const createCertificateSchema = Joi.object({
   name: Joi.string().required().messages({
-    'string.empty': 'Certificate name is required',
-    'any.required': 'Certificate name is required',
+    "string.empty": "Certificate name is required",
+    "any.required": "Certificate name is required",
   }),
   description: Joi.string().required().messages({
-    'string.empty': 'Certificate description is required',
-    'any.required': 'Certificate description is required',
+    "string.empty": "Certificate description is required",
+    "any.required": "Certificate description is required",
   }),
   image: Joi.string(),
   course: Joi.string()
     .regex(/^[0-9a-fA-F]{24}$/)
-    .message('Enter a valid course id'),
+    .message("Enter a valid course id"),
   pathway: Joi.string()
     .regex(/^[0-9a-fA-F]{24}$/)
-    .message('Enter a valid pathway id'),
+    .message("Enter a valid pathway id"),
   createdAt: Joi.date(),
 });
 
@@ -185,15 +187,15 @@ const updateCertificateSchema = Joi.object({
   image: Joi.string(),
   course: Joi.string()
     .regex(/^[0-9a-fA-F]{24}$/)
-    .message('Enter a valid course id'),
+    .message("Enter a valid course id"),
   pathway: Joi.string()
     .regex(/^[0-9a-fA-F]{24}$/)
-    .message('Enter a valid pathway id'),
+    .message("Enter a valid pathway id"),
   createdAt: Joi.date(),
 });
 
 function getSchema(link, method) {
-  if (method !== 'POST' && method !== 'PUT') return null;
+  if (method !== "POST" && method !== "PUT") return null;
   if (link === `${examRoute}/createExam`) {
     return createExamSchema;
   } else if (link.includes(`${examRoute}/updateExam`)) {
@@ -218,8 +220,31 @@ export default async function verifyInput(req, res, next) {
   const schema = getSchema(req.originalUrl, req.method);
 
   if (!schema) {
-    return res.status(404).json({ error: 'Route not found' });
+    return res.status(404).json({ error: "Route not found" });
   }
+
+  // Parse stringified JSON arrays and objects in request body
+  try {
+    for (const key in req.body) {
+      const value = req.body[key];
+      if (
+        typeof value === "string" &&
+        ((value.trim().startsWith("[") && value.trim().endsWith("]")) ||
+          (value.trim().startsWith("{") && value.trim().endsWith("}")))
+      ) {
+        try {
+          req.body[key] = JSON.parse(value);
+        } catch (parseError) {
+          // If parsing fails, keep the original string value
+          console.log(`Failed to parse ${key}: ${parseError.message}`);
+        }
+      }
+    }
+  } catch (error) {
+    console.log("Error processing request body:", error);
+  }
+
+  // console.log(req.body);
 
   const { error } = schema.validate(req.body);
 

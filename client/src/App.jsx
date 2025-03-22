@@ -15,9 +15,11 @@ import FinishedExam from "./Components/FinishedExam/FinishedExam";
 import UserProfile from "./Components/UserProfile/UserProfile";
 import TermsAndConditions from "./pages/TermsAndConditions";
 import Courses from "./pages/Courses";
+import NavBarNew from "./Components/NavBar/NavBarNew";
 const Layout = ({ children }) => {
   return (
     <div className="app">
+      {/* <NavBarNew /> */}
       <Navbar />
       <main className="content">{children}</main>
       <footer className="footer">
@@ -28,6 +30,7 @@ const Layout = ({ children }) => {
 };
 
 function App() {
+  
   return (
     <>
       <Layout>

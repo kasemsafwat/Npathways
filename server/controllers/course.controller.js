@@ -1,3 +1,5 @@
+import path from "path";
+import fs from "fs";
 import CourseModel from "../models/course.model.js";
 import SubmittedExamModel from "../models/submittedExam.model.js";
 import User from "../models/user.model.js";
@@ -12,6 +14,7 @@ class CourseController {
       res.status(500).json({ error: "Internal server error" });
     }
   }
+
   static async getCourseById(req, res) {
     try {
       const { id } = req.params;
@@ -33,8 +36,19 @@ class CourseController {
 
   static async createCourse(req, res) {
     try {
-      const { name, description, requiredExams, instructors, lessons, image } =
+      const { name, description, requiredExams, instructors, lessons } =
         req.body;
+      let image = "";
+      if (req.file) {
+        const uploadName = `${Date.now()}-${req.file.originalname}`;
+        const uploadPath = path.join("uploads", uploadName);
+        image = uploadName;
+        fs.writeFileSync(uploadPath, req.file.buffer, (err) => {
+          if (err) {
+            res.status(500).json({ error: "Failed to save file" });
+          }
+        });
+      }
       const course = await CourseModel.create({
         name,
         description,
@@ -53,21 +67,50 @@ class CourseController {
   static async updateCourse(req, res) {
     try {
       const { id } = req.params;
-      const { name, description, requiredExams, instructors, lessons, image } =
+      const { name, description, requiredExams, instructors, lessons } =
         req.body;
 
       if (!id.match(/^[0-9a-fA-F]{24}$/)) {
         return res.status(400).json({ error: "Invalid course ID" });
       }
 
-      const course = await CourseModel.findByIdAndUpdate(
+      // Get existing course to check for old image
+      let course = await CourseModel.findById(id);
+      if (!course) {
+        return res.status(404).json({ error: "Course not found" });
+      }
+
+      let image = req.body.image;
+      if (req.file) {
+        // Save new image
+        const uploadName = `${Date.now()}-${req.file.originalname}`;
+        const uploadPath = path.join("uploads", uploadName);
+        image = uploadName;
+        fs.writeFileSync(uploadPath, req.file.buffer, (err) => {
+          if (err) {
+            return res.status(500).json({ error: "Failed to save file" });
+          }
+        });
+
+        // Delete old image if exists
+        if (course.image) {
+          const oldImagePath = path.join("uploads", course.image);
+          if (fs.existsSync(oldImagePath)) {
+            fs.unlinkSync(oldImagePath);
+          }
+        }
+      }
+
+      course = await CourseModel.findByIdAndUpdate(
         id,
         { name, description, requiredExams, instructors, lessons, image },
         { new: true }
       );
+
       if (!course) {
-        return res.status(404).json({ error: "Course not found" });
+        return res.status(404).json({ error: "Course wasn't updated" });
       }
+
       res.status(200).json(course);
     } catch (error) {
       console.error(`Error in course controller: ${error}`);
