@@ -211,6 +211,23 @@ const userController = {
       return res.status(500).json({ message: "Server error", error });
     }
   },
+
+  // LogOut
+  logout: async (req, res) => {
+    try {
+      req.user.tokens = req.user.tokens.filter((token) => {
+        return token !== req.token;
+      });
+      await req.user.save();
+
+      res.clearCookie("access_token");
+
+      res.status(200).send({ message: "Logged out successfully" });
+    } catch (error) {
+      console.error("Logout Error:", error);
+      res.status(500).send({ message: "Logout failed: " + error.message });
+    }
+  },
 };
 
 export default userController;

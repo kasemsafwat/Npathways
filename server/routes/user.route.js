@@ -15,13 +15,15 @@ router.get("/all", authentication, userController.getAllUsers);
 router.get("/search", authentication, userController.searchUser);
 router.get("/:id", authentication, userController.getUserById);
 
-// changUserImage 
+// changUserImage
 router.post(
   "/changUserImage/:id",
   userUpload.single("image"),
   authentication,
   userController.changUserImage
 );
+// Logout
+router.delete("/logout", authentication, userController.logout);
 // ///////////////////
 
 // router.delete("/:id",authentication,userController.deleteUser)

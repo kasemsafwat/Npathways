@@ -11,6 +11,12 @@ export const authentication = async (req, res, next) => {
     }
 
     let token = req?.cookies?.access_token?.split(" ")[1];
+    if (!token) {
+      return res.status(401).send({
+        message: "Unauthorized: No token provided",
+      });
+    }
+
     let secretKey = process.env.SECRET_KEY || "secretKey";
     let valid = await jwt.verify(token, secretKey);
     if (!valid) {
@@ -18,6 +24,12 @@ export const authentication = async (req, res, next) => {
         message: "Unauthorized user",
       });
     }
+    if (!valid?.id) {
+      return res.status(401).send({
+        message: "Unauthorized: Invalid token",
+      });
+    }
+    // console.log(valid);
 
     let user = await User.findById(valid.id);
     if (!user) {
