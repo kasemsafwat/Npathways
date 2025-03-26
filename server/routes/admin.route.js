@@ -4,6 +4,7 @@ import AdminControlller from "../controllers/adminFunction.controller.js";
 import {
   newAdminValidation,
   loginValidation,
+  ResetValidation,
 } from "../middleware/admin.middleware.js";
 
 import { protectRoutes, allowTo } from "../middleware/AuthAdmin.middleware.js";
@@ -17,6 +18,12 @@ const router = express.Router();
 router.post("/signup", newAdminValidation, authAdminController.register);
 router.post("/login", loginValidation, authAdminController.login);
 
+router.post("/forgetPassword", authAdminController.forgetPassword);
+router.patch(
+  "/resetPassword/:token",
+  ResetValidation,
+  authAdminController.resetPassword
+);
 // ////////////////////////////////////
 
 // // Admine

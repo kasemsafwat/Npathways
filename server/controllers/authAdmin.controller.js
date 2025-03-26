@@ -10,6 +10,9 @@ import { fileURLToPath } from "url";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
+import crypto from "crypto";
+import sendEmail from "../services/email.js";
+
 const authAdminController = {
   register: async (req, res) => {
     try {
@@ -180,18 +183,105 @@ const authAdminController = {
             .send({ message: "Instructornot found not found" });
         }
 
-        return res
-          .status(200)
-          .send({
-            message: "Image updated successfully",
-            user: updatedInstructor,
-          });
+        return res.status(200).send({
+          message: "Image updated successfully",
+          user: updatedInstructor,
+        });
       } else {
         return res.status(400).send({ message: "No image file provided" });
       }
     } catch (error) {
       console.error("Error in changeInstructorImage:", error);
       return res.status(500).send({ message: "Server error", error });
+    }
+  },
+
+  // Forget Password
+  forgetPassword: async (req, res) => {
+    try {
+      let { email } = req.body;
+      let user = await Admin.findOne({
+        email,
+      });
+      if (!user) {
+        return res.status(404).send({
+          message: "Invalid Email",
+        });
+      }
+      const resetToken = user.createResetPasswordToken();
+      console.log(resetToken);
+      await user.save({ validateeforeSave: false });
+
+      const reseUrl = `${req.protocol}://${req.headers.host}/api/admin/resetPassword/${resetToken}`;
+      const message = `We have received a password reset request. please use the below link to reset password : 
+    \n\n ${reseUrl} \n\n This reset Password Link will be valid only for 10 minutes `;
+      console.log(reseUrl);
+
+      try {
+        await sendEmail({
+          email: user.email,
+          subject: "Password change request receivesd",
+          message: message,
+        });
+        res.status(200).send({
+          message: "password reset link send to the admine email",
+        });
+      } catch (error) {
+        (user.passwordResetToken = undefined),
+          (user.passwordResetExpires = undefined),
+          user.save({ validateBeforeSave: false });
+      }
+    } catch (error) {
+      console.error("Forget Password Error:", error);
+      return res.status(500).send({
+        message: error.message,
+      });
+    }
+  },
+  resetPassword: async (req, res) => {
+    try {
+      const { email, password, confirmPassword } = req.body;
+      if (!email || !password || !confirmPassword) {
+        return res.status(400).send({ message: "All fields are required!" });
+      }
+
+      if (password !== confirmPassword) {
+        return res.status(400).json({ message: "Passwords do not match!" });
+      }
+
+      const token = crypto
+        .createHash("sha256")
+        .update(req.params.token)
+        .digest("hex");
+      const admin = await Admin.findOne({
+        email,
+        passwordResetToken: token,
+        passwordResetExpires: { $gt: Date.now() },
+      });
+
+      if (!admin) {
+        return res.status(400).send({ message: "User Not Found" });
+      }
+
+      admin.password = password;
+      admin.confirmPassword = confirmPassword;
+      admin.passwordResetToken = undefined;
+      admin.passwordResetExpires = undefined;
+      admin.changePasswordAt = Date.now();
+
+      await admin.save();
+
+      const loginToken = jwt.sign({ id: admin._id }, process.env.SECRET_KEY, {
+        expiresIn: process.env.JWT_EXPIRES_IN || "7d",
+      });
+
+      return res.status(200).send({
+        message: "Password reset successfully. You are now logged in!",
+        token: loginToken,
+      });
+    } catch (error) {
+      console.error("Reset Password Error:", error);
+      return res.status(500).send({ message: error.message });
     }
   },
 };
