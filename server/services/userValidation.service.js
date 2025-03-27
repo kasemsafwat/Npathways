@@ -37,7 +37,7 @@ export let newUserSchema= Joi.object({
         "any.required": "Email is a required field."    
      }),
     password: Joi.string()
-        .pattern(new RegExp('^[a-zA-Z0-9]{3,30}$'))
+        .pattern(new RegExp("^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])[a-zA-Z0-9]{3,30}$"))
         .trim()
         .required()
         .messages({
@@ -60,7 +60,7 @@ export let loginSchema= Joi.object({
         "any.required": "Email is a required field."    
      }),
     password: Joi.string()
-        .pattern(new RegExp('^[a-zA-Z0-9]{3,30}$'))
+        .pattern(new RegExp("^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])[a-zA-Z0-9]{3,30}$"))
         .trim()
         .required()
         .messages({
@@ -107,7 +107,7 @@ export let CompletStudentSchema= Joi.object({
         "any.required": "Email is a required field."    
      }),
     password: Joi.string()
-        .pattern(new RegExp('^[a-zA-Z0-9]{3,30}$'))
+        .pattern(new RegExp("^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])[a-zA-Z0-9]{3,30}$"))
         .trim()
         .required()
         .messages({
@@ -134,3 +134,34 @@ export let CompletStudentSchema= Joi.object({
       'string.pattern.base': 'Each course ID must be a valid MongoDB ObjectId.',
     }),
 })
+
+export let resetPaswwordUserSchema = Joi.object({
+  email: Joi.string()
+    .email({ minDomainSegments: 2 })
+    .trim()
+    .required()
+    .messages({
+      "string.email": "Please enter a valid email address.",
+      "string.empty": "Email is required and cannot be empty.",
+      "any.required": "Email is a required field.",
+    }),
+  password: Joi.string()
+    .pattern(new RegExp("^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])[a-zA-Z0-9]{3,30}$"))
+    .trim()
+    .required()
+    .messages({
+      "string.pattern.base":
+        "Password must contain only letters and numbers (3-30 characters).",
+      "string.empty": "Password is required and cannot be empty.",
+      "any.required": "Password is a required field.",
+    }),
+  confirmPassword: Joi.string()
+    .valid(Joi.ref("password"))
+    .trim()
+    .required()
+    .messages({
+      "any.only": "Confirm password must match the password.",
+      "string.empty": "Confirm Password is required and cannot be empty.",
+      "any.required": "Confirm Password is a required field.",
+    }),
+});

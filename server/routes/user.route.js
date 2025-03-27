@@ -4,6 +4,7 @@ import { userUpload } from "../middleware/userImage.middleware.js";
 import {
   newUserValidation,
   loginValidation,
+  ResetPasswordUserValidation,
 } from "../middleware/user.middleware.js";
 import { authentication } from "../middleware/auth.middleware.js";
 
@@ -11,6 +12,14 @@ const router = express.Router();
 
 router.post("/signup", newUserValidation, userController.newUser);
 router.post("/login", loginValidation, userController.login);
+
+router.post("/forgetPassword",userController.forgetPassword);
+router.patch(
+  "/resetPassword/:token",
+  ResetPasswordUserValidation,
+  userController.resetPassword
+);
+
 router.get("/all", authentication, userController.getAllUsers);
 router.get("/search", authentication, userController.searchUser);
 router.get("/:id", authentication, userController.getUserById);
