@@ -10,7 +10,9 @@ import {
   Toolbar,
   Typography,
 } from "@mui/material";
-import React from "react";
+import React, { useContext } from "react";
+import { Link } from "react-router-dom";
+import { AuthContext } from "../../contexts/AuthContext";
 
 const navigationItems = [
   { label: "Home", path: "/" },
@@ -20,6 +22,8 @@ const navigationItems = [
 ];
 
 const NavBarNew = () => {
+  const { isAuthenticated, logout, isEnrolled } = useContext(AuthContext);
+
   return (
     <AppBar position="static" sx={{ bgcolor: "#0B162C", height: 100 }}>
       <Toolbar sx={{ height: 80, mt: "5px" }}>
@@ -27,7 +31,7 @@ const NavBarNew = () => {
         <Box display="flex" alignItems="center">
           <Box
             component="img"
-            src="../../../public/pathways_chiropractic.png"
+            src="../../../public/pathways_chiropractic-removebg-preview.png"
             alt="Npathways Logo"
             sx={{ width: 60, height: 60 }}
           />
@@ -50,6 +54,8 @@ const NavBarNew = () => {
           {navigationItems.map((item) => (
             <Typography
               key={item.label}
+              component={Link}
+              to={item.path}
               sx={{
                 fontFamily: "Poppins-Medium, Helvetica",
                 fontWeight: 500,
@@ -58,6 +64,7 @@ const NavBarNew = () => {
                 letterSpacing: "-0.18px",
                 lineHeight: "20px",
                 cursor: "pointer",
+                textDecoration: "none",
               }}
             >
               {item.label}
@@ -103,41 +110,98 @@ const NavBarNew = () => {
             )}
           />
         </Box>
-        {/* Login and Register */}
-        <Typography
-          sx={{
-            fontFamily: "Poppins-Medium, Helvetica",
-            fontWeight: 500,
-            color: "white",
-            fontSize: "0.875rem",
-            letterSpacing: "-0.18px",
-            lineHeight: "20px",
-            cursor: "pointer",
-            mr: 2,
-          }}
-        >
-          Log in
-        </Typography>
-        <Button
-          variant="contained"
-          sx={{
-            bgcolor: "#46c98b",
-            borderRadius: "100px",
-            width: 140,
-            height: 50,
-            fontFamily: "Poppins-Medium, Helvetica",
-            fontWeight: 500,
-            fontSize: "0.875rem",
-            letterSpacing: "-0.18px",
-            lineHeight: "20px",
-            textTransform: "none",
-            "&:hover": {
-              bgcolor: "#3ab77a",
-            },
-          }}
-        >
-          Register
-        </Button>
+        {/* Dynamic Buttons */}
+        {!isEnrolled && isAuthenticated && (
+          <Button
+            sx={{
+              color: "white",
+              backgroundColor: "#46c98b",
+              textTransform: "none",
+              borderRadius: "100px",
+              width: 140,
+              height: 50,
+              fontFamily: "Poppins-Medium, Helvetica",
+              fontWeight: 500,
+              fontSize: "0.875rem",
+              letterSpacing: "-0.18px",
+              lineHeight: "20px",
+              "&:hover": {
+                bgcolor: "#3ab77a",
+              },
+            }}
+            variant="contained"
+            component={Link}
+            to="/terms-and-conditions"
+          >
+            Enroll
+          </Button>
+        )}
+        {isAuthenticated ? (
+          <Button
+            sx={{
+              color: "white",
+              backgroundColor: "#46c98b",
+              textTransform: "none",
+              borderRadius: "100px",
+              width: 140,
+              height: 50,
+              fontFamily: "Poppins-Medium, Helvetica",
+              fontWeight: 500,
+              fontSize: "0.875rem",
+              letterSpacing: "-0.18px",
+              lineHeight: "20px",
+              "&:hover": {
+                bgcolor: "#3ab77a",
+              },
+            }}
+            variant="contained"
+            onClick={logout}
+          >
+            Logout
+          </Button>
+        ) : (
+          <>
+            <Typography
+              component={Link}
+              to="/login"
+              sx={{
+                fontFamily: "Poppins-Medium, Helvetica",
+                fontWeight: 500,
+                color: "white",
+                fontSize: "0.875rem",
+                letterSpacing: "-0.18px",
+                lineHeight: "20px",
+                cursor: "pointer",
+                mr: 2,
+                textDecoration: "none",
+              }}
+            >
+              Log in
+            </Typography>
+            <Button
+              variant="contained"
+              component={Link}
+              to="/register"
+              sx={{
+                bgcolor: "#46c98b",
+                borderRadius: "100px",
+                width: 140,
+                height: 50,
+                fontFamily: "Poppins-Medium, Helvetica",
+                fontWeight: 500,
+                fontSize: "0.875rem",
+                letterSpacing: "-0.18px",
+                lineHeight: "20px",
+                textTransform: "none",
+                "&:hover": {
+                  bgcolor: "#3ab77a",
+                },
+              }}
+            >
+              Register
+            </Button>
+          </>
+        )}
       </Toolbar>
       <Divider sx={{ bgcolor: "white", opacity: 0.2 }} />
     </AppBar>
