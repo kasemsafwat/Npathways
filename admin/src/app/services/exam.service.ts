@@ -29,8 +29,8 @@ export interface Exam {
   name: string;
   timeLimit: number;
   questions: Question[];
-  createdAt: string;
-  updatedAt: string;
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 @Injectable({
