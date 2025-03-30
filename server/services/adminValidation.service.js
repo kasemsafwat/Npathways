@@ -35,12 +35,16 @@ export let newUserSchema = Joi.object({
       "any.required": "Email is a required field.",
     }),
   password: Joi.string()
-    .pattern(new RegExp("^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])[a-zA-Z0-9]{3,30}$"))
+    .pattern(
+      new RegExp(
+        "^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%^&*])[a-zA-Z0-9!@#$%^&*]{8,30}$"
+      )
+    )
     .trim()
     .required()
     .messages({
       "string.pattern.base":
-        "Password must contain only letters and numbers (3-30 characters).",
+        "Password must contain letters, numbers, and special characters (8-30 characters).",
       "string.empty": "Password is required and cannot be empty.",
       "any.required": "Password is a required field.",
     }),
@@ -60,12 +64,16 @@ export let loginSchema = Joi.object({
       "any.required": "Email is a required field.",
     }),
   password: Joi.string()
-    .pattern(new RegExp("^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])[a-zA-Z0-9]{3,30}$"))
+    .pattern(
+      new RegExp(
+        "^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%^&*])[a-zA-Z0-9!@#$%^&*]{8,30}$"
+      )
+    )
     .trim()
     .required()
     .messages({
       "string.pattern.base":
-        "Password must contain only letters and numbers (3-30 characters).",
+        "Password must contain letters, numbers, and special characters (8-30 characters).",
       "string.empty": "Password is required and cannot be empty.",
       "any.required": "Password is a required field.",
     }),
@@ -81,12 +89,16 @@ export let resetSchema = Joi.object({
       "any.required": "Email is a required field.",
     }),
   password: Joi.string()
-    .pattern(new RegExp("^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])[a-zA-Z0-9]{3,30}$"))
+    .pattern(
+      new RegExp(
+        "^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%^&*])[a-zA-Z0-9!@#$%^&*]{8,30}$"
+      )
+    )
     .trim()
     .required()
     .messages({
       "string.pattern.base":
-        "Password must contain only letters and numbers (3-30 characters).",
+        "Password must contain letters, numbers, and special characters (8-30 characters).",
       "string.empty": "Password is required and cannot be empty.",
       "any.required": "Password is a required field.",
     }),
