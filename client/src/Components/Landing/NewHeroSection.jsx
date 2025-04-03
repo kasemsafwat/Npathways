@@ -5,7 +5,13 @@ import bimManager from "../../assets/landing.jpg";
 
 const NewHeroSection = () => {
   return (
-    <Box sx={{ bgcolor: "#0A152B", height: "80vh", width: "100%" }}>
+    <Box
+      sx={{
+        bgcolor: "midnight",
+        height: "80vh",
+        width: "100%",
+      }}
+    >
       <Container maxWidth="xl" sx={{ height: "100%", position: "relative" }}>
         <Box
           sx={{
@@ -54,7 +60,7 @@ const NewHeroSection = () => {
               variant="contained"
               endIcon={<ArrowForwardIcon />}
               sx={{
-                bgcolor: "#46C98B",
+                bgcolor: "primary",
                 borderRadius: "100px",
                 px: 3,
                 py: 1,
