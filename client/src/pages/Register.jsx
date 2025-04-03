@@ -74,7 +74,7 @@ const Register = () => {
           bgcolor: "#f5f5f5",
           borderRadius: 2,
           p: 6,
-          boxShadow: "0 8px 24px rgba(0, 0, 0, 0.08)",
+          boxShadow: "10px 10px 10px rgba(0, 0, 0, 0.1)",
         }}
       >
         <Typography
