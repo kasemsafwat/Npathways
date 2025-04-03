@@ -13,6 +13,7 @@ import UserProfile from "./Components/UserProfile/UserProfile";
 import TermsAndConditions from "./pages/TermsAndConditions";
 import Courses from "./pages/Courses";
 import NavBarNew from "./Components/NavBar/NavBarNew";
+import MyPathway from "./pages/Student/MyPathway";
 // import Chat from "./chat/Chat";
 const Layout = ({ children }) => {
   return (
@@ -41,6 +42,7 @@ function App() {
           <Route path="/exam/:id" element={<Exam />} />
           <Route path="/user" element={<UserProfile />} />
           <Route path="/courses" element={<Courses />} />
+          <Route path="/student/mypathway" element={<MyPathway />} />
           {/* <Route path="/chat" element={<Chat />} /> */}
           <Route
             path="/terms-and-conditions"
