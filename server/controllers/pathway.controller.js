@@ -6,10 +6,14 @@ import mongoose from "mongoose";
 const PathwayController = {
   createPathWay: async (req, res) => {
     try {
-      const { name, courses } = req.body;
-      const existingCourses = await CourseModel.find({
-        _id: { $in: courses },
-      });
+      const { name, description, courses } = req.body;
+      if (!Array.isArray(courses) || courses.length === 0) {
+        return res
+          .status(400)
+          .send({ message: "Courses must be a non-empty array." });
+      }
+      const existingCourses =
+        (await CourseModel.find({ _id: { $in: courses } })) || [];
 
       if (existingCourses.length !== courses.length) {
         return res.status(400).send({
@@ -17,11 +21,7 @@ const PathwayController = {
             "One or more course IDs do not exist in the Course collection.",
         });
       }
-
-      const pathway = await PathwayModel.create({
-        name,
-        courses,
-      });
+      const pathway = await PathwayModel.create({ name, description, courses });
 
       res.status(201).send({
         message: "Pathway created successfully!",
@@ -34,6 +34,7 @@ const PathwayController = {
       });
     }
   },
+
   getAllPathway: async (req, res) => {
     try {
       let pathways = await PathwayModel.find({}).populate(
@@ -51,33 +52,46 @@ const PathwayController = {
       });
     }
   },
-  // todo ==> validation
   updatePathway: async (req, res) => {
     try {
       const { id } = req.params;
-      const { name, courses } = req.body;
+      const { name, description, courses } = req.body;
       if (!id.match(/^[0-9a-fA-F]{24}$/)) {
-        return res.status(400).send({ error: "Invalid PathWay ID" });
+        return res.status(400).send({ error: "Invalid Pathway ID" });
+      }
+      if (courses && Array.isArray(courses) && courses.length > 0) {
+        const existingCourses = await CourseModel.find({
+          _id: { $in: courses },
+        });
+        if (existingCourses.length !== courses.length) {
+          return res.status(400).send({
+            error:
+              "One or more course IDs do not exist in the Course collection.",
+          });
+        }
       }
       const pathway = await PathwayModel.findByIdAndUpdate(
         id,
-        { name, courses },
+        { name, description, courses },
         { new: true }
       );
+
       if (!pathway) {
-        return res.status(404).send({ error: "PathWays not found" });
+        return res.status(404).send({ error: "Pathway not found" });
       }
+
       res.status(200).send({
-        message: "Pathway Updates successfully!",
+        message: "Pathway updated successfully!",
         data: pathway,
       });
     } catch (error) {
-      console.error(`Error in PathWay controller: ${error}`);
+      console.error(`Error in Pathway controller: ${error.message}`);
       return res.status(500).send({
-        message: "PathWayController: " + error.message,
+        message: "PathwayController: " + error.message,
       });
     }
   },
+
   deletePathWay: async (req, res) => {
     try {
       let { id } = req.params;
@@ -121,28 +135,48 @@ const PathwayController = {
   },
   addCourse: async (req, res) => {
     try {
-      let { id } = req.params;
-      if (!id.match(/^[0-9a-fA-F]{24}$/)) {
-        return res.status(400).json({ error: "Invalid Pathway ID" });
+      const { id } = req.params;
+      const { courses } = req.body;
+
+      if (!courses || !Array.isArray(courses) || courses.length === 0) {
+        return res
+          .status(400)
+          .json({ message: "Courses must be a non-empty array." });
       }
-      let { courses } = req.body;
-      let pathway = await PathwayModel.findById(id);
+
+      const pathway = await PathwayModel.findById(id);
       if (!pathway) {
-        return res.status(404).send({
-          message: "Pathway Not Found",
-        });
+        return res.status(404).json({ message: "Pathway Not Found." });
       }
-      pathway.courses = [...pathway.courses, ...courses];
+
+      if (!Array.isArray(pathway.courses)) {
+        pathway.courses = [];
+      }
+
+      console.log("Courses from request:", courses);
+      console.log("Existing pathway courses:", pathway.courses);
+
+      const existingCourses = new Set(pathway.courses.map((c) => c.toString()));
+      const newCourses = courses.filter(
+        (course) => !existingCourses.has(course)
+      );
+
+      if (newCourses.length === 0) {
+        return res
+          .status(400)
+          .json({ message: "All courses already exist in the pathway." });
+      }
+
+      pathway.courses.push(...newCourses);
       await pathway.save();
 
-      res.send({
+      res.status(200).json({
         message: "Courses Added Successfully",
+        addedCourses: newCourses,
       });
     } catch (error) {
-      console.error(`Error in Pathway controller: ${error}`);
-      return res.status(500).send({
-        message: "PathwayController: " + error.message,
-      });
+      console.error(`Error in Pathway controller: ${error.message}`);
+      return res.status(500).json({ message: "Internal Server Error." });
     }
   },
 

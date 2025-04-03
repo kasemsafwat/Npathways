@@ -2,7 +2,7 @@ import express from "express";
 const router = express.Router();
 import { authentication } from "../middleware/auth.middleware.js";
 import PathwayController from "../controllers/pathway.controller.js";
-import { newPathWayValidation } from "../middleware/pathway.middleware.js";
+import { addCourseValidation, newPathWayValidation } from "../middleware/pathway.middleware.js";
 import { protectRoutes, allowTo } from "../middleware/AuthAdmin.middleware.js";
 
 // By Admin
@@ -54,6 +54,7 @@ router.post(
   "/admin/:id/courses",
   protectRoutes,
   allowTo("admin"),
+  addCourseValidation,
   PathwayController.addCourse
 );
 router.delete(

@@ -9,10 +9,10 @@ import {
   Container,
 } from "@mui/material";
 
-import Certification from "../assets/Certification.jpg";
-import illustration from "../assets/illustration.avif";
-import BIM from "../assets/BIM.jpg";
-import FeatureBox from "./FeatureBox";
+import Certification from "../../assets/Certification.jpg";
+import illustration from "../../assets/illustration.avif";
+import BIM from "../../assets/BIM.jpg";
+import FeatureBox from "../FeatureBox";
 
 const FeaturesSection = () => {
   const features = [

@@ -1,9 +1,6 @@
 // App.jsx
 import { Routes, Route } from "react-router-dom";
 import Home from "./pages/Home";
-// import About from "./pages/About";
-// import Contact from "./pages/Contact";
-// import NotFound from "./pages/NotFound";
 import Navbar from "./Components/NavBar/NavBar";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
@@ -16,11 +13,13 @@ import UserProfile from "./Components/UserProfile/UserProfile";
 import TermsAndConditions from "./pages/TermsAndConditions";
 import Courses from "./pages/Courses";
 import NavBarNew from "./Components/NavBar/NavBarNew";
+import MyPathway from "./pages/Student/MyPathway";
+// import Chat from "./chat/Chat";
 const Layout = ({ children }) => {
   return (
     <div className="app">
-      {/* <NavBarNew /> */}
-      <Navbar />
+      <NavBarNew />
+      {/* <Navbar /> */}
       <main className="content">{children}</main>
       <footer className="footer">
         <p>© 2025 NPathways</p>
@@ -30,7 +29,6 @@ const Layout = ({ children }) => {
 };
 
 function App() {
-  
   return (
     <>
       <Layout>
@@ -44,6 +42,8 @@ function App() {
           <Route path="/exam/:id" element={<Exam />} />
           <Route path="/user" element={<UserProfile />} />
           <Route path="/courses" element={<Courses />} />
+          <Route path="/student/mypathway" element={<MyPathway />} />
+          {/* <Route path="/chat" element={<Chat />} /> */}
           <Route
             path="/terms-and-conditions"
             element={<TermsAndConditions />}

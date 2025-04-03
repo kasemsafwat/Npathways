@@ -1,7 +1,8 @@
 import {
   newUserSchema,
   loginSchema,
-  CompletStudentSchema
+  CompletStudentSchema,
+  resetPaswwordUserSchema
 } from '../services/userValidation.service.js';
 
 export function newUserValidation(req, res, next) {
@@ -55,3 +56,19 @@ export const CompletStudentValidation = (req, res, next) => {
     res.status(500).send({ message: 'Internal server error' });
   }
 };
+export function ResetPasswordUserValidation(req, res, next) {
+  try {
+    let { error } = resetPaswwordUserSchema.validate(req.body);
+    if (error) {
+      let errMsg = error.details[0].message;
+      return res.status(403).send({ message: errMsg });
+    }
+    // console.log(error.details[0].message);
+    next();
+  } catch (error) {
+    console.error("Validate reset Error: ", error);
+    return res.status(500).send({
+      message: error.message,
+    });
+  }
+}

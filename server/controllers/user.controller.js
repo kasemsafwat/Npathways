@@ -5,8 +5,11 @@ import { get } from "mongoose";
 import path from "path";
 import fs from "fs";
 import { fileURLToPath } from "url";
+import sendEmail from "../services/email.js";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
+import crypto from "crypto";
+
 
 const userController = {
   newUser: async (req, res) => {
@@ -52,7 +55,7 @@ const userController = {
       let secretKey = process.env.SECRET_KEY || "secretKey";
       let token = jwt.sign({ id: user._id }, secretKey, { expiresIn: "2d" });
       res.cookie("access_token", `Bearer ${token}`, {
-        httpOnly: false,
+        httpOnly: true,
         maxAge: 60 * 60 * 24 * 2 * 1000,
       });
 
@@ -144,16 +147,6 @@ const userController = {
       });
     }
   },
-  // deleteUser:async(req,res)=>{
-  //     try {
-  //         let {id}=req.params
-  //         res.send()
-  //     }catch(error){
-  //         return res.status(500).send({
-  //             message: error.message
-  //         });
-  //     }
-  // }
 
   changUserImage: async (req, res) => {
     try {
@@ -228,6 +221,95 @@ const userController = {
       res.status(500).send({ message: "Logout failed: " + error.message });
     }
   },
+
+   // Forget Password
+    forgetPassword: async (req, res) => {
+      try {
+        let { email } = req.body;
+        let user = await User.findOne({
+          email,
+        });
+        if (!user) {
+          return res.status(404).send({
+            message: "Invalid Email",
+          });
+        }
+        const resetToken = user.createResetPasswordToken();
+        console.log(resetToken);
+        await user.save({ validateeforeSave: false });
+  
+        const reseUrl = `${req.protocol}://${req.headers.host}/api/auth/resetPassword/${resetToken}`;
+        const message = `We have received a password reset request. please use the below link to reset password : 
+      \n\n ${reseUrl} \n\n This reset Password Link will be valid only for 15 minutes `;
+        console.log(reseUrl);
+  
+        try {
+          await sendEmail({
+            email: user.email,
+            subject: "Password change request receivesd",
+            message: message,
+          });
+          res.status(200).send({
+            message: "password reset link send to the admine email",
+          });
+        } catch (error) {
+          (user.passwordResetToken = undefined),
+            (user.passwordResetExpires = undefined),
+            user.save({ validateBeforeSave: false });
+        }
+      } catch (error) {
+        console.error("Forget Password Error:", error);
+        return res.status(500).send({
+          message: error.message,
+        });
+      }
+    },
+    resetPassword: async (req, res) => {
+      try {
+        const { email, password, confirmPassword } = req.body;
+        if (!email || !password || !confirmPassword) {
+          return res.status(400).send({ message: "All fields are required!" });
+        }
+  
+        if (password !== confirmPassword) {
+          return res.status(400).json({ message: "Passwords do not match!" });
+        }
+  
+        const token = crypto
+          .createHash("sha256")
+          .update(req.params.token)
+          .digest("hex");
+        const user = await User.findOne({
+          email,
+          passwordResetToken: token,
+          passwordResetExpires: { $gt: Date.now() },
+        });
+  
+        if (!user) {
+          return res.status(400).send({ message: "User Not Found" });
+        }
+  
+        user.password = password;
+        user.confirmPassword = confirmPassword;
+        user.passwordResetToken = undefined;
+        user.passwordResetExpires = undefined;
+        user.changePasswordAt = Date.now();
+  
+        await user.save();
+  
+        const loginToken = jwt.sign({ id: user._id }, process.env.SECRET_KEY, {
+          expiresIn: process.env.JWT_EXPIRES_IN || "7d",
+        });
+  
+        return res.status(200).send({
+          message: "Password reset successfully. You are now logged in!",
+          token: loginToken,
+        });
+      } catch (error) {
+        console.error("Reset Password Error:", error);
+        return res.status(500).send({ message: error.message });
+      }
+    },
 };
 
 export default userController;
