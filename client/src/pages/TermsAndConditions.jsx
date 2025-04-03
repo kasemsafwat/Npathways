@@ -179,14 +179,14 @@ const TermsAndConditions = () => {
 
       {/* Radio Buttons for Agreement */}
       <div className="m-6">
-        <label className="block mb-6">
+        <label className="block m-6">
           <input
             type="radio"
             name="agreement"
             value="disagree"
             checked={!agreed}
             onChange={handleAgreementChange}
-            className="mr-4 "
+            className="m-1 "
           />
           I don't agree
         </label>
@@ -197,7 +197,7 @@ const TermsAndConditions = () => {
             value="agree"
             checked={agreed}
             onChange={handleAgreementChange}
-            className="mr-2"
+            className="m-2"
           />
           I agree
         </label>

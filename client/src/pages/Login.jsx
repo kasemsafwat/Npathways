@@ -63,30 +63,43 @@ const Login = () => {
 
   return (
     <Container
-      maxWidth="sm"
-      className="d-flex align-items-center justify-content-center"
-      style={{ minHeight: "100vh" }}
+      maxWidth="md"
+      maxHeight="md"
+      sx={{
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        marginTop: "100px",
+        padding: "50px 100px 100px 100px",
+        borderRadius: "20px",
+        backgroundColor: "#f5f5f5",
+        boxShadow: "10px 10px 10px rgba(0, 0, 0, 0.1)",
+      }}
     >
       <div
         style={{
-          padding: "20px",
-          borderRadius: "20px",
-          boxShadow: "0 8px 16px rgba(0, 0, 0, 0.4)",
-          backgroundColor: "white",
+          width: "80%",
+          borderRadius: "15px",
         }}
       >
-        <Typography variant="h4" align="center" gutterBottom>
+        <Typography
+          variant="h4"
+          sx={{
+            textAlign: "center",
+            marginBottom: "30px",
+            fontWeight: "bold",
+            color: "#333",
+          }}
+        >
           Login
         </Typography>
-        {apiError ? (
-          <div className="alert alert-danger mb-2" role="alert">
+        {apiError && (
+          <div className="alert alert-danger mb-3" role="alert">
             {apiError}
           </div>
-        ) : (
-          ""
         )}
         <form onSubmit={formik.handleSubmit}>
-          <Grid container spacing={5}>
+          <Grid container spacing={3}>
             <Grid item xs={12}>
               <TextField
                 fullWidth
@@ -98,9 +111,16 @@ const Login = () => {
                 onChange={formik.handleChange}
                 onBlur={formik.handleBlur}
                 error={formik.touched.email && Boolean(formik.errors.email)}
+                sx={{
+                  "& .MuiOutlinedInput-root": {
+                    borderRadius: "8px",
+                  },
+                }}
               />
               {formik.touched.email && formik.errors.email && (
-                <div className="alert alert-danger mt-2">
+                <div
+                  style={{ color: "red", fontSize: "0.8rem", marginTop: "5px" }}
+                >
                   {formik.errors.email}
                 </div>
               )}
@@ -120,38 +140,52 @@ const Login = () => {
                 error={
                   formik.touched.password && Boolean(formik.errors.password)
                 }
+                sx={{
+                  "& .MuiOutlinedInput-root": {
+                    borderRadius: "8px",
+                  },
+                }}
               />
               {formik.touched.password && formik.errors.password && (
-                <div className="alert alert-danger mt-2">
+                <div
+                  style={{ color: "red", fontSize: "0.8rem", marginTop: "5px" }}
+                >
                   {formik.errors.password}
                 </div>
               )}
             </Grid>
-
             <Grid item xs={12} style={{ textAlign: "end", marginTop: "-30px" }}>
               <Button
                 variant="text"
-                style={{ color: "black" }}
+                style={{ color: "black", margin: "10px" }}
                 onClick={handleShowPassword}
               >
                 {showPassword ? "Hide Password" : "Show Password"}
               </Button>
             </Grid>
-            <Grid
-              item
-              xs={12}
+
+            <Grid 
+              item 
+              xs={12} 
               sx={{
-                display: "flex",
-                justifyContent: "center",
+                display: 'flex',
+                justifyContent: 'center',
+                alignItems: 'center',
               }}
             >
               <Button
                 variant="contained"
                 type="submit"
-                style={{
-                  backgroundColor: "#4A3AFF",
-                  padding: "10px 70px",
+                sx={{
+                  borderRadius: "20px",
+                  padding: "12px",
+                  backgroundColor: "MuiButton-colorPrimary",
+                  textTransform: "none",
                   fontSize: "16px",
+                  width: "50%",
+                  "&:hover": {
+                    backgroundColor: "#3ab77a",
+                  },
                 }}
               >
                 Login
