@@ -14,6 +14,10 @@ import TermsAndConditions from "./pages/TermsAndConditions";
 import Courses from "./pages/Courses";
 import NavBarNew from "./Components/NavBar/NavBarNew";
 import MyPathway from "./pages/Student/MyPathway";
+import WelcomePage from "./pages/EnrollmentPage/WelcomePage";
+import PersonalDetails from "./pages/EnrollmentPage/PersonalDetails";
+import EntryExam from "./pages/EnrollmentPage/EntryExam";
+import Review from "./pages/EnrollmentPage/Review";
 // import Chat from "./chat/Chat";
 const Layout = ({ children }) => {
   return (
@@ -44,11 +48,21 @@ function App() {
           <Route path="/courses" element={<Courses />} />
           <Route path="/student/mypathway" element={<MyPathway />} />
           {/* <Route path="/chat" element={<Chat />} /> */}
+
+          {/*Enrollement Router  */}
+          <Route path="/enrollment/Welcome" element={<WelcomePage />} />
+          <Route
+            path="/enrollment/personal-details"
+            element={<PersonalDetails />}
+          />
+          <Route path="/enrollment/entryExam" element={<EntryExam />} />
+          <Route path="/enrollment/review" element={<Review />} />
+
           <Route
             path="/terms-and-conditions"
             element={<TermsAndConditions />}
           />
-
+          {/* End Enrollement Router */}
           {/* ADD YOUR ELEMENT */}
           <Route path="*" element={<NotFound />} />
         </Routes>
