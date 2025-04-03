@@ -64,8 +64,7 @@ const Register = () => {
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
-        py: 3,
-        px: 2,
+
       }}
     >
       <Box
@@ -73,7 +72,7 @@ const Register = () => {
           width: "100%",
           bgcolor: "#f5f5f5",
           borderRadius: 2,
-          p: 6,
+          p: 4,
           boxShadow: "10px 10px 10px rgba(0, 0, 0, 0.1)",
         }}
       >
