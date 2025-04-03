@@ -64,13 +64,13 @@ const Login = () => {
   return (
     <Container
       maxWidth="md"
-      maxHeight="md"
       sx={{
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
+        width: "40%",
         marginTop: "100px",
-        padding: "50px 100px 100px 100px",
+        padding: "50px 150px 100px ",
         borderRadius: "20px",
         backgroundColor: "#f5f5f5",
         boxShadow: "10px 10px 10px rgba(0, 0, 0, 0.1)",
@@ -164,13 +164,13 @@ const Login = () => {
               </Button>
             </Grid>
 
-            <Grid 
-              item 
-              xs={12} 
+            <Grid
+              item
+              xs={12}
               sx={{
-                display: 'flex',
-                justifyContent: 'center',
-                alignItems: 'center',
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center",
               }}
             >
               <Button
@@ -179,12 +179,12 @@ const Login = () => {
                 sx={{
                   borderRadius: "20px",
                   padding: "12px",
-                  backgroundColor: "MuiButton-colorPrimary",
+                  backgroundColor: "MuiButton-light",
                   textTransform: "none",
                   fontSize: "16px",
                   width: "50%",
                   "&:hover": {
-                    backgroundColor: "#3ab77a",
+                    backgroundColor: "primary.dark",
                   },
                 }}
               >
