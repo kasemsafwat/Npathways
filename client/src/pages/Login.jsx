@@ -68,7 +68,7 @@ const Login = () => {
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
-        width: "40%",
+        width: "35%",
         marginTop: "100px",
         padding: "50px 150px 100px ",
         borderRadius: "20px",
