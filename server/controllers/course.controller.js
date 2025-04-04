@@ -194,6 +194,29 @@ class CourseController {
       res.status(500).json({ error: "Internal server error" });
     }
   }
+  static async getEnrolledCourses(req, res) {
+    try {
+      const userId = req.user._id;
+      const courses = await User.findById(userId)
+        .populate("courses")
+        .select("courses")
+        .then((user) => user.courses);
+      res.status(200).json(courses);
+    } catch (error) {
+      console.error(`Error in course controller: ${error}`);
+      res.status(500).json({ error: "Internal server error" });
+    }
+  }
+  static async getCourseByInstructor(req, res) {
+    try {
+      const instructorId = req.user._id;
+      const courses = await CourseModel.find({ instructors: instructorId });
+      res.status(200).json(courses);
+    } catch (error) {
+      console.error(`Error in course controller: ${error}`);
+      res.status(500).json({ error: "Internal server error" });
+    }
+  }
 }
 
 export default CourseController;
