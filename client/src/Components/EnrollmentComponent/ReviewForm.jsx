@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
 import {
   Container,
   Typography,
@@ -16,11 +16,21 @@ import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import CustomStepper from "./CustomStepper";
 import UpdateButton from "./UpdateButton";
 import { useNavigate } from "react-router-dom";
+import { AuthContext } from "../../contexts/AuthContext";
 const ReviewForm = () => {
+  const { setIsEnrolled } = useContext(AuthContext);
   const [checked, setChecked] = useState(false);
   const navigate = useNavigate();
   const [activeStep, setActiveStep] = useState(0);
   const steps = ["Step 1", "Step 2", "Step 3"];
+  const onFinish = () => {
+    if (checked) {
+      setIsEnrolled(true);
+      navigate("/student/mypathway");
+    } else {
+      alert("Please confirm that all information is accurate.");
+    }
+  };
   return (
     <Container
       maxWidth="md"
@@ -223,7 +233,7 @@ const ReviewForm = () => {
         >
           Prev
         </Button>
-        <Button variant="contained" color="success">
+        <Button variant="contained" color="success" onClick={onFinish}>
           Finish
         </Button>
       </Box>
