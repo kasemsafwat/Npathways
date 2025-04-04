@@ -100,6 +100,11 @@ export const AuthProvider = ({ children }) => {
   };
 
   const logout = () => {
+    // axios.post(
+    //   "http://localhost:5024/api/auth/logout",
+    //   {},
+    //   { withCredentials: true }
+    // );
     setIsAuthenticated(false);
     setIsEnrolled(false);
     document.cookie =
@@ -113,6 +118,7 @@ export const AuthProvider = ({ children }) => {
         login,
         logout,
         isEnrolled,
+        setIsEnrolled,
         isLoading,
         checkSubmittedExam,
         recheckEnrollment,

@@ -1,68 +1,63 @@
-import { Divider, Stack, Typography } from "@mui/material";
+import { Divider, Stack, Typography, CircularProgress } from "@mui/material";
 import React from "react";
 import bimManagerImage from "../../../assets/bim-manager.jpeg";
 import CourseCard from "./CourseCard";
+import axios from "axios";
 
 export default function PathwaySection() {
-  // Import image
+  const [pathways, setPathways] = React.useState([]);
+  const [loading, setLoading] = React.useState(true);
+  const courses = pathways.map((pathway) => pathway.courses).flat();
+
+  React.useEffect(() => {
+    const fetchPathways = async () => {
+      try {
+        const response = await axios.get(
+          `http://localhost:5024/api/pathway/student/userPathway`,
+          { withCredentials: true }
+        );
+        setPathways(response.data.data);
+      } catch (error) {
+        console.error("Error fetching pathways:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchPathways();
+  }, []);
+
+  if (loading) {
+    return (
+      <Stack alignItems="center" justifyContent="center" minHeight="200px">
+        <CircularProgress />
+      </Stack>
+    );
+  }
+
+  if (pathways.length === 0) {
+    return (
+      <Typography align="center" my={2}>
+        No pathways found
+      </Typography>
+    );
+  }
 
   return (
     <>
       <Typography fontWeight={"bold"} my={2}>
-        PathwayName: In Progress
+        {pathways[0].name}: In Progress
       </Typography>
       <Stack flexWrap="wrap" flexDirection={"row"} gap={2}>
-        <CourseCard
-          title="title"
-          image={bimManagerImage}
-          status="In Progress"
-        />
-      </Stack>
-      <Divider
-        orientation="horizontal"
-        flexItem
-        sx={{ border: 1, my: 4, borderColor: "text.primary" }}
-      ></Divider>
-      <Typography fontWeight={"bold"} my={2}>
-        PathwayName: Locked
-      </Typography>
-      <Stack flexWrap="wrap" flexDirection={"row"} gap={2}>
-        <CourseCard title="title" image={bimManagerImage} status="Locked" />
-        <CourseCard title="title" image={bimManagerImage} status="Locked" />
-      </Stack>
-      <Divider
-        orientation="horizontal"
-        flexItem
-        sx={{ border: 1, my: 4, borderColor: "text.primary" }}
-      ></Divider>
-      <Typography fontWeight={"bold"} my={2}>
-        Completed
-      </Typography>
-      <Stack flexWrap="wrap" flexDirection={"row"} gap={2}>
-        <CourseCard
-          title="title"
-          image={bimManagerImage}
-          status="Completed"
-          time="11:00 PM 29/03/2030"
-        />
-        <CourseCard
-          title="title"
-          image={bimManagerImage}
-          status="Completed"
-          time="11:00 PM 29/03/2030"
-        />
-        <CourseCard
-          title="title"
-          image={bimManagerImage}
-          status="Completed"
-          time="11:00 PM 29/03/2030"
-        />
-        <CourseCard
-          title="title"
-          image={bimManagerImage}
-          status="Completed"
-          time="11:00 PM 29/03/2030"
-        />
+        {courses.map((course) => (
+          <CourseCard
+            key={course._id}
+            title={course.name}
+            image={bimManagerImage}
+            status={"In Progress"}
+            time={course.time}
+          />
+        ))}
       </Stack>
     </>
   );
