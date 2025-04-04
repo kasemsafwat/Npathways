@@ -4,15 +4,19 @@ import {
   Avatar,
   Button,
   Card,
+  CardActions,
   CardContent,
+  CardMedia,
   Grid,
   List,
   ListItem,
   ListItemAvatar,
   ListItemText,
+  Rating,
   Typography,
 } from "@mui/material";
 import { useNavigate } from "react-router-dom";
+import image from "../../assets/Rectangle 72.png";
 
 function CoursesCard({ course }) {
   const [isEnrolled, setIsEnrolled] = useState(false);
@@ -22,7 +26,6 @@ function CoursesCard({ course }) {
     const checkEnrollment = async () => {
       try {
         const userId = localStorage.getItem("userId");
-        console.log("User ID:", userId);
         const response = await axios.get(
           `http://localhost:5024/api/user/${userId}`,
           {
@@ -66,25 +69,41 @@ function CoursesCard({ course }) {
   };
 
   return (
-    <Grid item key={course._id} xs={12} sm={6} md={4}>
-      <Card sx={{ height: "100%", display: "flex", flexDirection: "column" }}>
+    <Grid item xs={12} sm={6} md={3} key={course._id}>
+      <Card
+        sx={{
+          height: "", // You can set a fixed height here if needed
+          display: "flex",
+          flexDirection: "column",
+          backgroundColor: "transparent",
+          boxShadow: "none",
+        }}
+      >
+        <CardMedia
+          component="img"
+          alt={course.name}
+          image={image}
+          sx={{ objectFit: "cover", borderRadius: "30px" }}
+        />
+
         <CardContent>
           <Typography
+            gutterBottom
             variant="h5"
             component="div"
-            sx={{ fontWeight: "bold", mb: 2 }}
+            sx={{ fontWeight: "bold", my: 0 }}
           >
             {course.name}
           </Typography>
 
-          <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+          <Typography variant="body2" sx={{ color: "text.secondary" }}>
             {course.description}
           </Typography>
 
-          <Typography variant="subtitle2" sx={{ fontWeight: "bold", mb: 1 }}>
+          <Typography variant="subtitle2" sx={{ fontWeight: "bold", mt: 1 }}>
             Instructors:
           </Typography>
-          {course.instructors.length > 0 ? (
+          {course.instructors && course.instructors.length > 0 ? (
             <List dense>
               {course.instructors.map((instructor, index) => (
                 <ListItem key={index} sx={{ px: 0 }}>
@@ -102,16 +121,36 @@ function CoursesCard({ course }) {
               No instructors assigned.
             </Typography>
           )}
+
+          {/* Pricing Section */}
+          <Typography variant="body1" sx={{ mt: 1 }}>
+            <span
+              style={{
+                textDecoration: "line-through",
+                color: "text.secondary",
+                marginRight: "8px",
+              }}
+            >
+              ${course.priceBeforeDiscount || "50.00"}
+            </span>
+            <span style={{ fontWeight: "bold", color: "primary.main" }}>
+              ${course.priceAfterDiscount || "39.99"}
+            </span>
+          </Typography>
+        </CardContent>
+
+        <Rating name="read-only" value={4} readOnly sx={{ my: 0 }} />
+        <CardActions sx={{ marginBlock: 1 }}>
           <Button
             variant="contained"
             color="primary"
-            sx={{ mt: 2 }}
+            size="small"
             onClick={handleEnroll}
             disabled={isEnrolled}
           >
             {isEnrolled ? "Enrolled" : "Enroll In"}
           </Button>
-        </CardContent>
+        </CardActions>
       </Card>
     </Grid>
   );
