@@ -31,7 +31,7 @@ const NavBarNew = () => {
         <Box display="flex" alignItems="center">
           <Box
             component="img"
-            src="../../../public/pathways_chiropractic-removebg-preview.png"
+            src="/pathways_chiropractic-removebg-preview.png"
             alt="Npathways Logo"
             sx={{ width: 60, height: 60 }}
           />
