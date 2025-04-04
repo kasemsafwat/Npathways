@@ -41,14 +41,7 @@ const Login = () => {
         localStorage.setItem("userId", data.userId);
         localStorage.setItem("userName", `${data.firstName} ${data.lastName}`);
 
-        const isUserEnrolled = await login();
-        console.log("isEnrolled", isUserEnrolled);
-
-        if (isUserEnrolled) {
-          navigate("/");
-        } else {
-          navigate("/terms-and-conditions");
-        }
+        navigate("/student/mypathway");
       }
     } catch (error) {
       console.log(error);

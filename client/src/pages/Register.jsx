@@ -1,5 +1,14 @@
 import React, { useState } from "react";
-import { TextField, Button, Container, Grid, Typography, Box, Checkbox } from "@mui/material";
+import {
+  TextField,
+  Button,
+  Container,
+  Grid,
+  Typography,
+  Box,
+  Checkbox,
+  Link,
+} from "@mui/material";
 import { useFormik } from "formik";
 import * as Yup from "yup";
 import axios from "axios";
@@ -12,7 +21,7 @@ const validationSchema = Yup.object().shape({
     .email("Invalid email address")
     .required("Email is required"),
   password: Yup.string()
-    .min(8, "Password must be at least 8 characters")
+    // .min(8, "Password must be at least 8 characters")
     .required("Required"),
 });
 
@@ -64,7 +73,6 @@ const Register = () => {
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
-
       }}
     >
       <Box
@@ -85,6 +93,13 @@ const Register = () => {
           }}
         >
           Create an account
+        </Typography>
+        <Typography
+          variant="subtitle2"
+          align="center"
+          sx={{ mb: 4, color: "seagreen" }}
+        >
+          Start your pathway journey with us
         </Typography>
 
         {apiError && (
@@ -214,8 +229,13 @@ const Register = () => {
                   }}
                 >
                   By creating an account, I agree to our{" "}
-                  <a href="/terms">Terms of use</a> and{" "}
-                  <a href="/privacy">Privacy Policy</a>
+                  <Link
+                    onClick={() => navigate("/terms-and-conditions")}
+                    sx={{ color: "seagreen", cursor: "pointer" }}
+                  >
+                    Terms of use
+                  </Link>{" "}
+                  and <a href="/privacy">Privacy Policy</a>
                 </Typography>
               </Box>
             </Grid>
