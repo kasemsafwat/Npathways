@@ -21,25 +21,47 @@ import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import HourglassBottomIcon from "@mui/icons-material/HourglassBottom";
 import { EnrollmentContext } from "../../contexts/EnrollmentContext";
 
-
 const EntryExamComponent = () => {
   const { setExamAnswers } = useContext(EnrollmentContext);
   const navigate = useNavigate();
-  const [activeStep, setActiveStep] = useState(1);
+  const [activeStep] = useState(1);
   const steps = ["User Info", "Exam", "Result"];
   const [timeLeft, setTimeLeft] = useState(45 * 60);
   const [selectedPrime, setSelectedPrime] = useState("");
   const [challengeAnswer, setChallengeAnswer] = useState("");
   const [functionAnswer, setFunctionAnswer] = useState("");
-   const [errors, setErrors] = useState({
+  const [errors, setErrors] = useState({
     prime: false,
     challenge: false,
     function: false,
   });
 
+   useEffect(() => {
+    const savedExamData = localStorage.getItem("examData");
+    if (savedExamData) {
+      try {
+        const { selectedPrime, challengeAnswer, functionAnswer } = JSON.parse(savedExamData);
+        setSelectedPrime(selectedPrime || "");
+        setChallengeAnswer(challengeAnswer || "");
+        setFunctionAnswer(functionAnswer || "");
+      } catch (error) {
+        console.error("Error parsing saved exam data", error);
+      }
+    }
+  }, []);
+
+  useEffect(() => {
+    const examData = {
+      selectedPrime,
+      challengeAnswer,
+      functionAnswer,
+    };
+    localStorage.setItem("examData", JSON.stringify(examData));
+  }, [selectedPrime, challengeAnswer, functionAnswer]);
+
   useEffect(() => {
     if (timeLeft <= 0) return;
-    const timer = setInterval(() => setTimeLeft((prev) => prev - 1), 1000);
+    const timer = setInterval(() => setTimeLeft(prev => prev - 1), 1000);
     return () => clearInterval(timer);
   }, [timeLeft]);
 
@@ -56,25 +78,13 @@ const EntryExamComponent = () => {
       function: functionAnswer.trim() === "",
     };
     setErrors(newErrors);
-    return !Object.values(newErrors).some((err) => err);
+    return !Object.values(newErrors).some(err => err);
   };
 
- 
-
-  // const handleNext = () => {
-  //   if (!validateFields()) return;
-  //   const examAnswers = {
-  //     primeQuestion: selectedPrime,
-  //     challengeAnswer: challengeAnswer,
-  //     functionAnswer: functionAnswer
-  //   };
-  //   setExamAnswers(examAnswers);
-  //   navigate("/enrollment/review");
-  // };
   const handleNext = () => {
     if (!validateFields()) return;
     
-     const examAnswers = [
+    const examAnswers = [
       { 
         question: "Which of these is a prime number?", 
         answer: selectedPrime 
@@ -88,10 +98,10 @@ const EntryExamComponent = () => {
         answer: functionAnswer 
       }
     ];
-  
-    setExamAnswers(examAnswers);
+      setExamAnswers(examAnswers);
     navigate("/enrollment/review");
   };
+
   return (
     <Container maxWidth="md" sx={{ mt: 4, mb: 4 }}>
       <Typography
@@ -133,11 +143,10 @@ const EntryExamComponent = () => {
             MSQs
           </Typography>
           <Typography variant="body1" sx={{ mt: 1 }}>
-            Complete the following tasks to demonstrate your abilities. Time
-            limit: 45 minutes.
+            Complete the following tasks to demonstrate your abilities. Time limit: 45 minutes.
           </Typography>
 
-           <FormControl
+          <FormControl
             component="fieldset"
             sx={{ mt: 3 }}
             error={errors.prime}
@@ -149,7 +158,7 @@ const EntryExamComponent = () => {
               value={selectedPrime}
               onChange={(e) => {
                 setSelectedPrime(e.target.value);
-                setErrors((prev) => ({ ...prev, prime: false }));
+                setErrors(prev => ({ ...prev, prime: false }));
               }}
             >
               <FormControlLabel value="2" control={<Radio />} label="2" />
@@ -163,7 +172,7 @@ const EntryExamComponent = () => {
             )}
           </FormControl>
 
-           <TextField
+          <TextField
             label="Describe your biggest challenge and how you overcame it"
             multiline
             rows={4}
@@ -173,13 +182,13 @@ const EntryExamComponent = () => {
             value={challengeAnswer}
             onChange={(e) => {
               setChallengeAnswer(e.target.value);
-              setErrors((prev) => ({ ...prev, challenge: false }));
+              setErrors(prev => ({ ...prev, challenge: false }));
             }}
             error={errors.challenge}
             helperText={errors.challenge && "This field is required."}
           />
 
-           <TextField
+          <TextField
             label="Write a function that reverses a string"
             multiline
             rows={4}
@@ -189,7 +198,7 @@ const EntryExamComponent = () => {
             value={functionAnswer}
             onChange={(e) => {
               setFunctionAnswer(e.target.value);
-              setErrors((prev) => ({ ...prev, function: false }));
+              setErrors(prev => ({ ...prev, function: false }));
             }}
             error={errors.function}
             helperText={errors.function && "This field is required."}

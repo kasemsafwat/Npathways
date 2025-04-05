@@ -158,12 +158,12 @@ const ReviewForm = () => {
       alert(`Error: ${errorMsg}`);
     }
   };
+
   const onFinish = async () => {
     if (!checked) {
       alert("Please confirm that all information is accurate.");
       return;
     }
-
     try {
       const response = await axios.post(
         "http://localhost:5024/api/enrollment/createEnrollment",
@@ -175,43 +175,34 @@ const ReviewForm = () => {
           }
         }
       );
-      
       if (response.status === 200 || response.status === 201) {
+        localStorage.removeItem("formData");
+        localStorage.removeItem("examData");
         navigate("/student/mypathway");
       }
     } catch (error) {
       console.error("Error creating enrollment:", error);
       const errorMessage = error.response?.data?.message || 
-                          error.response?.data?.error || 
-                          "An error occurred while submitting";
+                           error.response?.data?.error || 
+                           "An error occurred while submitting";
       setError(errorMessage);
       alert(`Error: ${errorMessage}`);
     }
   };
+  
 
-  const renderSectionActionButton = (section) => {
-    return editingSections[section] ? (
-      <Button
-        variant="contained"
-        color="success"
-        startIcon={<SaveIcon />}
-        onClick={() => handleSaveSection(section)}
-        size="small"
-      >
-        Save
-      </Button>
-    ) : (
-      <Button
-        variant="outlined"
-        startIcon={<EditIcon />}
-        onClick={() => toggleSectionEdit(section)}
-        size="small"
-      >
-        Update
-      </Button>
-    );
-  };
-
+  const RenderActionButton = ({ section, onClickSave, isEditing }) => (
+    <Button
+      variant={isEditing ? "contained" : "outlined"}
+      color={isEditing ? "success" : "primary"}
+      startIcon={isEditing ? <SaveIcon /> : <EditIcon />}
+      onClick={() => onClickSave(section)}
+      size="small"
+    >
+      {isEditing ? 'Save' : 'Update'}
+    </Button>
+  );
+  
   return (
     <Container maxWidth="md" sx={{ mt: 4, p: 3, bgcolor: "white", boxShadow: 3, borderRadius: 2 }}>
       <Typography
@@ -287,6 +278,13 @@ const ReviewForm = () => {
           {/* <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 2 }}>
             {renderSectionActionButton('personalInfo')}
           </Box> */}
+          <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 2 }}>
+  <RenderActionButton 
+    section="personalInfo"
+    onClickSave={handleSaveSection}
+    isEditing={editingSections.personalInfo}
+  />
+</Box>
         </AccordionDetails>
       </Accordion>
 
@@ -428,28 +426,8 @@ const ReviewForm = () => {
         </AccordionDetails>
       </Accordion>
 
-      {/* Exam (Read-only) */}
-      {/* <Accordion defaultExpanded>
-        <AccordionSummary expandIcon={<ExpandMoreIcon sx={{ bgcolor: "#181B21", color: "#46C98B" }} />} 
-          sx={{ bgcolor: "#181B21", color: "#46C98B" }}>
-          <Typography>Entry Exam Response</Typography>
-        </AccordionSummary>
-        <AccordionDetails>
-          <Typography sx={{ mb: 1 }}>{enrollmentData.exam?.[0]?.question || "Question 1"}</Typography>
-          <Typography>✅ {enrollmentData.exam?.[0]?.answer || "N/A"}</Typography>
-
-          <Box sx={{ mt: 2 }}>
-            <Typography sx={{ mb: 1 }}>{enrollmentData.exam?.[1]?.question || "Question 2"}</Typography>
-            <Typography>{enrollmentData.exam?.[1]?.answer || "N/A"}</Typography>
-          </Box>
-
-          <Box sx={{ mt: 2 }}>
-            <Typography sx={{ mb: 1 }}>{enrollmentData.exam?.[2]?.question || "Question 3"}</Typography>
-            <Typography>{enrollmentData.exam?.[2]?.answer || "N/A"}</Typography>
-          </Box>
-        </AccordionDetails>
-      </Accordion> */}
-
+     
+        
       {/* Exam */}
 <Accordion defaultExpanded>
   <AccordionSummary expandIcon={<ExpandMoreIcon sx={{ bgcolor: "#181B21", color: "#46C98B" }} />} 
