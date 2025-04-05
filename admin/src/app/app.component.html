@@ -1,30 +1,36 @@
-<nav class="navbar navbar-expand-lg">
-  <a class="navbar-brand" routerLink="/admin-dashboard">Npathways</a>
+<nav class="navbar">
+  <div class="navbar-brand">Npathways</div>
   <ul>
     <li>
       <a routerLink="/admin-dashboard" routerLinkActive="active">Dashboard</a>
     </li>
     <li>
-      <a routerLink="/user-management" routerLinkActive="active"
-        >User Management</a
-      >
+      <a routerLink="/user-management" routerLinkActive="active">User Management</a>
     </li>
     <li>
-      <a routerLink="/course-management" routerLinkActive="active"
-        >Course Management</a
-      >
+      <a routerLink="/course-management" routerLinkActive="active">Course Management</a>
     </li>
     <li>
-      <a routerLink="/enrollment-management" routerLinkActive="active"
-        >Enrollment Management</a
-      >
+      <a routerLink="/enrollment-management" routerLinkActive="active">Enrollment Management</a>
     </li>
     <li>
-      <a routerLink="/reports-analytics" routerLinkActive="active"
-        >Reports & Analytics</a
-      >
+      <a routerLink="/reports-analytics" routerLinkActive="active">Reports & Analytics</a>
     </li>
   </ul>
+  <div class="navbar-footer">
+    <div class="user-info">
+      <img src="assets/images/hamed.png" alt="User" class="user-avatar">
+      <div class="user-details">
+        <span class="user-name">Kasem</span>
+        <small class="user-role">Administrator</small>
+      </div>
+    </div>
+    <button class="logout-btn">
+      <i class="fas fa-sign-out-alt"></i> Logout
+    </button>
+  </div>
 </nav>
 
-<router-outlet></router-outlet>
+<div class="main-content">
+  <router-outlet></router-outlet>
+</div>
