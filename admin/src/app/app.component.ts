@@ -1,12 +1,43 @@
 import { Component } from '@angular/core';
-import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
+import { CommonModule } from '@angular/common';
+import { RouterModule } from '@angular/router';
+import { AuthService } from './services/auth.service';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, RouterLink, RouterLinkActive],
+  standalone: true,
+  imports: [CommonModule, RouterModule],
   templateUrl: './app.component.html',
-  styleUrl: './app.component.css'
+  styleUrls: ['./app.component.css']
 })
 export class AppComponent {
-  title = 'admin';
+  isLoggedIn = false;
+  userName = '';
+  userRole = '';
+
+  constructor(private authService: AuthService) {
+    // Initialize from current auth state
+    this.updateAuthState();
+    
+    // Subscribe to auth state changes
+    this.authService.isAuthenticated$.subscribe(() => {
+      this.updateAuthState();
+    });
+  }
+
+  private updateAuthState() {
+    this.isLoggedIn = this.authService.hasToken();
+    if (this.isLoggedIn) {
+      const user = this.authService.getUserFromToken();
+      this.userName = user?.name || 'User';
+      this.userRole = user?.role || 'Administrator';
+    } else {
+      this.userName = '';
+      this.userRole = '';
+    }
+  }
+
+  logout() {
+    this.authService.logout();
+  }
 }
