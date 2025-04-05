@@ -81,12 +81,7 @@ function App() {
       </Layout>
       </EnrollmentProvider>
     </AuthProvider>
-      {/* <div style={{ backgroundColor: "#212023" }}>
-        <Button onClick={handleLogin}>Login</Button>
-        <Chat />
-      </div> */}
-      {/* <Register/>
-      <Login/> */}
+     
     
   );
 }
