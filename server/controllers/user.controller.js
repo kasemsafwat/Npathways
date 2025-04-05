@@ -10,7 +10,6 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 import crypto from "crypto";
 
-
 const userController = {
   newUser: async (req, res) => {
     try {
@@ -208,11 +207,6 @@ const userController = {
   // LogOut
   logout: async (req, res) => {
     try {
-      req.user.tokens = req.user.tokens.filter((token) => {
-        return token !== req.token;
-      });
-      await req.user.save();
-
       res.clearCookie("access_token");
 
       res.status(200).send({ message: "Logged out successfully" });
@@ -222,94 +216,110 @@ const userController = {
     }
   },
 
-   // Forget Password
-    forgetPassword: async (req, res) => {
-      try {
-        let { email } = req.body;
-        let user = await User.findOne({
-          email,
+  // Forget Password
+  forgetPassword: async (req, res) => {
+    try {
+      let { email } = req.body;
+      let user = await User.findOne({
+        email,
+      });
+      if (!user) {
+        return res.status(404).send({
+          message: "Invalid Email",
         });
-        if (!user) {
-          return res.status(404).send({
-            message: "Invalid Email",
-          });
-        }
-        const resetToken = user.createResetPasswordToken();
-        console.log(resetToken);
-        await user.save({ validateeforeSave: false });
-  
-        const reseUrl = `${req.protocol}://${req.headers.host}/api/auth/resetPassword/${resetToken}`;
-        const message = `We have received a password reset request. please use the below link to reset password : 
+      }
+      const resetToken = user.createResetPasswordToken();
+      console.log(resetToken);
+      await user.save({ validateeforeSave: false });
+
+      const reseUrl = `${req.protocol}://${req.headers.host}/api/auth/resetPassword/${resetToken}`;
+      const message = `We have received a password reset request. please use the below link to reset password : 
       \n\n ${reseUrl} \n\n This reset Password Link will be valid only for 15 minutes `;
-        console.log(reseUrl);
-  
-        try {
-          await sendEmail({
-            email: user.email,
-            subject: "Password change request receivesd",
-            message: message,
-          });
-          res.status(200).send({
-            message: "password reset link send to the admine email",
-          });
-        } catch (error) {
-          (user.passwordResetToken = undefined),
-            (user.passwordResetExpires = undefined),
-            user.save({ validateBeforeSave: false });
-        }
-      } catch (error) {
-        console.error("Forget Password Error:", error);
-        return res.status(500).send({
-          message: error.message,
-        });
-      }
-    },
-    resetPassword: async (req, res) => {
+      console.log(reseUrl);
+
       try {
-        const { email, password, confirmPassword } = req.body;
-        if (!email || !password || !confirmPassword) {
-          return res.status(400).send({ message: "All fields are required!" });
-        }
-  
-        if (password !== confirmPassword) {
-          return res.status(400).json({ message: "Passwords do not match!" });
-        }
-  
-        const token = crypto
-          .createHash("sha256")
-          .update(req.params.token)
-          .digest("hex");
-        const user = await User.findOne({
-          email,
-          passwordResetToken: token,
-          passwordResetExpires: { $gt: Date.now() },
+        await sendEmail({
+          email: user.email,
+          subject: "Password change request receivesd",
+          message: message,
         });
-  
-        if (!user) {
-          return res.status(400).send({ message: "User Not Found" });
-        }
-  
-        user.password = password;
-        user.confirmPassword = confirmPassword;
-        user.passwordResetToken = undefined;
-        user.passwordResetExpires = undefined;
-        user.changePasswordAt = Date.now();
-  
-        await user.save();
-  
-        const loginToken = jwt.sign({ id: user._id }, process.env.SECRET_KEY, {
-          expiresIn: process.env.JWT_EXPIRES_IN || "7d",
-        });
-  
-        return res.status(200).send({
-          message: "Password reset successfully. You are now logged in!",
-          token: loginToken,
+        res.status(200).send({
+          message: "password reset link send to the admine email",
         });
       } catch (error) {
-        console.error("Reset Password Error:", error);
-        return res.status(500).send({ message: error.message });
+        (user.passwordResetToken = undefined),
+          (user.passwordResetExpires = undefined),
+          user.save({ validateBeforeSave: false });
       }
-    },
+    } catch (error) {
+      console.error("Forget Password Error:", error);
+      return res.status(500).send({
+        message: error.message,
+      });
+    }
+  },
+  resetPassword: async (req, res) => {
+    try {
+      const { email, password, confirmPassword } = req.body;
+      if (!email || !password || !confirmPassword) {
+        return res.status(400).send({ message: "All fields are required!" });
+      }
+
+      if (password !== confirmPassword) {
+        return res.status(400).json({ message: "Passwords do not match!" });
+      }
+
+      const token = crypto
+        .createHash("sha256")
+        .update(req.params.token)
+        .digest("hex");
+      const user = await User.findOne({
+        email,
+        passwordResetToken: token,
+        passwordResetExpires: { $gt: Date.now() },
+      });
+
+      if (!user) {
+        return res.status(400).send({ message: "User Not Found" });
+      }
+
+      user.password = password;
+      user.confirmPassword = confirmPassword;
+      user.passwordResetToken = undefined;
+      user.passwordResetExpires = undefined;
+      user.changePasswordAt = Date.now();
+
+      await user.save();
+
+      const loginToken = jwt.sign({ id: user._id }, process.env.SECRET_KEY, {
+        expiresIn: process.env.JWT_EXPIRES_IN || "7d",
+      });
+
+      return res.status(200).send({
+        message: "Password reset successfully. You are now logged in!",
+        token: loginToken,
+      });
+    } catch (error) {
+      console.error("Reset Password Error:", error);
+      return res.status(500).send({ message: error.message });
+    }
+  },
+  verifyUser: async (req, res) => {
+    try {
+      return res.status(200).send({
+        message: "User is verified",
+        userId: req.user._id,
+        firstName: req.user.firstName,
+        lastName: req.user.lastName,
+        email: req.user.email,
+      });
+    } catch (error) {
+      console.error("Verify User Error:", error);
+      return res.status(500).send({
+        message: error.message,
+      });
+    }
+  },
 };
 
 export default userController;

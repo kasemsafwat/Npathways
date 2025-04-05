@@ -1,127 +1,95 @@
 import React, { createContext, useState, useEffect } from "react";
 import axios from "axios";
 
+axios.defaults.withCredentials = true;
+
 export const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [user, setUser] = useState(null);
   const [isEnrolled, setIsEnrolled] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
 
-  // Enrollment exam ID as a constant for reuse
-  const ENROLLMENT_EXAM_ID = "67d48b79a192985fb050eafc";
-
-  const getCookie = (name) => {
-    const value = `; ${document.cookie}`;
-    const parts = value.split(`; ${name}=`);
-    if (parts.length === 2) return parts.pop().split(";").shift();
-  };
-
-  const checkSubmittedExam = async (examId) => {
-    try {
-      const token = getCookie("access_token");
-      if (!token) {
-        console.error("No access token found");
-        return null;
-      }
-
-      const response = await axios.get(
-        `http://localhost:5024/api/exam/submittedExams`,
-        { withCredentials: true }
-      );
-      const data = response.data;
-      // If examId is provided, check for specific exam
-      if (examId) {
-        const exam = data.find((exam) => exam.examId === examId);
-        return exam ? exam : null;
-      }
-      // Otherwise just check if there are any submitted exams
-      return data.length > 0 ? data[0] : null;
-    } catch (error) {
-      console.error("Error fetching submitted exams:", error);
-      return null;
-    }
-  };
-
-  // New function to recheck enrollment status at any time
-  const recheckEnrollment = async () => {
-    try {
-      if (!isAuthenticated) {
-        console.log("User not authenticated, can't check enrollment");
-        return false;
-      }
-
-      console.log("Rechecking enrollment status...");
-      const submittedExam = await checkSubmittedExam(ENROLLMENT_EXAM_ID);
-      const enrollmentStatus = !!submittedExam;
-
-      // Update the state with the new enrollment status
-      setIsEnrolled(enrollmentStatus);
-      console.log("Updated enrollment status:", enrollmentStatus);
-
-      return enrollmentStatus;
-    } catch (error) {
-      console.error("Error rechecking enrollment:", error);
-      return false;
-    }
-  };
-
+  // Verify user authentication on component mount
   useEffect(() => {
-    const checkAuth = async () => {
-      const token = getCookie("access_token");
-      console.log("Token:", token);
-
-      if (token) {
-        setIsAuthenticated(true);
-        const submittedExam = await checkSubmittedExam(ENROLLMENT_EXAM_ID);
-
-        if (submittedExam) {
-          setIsEnrolled(true);
-        } else {
-          setIsEnrolled(false);
-        }
-      } else {
-        setIsAuthenticated(false);
-        setIsEnrolled(false);
-      }
-
-      setIsLoading(false);
-    };
-
-    checkAuth();
+    verifyAuth();
   }, []);
 
-  const login = async () => {
-    setIsAuthenticated(true);
-    const submittedExam = await checkSubmittedExam(ENROLLMENT_EXAM_ID);
-    const enrollmentStatus = !!submittedExam;
-    setIsEnrolled(enrollmentStatus);
-    return enrollmentStatus;
+  // Login function
+  const login = async (credentials) => {
+    try {
+      setIsLoading(true);
+      const response = await axios.post(
+        "http://localhost:5024/api/auth/login",
+        credentials
+      );
+
+      if (response.data) {
+        setIsAuthenticated(true);
+        setUser(response.data);
+        return { success: true, data: response.data };
+      }
+    } catch (error) {
+      console.error("Login error:", error);
+      return { success: false, error: error.response?.data || error.message };
+    } finally {
+      setIsLoading(false);
+    }
   };
 
-  const logout = () => {
-    // axios.post(
-    //   "http://localhost:5024/api/auth/logout",
-    //   {},
-    //   { withCredentials: true }
-    // );
-    setIsAuthenticated(false);
-    setIsEnrolled(false);
-    document.cookie =
-      "access_token=;expires=" + new Date(0).toUTCString() + ";path=/";
+  // Logout function
+  const logout = async () => {
+    try {
+      setIsLoading(true);
+      await axios.delete("http://localhost:5024/api/auth/logout");
+      setIsAuthenticated(false);
+      setUser(null);
+      setIsEnrolled(false);
+      return { success: true };
+    } catch (error) {
+      console.error("Logout error:", error);
+      return { success: false, error: error.response?.data || error.message };
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // Verify authentication status
+  const verifyAuth = async () => {
+    try {
+      setIsLoading(true);
+      const response = await axios.get("http://localhost:5024/api/auth/verify");
+
+      if (response.data) {
+        setIsAuthenticated(true);
+        setUser(response.data);
+      } else {
+        setIsAuthenticated(false);
+        setUser(null);
+      }
+    } catch (error) {
+      console.error("Verification error:", error);
+      setIsAuthenticated(false);
+      setUser(null);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
     <AuthContext.Provider
       value={{
         isAuthenticated,
+        user,
         login,
         logout,
+        verifyAuth,
         isEnrolled,
         setIsEnrolled,
         isLoading,
-        checkSubmittedExam,
-        recheckEnrollment,
+        // checkSubmittedExam,
+        // recheckEnrollment,
       }}
     >
       {children}
