@@ -30,19 +30,8 @@ const Login = () => {
   };
   async function sendDataToAPI(values) {
     try {
-      setApiError(null);
-      let { data } = await axios.post(
-        `http://localhost:5024/api/user/login`,
-        values,
-        { withCredentials: true }
-      );
-      console.log(data);
-      if (data.message === "Login successfully") {
-        localStorage.setItem("userId", data.userId);
-        localStorage.setItem("userName", `${data.firstName} ${data.lastName}`);
-
-        navigate("/student/mypathway");
-      }
+      login(values);
+      navigate("/student/mypathway");
     } catch (error) {
       console.log(error);
       setApiError(error.response?.data?.message || "Login failed");

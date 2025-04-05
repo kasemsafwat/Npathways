@@ -1,36 +1,44 @@
 .navbar {
+  position: fixed;
+  left: 0;
+  top: 0;
+  height: 100vh;
+  width: 250px;
   background-color: #343a40;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 0.5rem 2rem !important;
+  flex-direction: column;
+  padding: 1rem 0;
 }
 
 .navbar-brand {
   color: #ffffff;
   font-size: 1.5rem;
   font-weight: bold;
-  margin-right: 2rem;
+  padding: 1rem 1.5rem;
   text-decoration: none;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  margin-bottom: 1rem;
 }
 
 .navbar ul {
   display: flex;
+  flex-direction: column;
   list-style: none;
   margin: 0;
   padding: 0;
+  flex: 1;
 }
 
 .navbar li {
-  margin: 0 0.5rem;
+  margin: 0;
 }
 
 .navbar a {
   color: #e0e0e0;
   text-decoration: none;
-  padding: 1rem 0.75rem;
-  display: inline-block;
+  padding: 1rem 1.5rem;
+  display: block;
   transition: all 0.3s ease;
   font-weight: 500;
 }
@@ -42,5 +50,71 @@
 
 .navbar a.active {
   color: #ffffff;
-  border-bottom: 3px solid #17a2b8;
+  background-color: rgba(255, 255, 255, 0.1);
+  border-left: 3px solid #17a2b8;
+}
+
+.navbar-footer {
+  padding: 1rem 1.5rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  margin-top: auto;
+}
+
+.user-info {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.user-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid rgba(255, 255, 255, 0.2);
+}
+
+.user-details {
+  display: flex;
+  flex-direction: column;
+}
+
+.user-name {
+  color: #ffffff;
+  font-weight: 500;
+  font-size: 1rem;
+}
+
+.user-role {
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 0.75rem;
+}
+
+.logout-btn {
+  width: 100%;
+  background: transparent;
+  border: none;
+  color: rgba(255, 255, 255, 0.7);
+  padding: 0.75rem 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border-radius: 4px;
+}
+
+.logout-btn:hover {
+  color: #ffffff;
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.logout-btn i {
+  font-size: 1rem;
+}
+
+.main-content {
+  margin-left: 250px;
+  padding: 20px;
 }

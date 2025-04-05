@@ -1,5 +1,8 @@
 // App.jsx
+import React from "react";
 import { Routes, Route } from "react-router-dom";
+import ProtectedRoute from "./components/ProtectedRoute";
+import { AuthProvider } from "./contexts/AuthContext";
 import Home from "./pages/Home";
 import Navbar from "./Components/NavBar/NavBar";
 import Login from "./pages/Login";
@@ -19,7 +22,8 @@ import PersonalDetails from "./pages/EnrollmentPage/PersonalDetails";
 import EntryExam from "./pages/EnrollmentPage/EntryExam";
 import Review from "./pages/EnrollmentPage/Review";
 import { EnrollmentProvider } from "./contexts/EnrollmentContext";
-// import Chat from "./chat/Chat";
+import CourseDetails from "./Components/CourseDetails/CourseDetails";
+
 const Layout = ({ children }) => {
   return (
     <div className="app">
@@ -35,21 +39,14 @@ const Layout = ({ children }) => {
 
 function App() {
   return (
-    <>
+    <AuthProvider>
     <EnrollmentProvider>
       <Layout>
         <Routes>
+          {/* Public routes */}
+          <Route path="/login" element={<Login />} />
           <Route path="/" element={<Home />} />
-          <Route path="login" element={<Login />} />
           <Route path="register" element={<Register />} />
-          <Route path="/examDetails" element={<ExamPage />} />
-          <Route path="/createExam/:examId?" element={<CreateExam />} />
-          <Route path="/finishExam" element={<FinishedExam />} />
-          <Route path="/exam/:id" element={<Exam />} />
-          <Route path="/user" element={<UserProfile />} />
-          <Route path="/courses" element={<Courses />} />
-          <Route path="/student/mypathway" element={<MyPathway />} />
-          {/* <Route path="/chat" element={<Chat />} /> */}
 
           {/*Enrollement Router  */}
           <Route path="/enrollment/Welcome" element={<WelcomePage />} />
@@ -59,6 +56,7 @@ function App() {
           />
           <Route path="/enrollment/entryExam" element={<EntryExam />} />
           <Route path="/enrollment/review" element={<Review />} />
+          <Route path="/coursedetails/:id" element={<CourseDetails />} />
 
           <Route
             path="/terms-and-conditions"
@@ -67,16 +65,29 @@ function App() {
           {/* End Enrollement Router */}
           {/* ADD YOUR ELEMENT */}
           <Route path="*" element={<NotFound />} />
+
+          {/* Protected routes */}
+          <Route element={<ProtectedRoute />}>
+            <Route path="/student/mypathway" element={<MyPathway />} />
+            <Route path="/examDetails" element={<ExamPage />} />
+            <Route path="/createExam/:examId?" element={<CreateExam />} />
+            <Route path="/finishExam" element={<FinishedExam />} />
+            <Route path="/exam/:id" element={<Exam />} />
+            <Route path="/user" element={<UserProfile />} />
+            <Route path="/courses" element={<Courses />} />
+            {/* Add more protected routes here */}
+          </Route>
         </Routes>
       </Layout>
       </EnrollmentProvider>
+    </AuthProvider>
       {/* <div style={{ backgroundColor: "#212023" }}>
         <Button onClick={handleLogin}>Login</Button>
         <Chat />
       </div> */}
       {/* <Register/>
       <Login/> */}
-    </>
+    
   );
 }
 

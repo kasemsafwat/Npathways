@@ -13,7 +13,7 @@ const router = express.Router();
 router.post("/signup", newUserValidation, userController.newUser);
 router.post("/login", loginValidation, userController.login);
 
-router.post("/forgetPassword",userController.forgetPassword);
+router.post("/forgetPassword", userController.forgetPassword);
 router.patch(
   "/resetPassword/:token",
   ResetPasswordUserValidation,
@@ -22,6 +22,8 @@ router.patch(
 
 router.get("/all", authentication, userController.getAllUsers);
 router.get("/search", authentication, userController.searchUser);
+router.get("/verify", authentication, userController.verifyUser);
+router.delete("/logout", authentication, userController.logout);
 router.get("/:id", authentication, userController.getUserById);
 
 // changUserImage
@@ -32,7 +34,7 @@ router.post(
   userController.changUserImage
 );
 // Logout
-router.delete("/logout", authentication, userController.logout);
+
 // ///////////////////
 
 // router.delete("/:id",authentication,userController.deleteUser)
