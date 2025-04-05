@@ -29,8 +29,8 @@ export class AppComponent {
     this.isLoggedIn = this.authService.hasToken();
     if (this.isLoggedIn) {
       const user = this.authService.getUserFromToken();
-      this.userName = user?.name || 'User';
-      this.userRole = user?.role || 'Administrator';
+      this.userName = user?.name || '';
+      this.userRole = user?.role || '';
     } else {
       this.userName = '';
       this.userRole = '';

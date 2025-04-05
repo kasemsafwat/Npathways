@@ -81,6 +81,12 @@ export class AuthService {
     return user ? user.role : null;
   }
 
+  // Get the user's name from the token
+  getUserName(): string | null {
+    const user = this.getUserFromToken();
+    return user ? user.name : null;
+  }
+
   // Check if the user has admin role
   isAdmin(): boolean {
     return this.getUserRole() === 'admin';
