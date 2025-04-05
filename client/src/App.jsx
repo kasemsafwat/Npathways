@@ -18,6 +18,7 @@ import WelcomePage from "./pages/EnrollmentPage/WelcomePage";
 import PersonalDetails from "./pages/EnrollmentPage/PersonalDetails";
 import EntryExam from "./pages/EnrollmentPage/EntryExam";
 import Review from "./pages/EnrollmentPage/Review";
+import { EnrollmentProvider } from "./contexts/EnrollmentContext";
 // import Chat from "./chat/Chat";
 const Layout = ({ children }) => {
   return (
@@ -35,6 +36,7 @@ const Layout = ({ children }) => {
 function App() {
   return (
     <>
+    <EnrollmentProvider>
       <Layout>
         <Routes>
           <Route path="/" element={<Home />} />
@@ -67,6 +69,7 @@ function App() {
           <Route path="*" element={<NotFound />} />
         </Routes>
       </Layout>
+      </EnrollmentProvider>
       {/* <div style={{ backgroundColor: "#212023" }}>
         <Button onClick={handleLogin}>Login</Button>
         <Chat />

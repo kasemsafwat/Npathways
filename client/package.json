@@ -22,6 +22,7 @@
     "client": "file:",
     "date-fns": "^4.1.0",
     "formik": "^2.4.6",
+    "joi": "^17.13.3",
     "jsonwebtoken": "^9.0.2",
     "jwt-decode": "^4.0.0",
     "react": "^19.0.0",
