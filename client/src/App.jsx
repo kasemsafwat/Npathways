@@ -18,6 +18,7 @@ import WelcomePage from "./pages/EnrollmentPage/WelcomePage";
 import PersonalDetails from "./pages/EnrollmentPage/PersonalDetails";
 import EntryExam from "./pages/EnrollmentPage/EntryExam";
 import Review from "./pages/EnrollmentPage/Review";
+import CourseDetails from "./Components/CourseDetails/CourseDetails";
 // import Chat from "./chat/Chat";
 const Layout = ({ children }) => {
   return (
@@ -57,6 +58,7 @@ function App() {
           />
           <Route path="/enrollment/entryExam" element={<EntryExam />} />
           <Route path="/enrollment/review" element={<Review />} />
+          <Route path="/coursedetails/:id" element={<CourseDetails />} />
 
           <Route
             path="/terms-and-conditions"

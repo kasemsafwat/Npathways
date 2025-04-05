@@ -150,6 +150,13 @@ function CoursesCard({ course }) {
           >
             {isEnrolled ? "Enrolled" : "Enroll In"}
           </Button>
+          <Button
+            size="small"
+            onClick={() => navigate(`/coursedetails/${course._id}`)}
+            sx={{ color: "primary.main" }}
+          >
+            View Details
+          </Button>
         </CardActions>
       </Card>
     </Grid>
