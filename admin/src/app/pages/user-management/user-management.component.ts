@@ -135,7 +135,7 @@ export class UserManagementComponent implements OnInit {
     const dropdowns = document.querySelectorAll('.actions-dropdown');
     dropdowns.forEach(dropdown => {
       if (!dropdown.contains(event.target as Node)) {
-        const userId = Number((dropdown as HTMLElement).closest('tr')?.dataset.userId);
+        const userId = Number((dropdown as HTMLElement).closest('tr')?.dataset['user-id']);
         const user = this.users.find(u => u.id === userId);
         if (user) {
           user.showActions = false;
