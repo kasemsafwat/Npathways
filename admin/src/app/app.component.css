@@ -3,7 +3,7 @@
   left: 0;
   top: 0;
   height: 100vh;
-  width: 250px;
+  width: 260px;
   background-color: #343a40;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   display: flex;
@@ -115,6 +115,6 @@
 }
 
 .main-content {
-  margin-left: 250px;
+  margin-left: 270px;
   padding: 20px;
 }
