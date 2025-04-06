@@ -1,10 +1,39 @@
 import React, { useState } from "react";
-import { Grid, TextField, Typography, Box, FormControl, InputLabel, Select, MenuItem, IconButton } from "@mui/material";
+import {
+  Grid,
+  TextField,
+  Typography,
+  Box,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
+  IconButton,
+} from "@mui/material";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 const ARABIC_COUNTRIES = [
-  "Algeria", "Bahrain", "Comoros", "Djibouti", "Egypt", "Iraq", "Jordan", "Kuwait", "Lebanon",
-  "Libya", "Mauritania", "Morocco", "Oman", "Palestine", "Qatar", "Saudi Arabia", "Somalia",
-  "Sudan", "Syria", "Tunisia", "United Arab Emirates", "Yemen"
+  "Algeria",
+  "Bahrain",
+  "Comoros",
+  "Djibouti",
+  "Egypt",
+  "Iraq",
+  "Jordan",
+  "Kuwait",
+  "Lebanon",
+  "Libya",
+  "Mauritania",
+  "Morocco",
+  "Oman",
+  "Palestine",
+  "Qatar",
+  "Saudi Arabia",
+  "Somalia",
+  "Sudan",
+  "Syria",
+  "Tunisia",
+  "United Arab Emirates",
+  "Yemen",
 ];
 const styles = {
   input: {
@@ -39,11 +68,19 @@ const styles = {
   },
 };
 
-const FormSection = ({ title, name, expanded, handleToggleSection, children, required = false }) => (
+const FormSection = ({
+  title,
+  name,
+  expanded,
+  handleToggleSection,
+  children,
+  required = false,
+}) => (
   <Box sx={styles.formSection}>
     <Box sx={styles.sectionHeader} onClick={() => handleToggleSection(name)}>
       <Typography variant="h6" sx={styles.sectionTitle}>
-        {title}{required && " *"}
+        {title}
+        {required && " *"}
       </Typography>
       <IconButton>
         <ExpandMoreIcon sx={styles.iconButton(expanded)} />
@@ -59,7 +96,7 @@ export default function AddressSection({ formData, errors, handleChange }) {
   });
 
   const handleToggleSection = (section) => {
-    setExpandedSections(prev => ({
+    setExpandedSections((prev) => ({
       ...prev,
       [section]: !prev[section],
     }));
@@ -76,7 +113,11 @@ export default function AddressSection({ formData, errors, handleChange }) {
       >
         <Grid container spacing={2} mt={1}>
           <Grid item xs={12} md={4}>
-            <FormControl fullWidth error={Boolean(errors["address.country"])} sx={styles.input}>
+            <FormControl
+              fullWidth
+              error={Boolean(errors["address.country"])}
+              sx={styles.input}
+            >
               <InputLabel>Country *</InputLabel>
               <Select
                 label="Country *"

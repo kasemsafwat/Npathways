@@ -1,8 +1,40 @@
 import React, { useState } from "react";
-import { Grid, TextField, Typography, Box, FormControl, InputLabel, MenuItem, Select, IconButton } from "@mui/material";
+import {
+  Grid,
+  TextField,
+  Typography,
+  Box,
+  FormControl,
+  InputLabel,
+  MenuItem,
+  Select,
+  IconButton,
+} from "@mui/material";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
-
-const FACULTIES = ["Engineering", "Computer Science", "Business", "Medicine", "Law", "Other"];
+const FACULTIES = [
+  "Engineering",
+  "Computer Science",
+  "Business",
+  "Medicine",
+  "Law",
+  "Information Technology ",
+  "Pharmacy",
+  "Dentistry",
+  "Nursing",
+  "Architecture",
+  "Arts",
+  "Education",
+  "Economics",
+  "Agriculture",
+  "Veterinary Medicine",
+  "Environmental Science",
+  "Mathematics",
+  "Physics",
+  "Chemistry",
+  "Biology",
+  "Statistics",
+  "Other",
+];
 
 const styles = {
   input: {
@@ -37,11 +69,19 @@ const styles = {
   },
 };
 
-const FormSection = ({ title, name, expanded, handleToggleSection, children, required = false }) => (
+const FormSection = ({
+  title,
+  name,
+  expanded,
+  handleToggleSection,
+  children,
+  required = false,
+}) => (
   <Box sx={styles.formSection}>
     <Box sx={styles.sectionHeader} onClick={() => handleToggleSection(name)}>
       <Typography variant="h6" sx={styles.sectionTitle}>
-        {title}{required && " *"}
+        {title}
+        {required && " *"}
       </Typography>
       <IconButton>
         <ExpandMoreIcon sx={styles.iconButton(expanded)} />
@@ -82,12 +122,16 @@ export default function FacultySection({ formData, errors, handleChange }) {
                 value={formData.faculty}
                 onChange={handleChange}
               >
-                {FACULTIES.map(fac => (
-                  <MenuItem key={fac} value={fac}>{fac}</MenuItem>
+                {FACULTIES.map((fac) => (
+                  <MenuItem key={fac} value={fac}>
+                    {fac}
+                  </MenuItem>
                 ))}
               </Select>
               {errors.faculty && (
-                <Typography variant="caption" color="error">{errors.faculty}</Typography>
+                <Typography variant="caption" color="error">
+                  {errors.faculty}
+                </Typography>
               )}
             </FormControl>
           </Grid>
@@ -100,7 +144,12 @@ export default function FacultySection({ formData, errors, handleChange }) {
               onChange={handleChange}
               error={Boolean(errors.GPA)}
               helperText={errors.GPA}
-              inputProps={{ inputMode: "decimal", step: "0.01", min: 0, max: 4 }}
+              inputProps={{
+                inputMode: "decimal",
+                step: "0.01",
+                min: 0,
+                max: 4,
+              }}
             />
           </Grid>
         </Grid>

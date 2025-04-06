@@ -3,7 +3,6 @@ import { useNavigate } from "react-router-dom";
 import { Button, Typography, Container, Grid, Box } from "@mui/material";
 import { Edit, Create, TrackChanges, Checklist } from "@mui/icons-material";
 import welcome from "../../assets/Welcome.png";
-
 export default function WelcomeComponent() {
   const navigate = useNavigate();
   return (

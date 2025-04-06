@@ -8,13 +8,34 @@ import {
   MenuItem,
   Typography,
   Box,
-  IconButton
+  IconButton,
 } from "@mui/material";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 
-const NATIONALITIES = ["Algeria", "Bahrain", "Comoros", "Djibouti", "Egypt", "Iraq", "Jordan", "Kuwait", "Lebanon",
-  "Libya", "Mauritania", "Morocco", "Oman", "Palestine", "Qatar", "Saudi Arabia", "Somalia",
-  "Sudan", "Syria", "Tunisia", "United Arab Emirates", "Yemen"]
+const NATIONALITIES = [
+  "Algeria",
+  "Bahrain",
+  "Comoros",
+  "Djibouti",
+  "Egypt",
+  "Iraq",
+  "Jordan",
+  "Kuwait",
+  "Lebanon",
+  "Libya",
+  "Mauritania",
+  "Morocco",
+  "Oman",
+  "Palestine",
+  "Qatar",
+  "Saudi Arabia",
+  "Somalia",
+  "Sudan",
+  "Syria",
+  "Tunisia",
+  "United Arab Emirates",
+  "Yemen",
+];
 const styles = {
   input: {
     "& .MuiOutlinedInput-root": {
@@ -47,12 +68,19 @@ const styles = {
     overflow: "hidden",
   },
 };
-
-const FormSection = ({ title, name, expanded, handleToggleSection, children, required = false }) => (
+const FormSection = ({
+  title,
+  name,
+  expanded,
+  handleToggleSection,
+  children,
+  required = false,
+}) => (
   <Box sx={styles.formSection}>
     <Box sx={styles.sectionHeader} onClick={() => handleToggleSection(name)}>
       <Typography variant="h6" sx={styles.sectionTitle}>
-        {title}{required && " *"}
+        {title}
+        {required && " *"}
       </Typography>
       <IconButton>
         <ExpandMoreIcon sx={styles.iconButton(expanded)} />
@@ -62,13 +90,16 @@ const FormSection = ({ title, name, expanded, handleToggleSection, children, req
   </Box>
 );
 
-export default function PersonalInfoSection({ formData, errors, handleChange }) {
+export default function PersonalInfoSection({
+  formData,
+  errors,
+  handleChange,
+}) {
   const [expandedSections, setExpandedSections] = useState({
     personalDetails: true,
   });
-
   const handleToggleSection = (section) => {
-    setExpandedSections(prev => ({
+    setExpandedSections((prev) => ({
       ...prev,
       [section]: !prev[section],
     }));
@@ -123,7 +154,11 @@ export default function PersonalInfoSection({ formData, errors, handleChange }) 
             />
           </Grid>
           <Grid item xs={12}>
-            <FormControl fullWidth error={Boolean(errors.nationality)} sx={styles.input}>
+            <FormControl
+              fullWidth
+              error={Boolean(errors.nationality)}
+              sx={styles.input}
+            >
               <InputLabel>Nationality *</InputLabel>
               <Select
                 label="Nationality *"
@@ -131,8 +166,10 @@ export default function PersonalInfoSection({ formData, errors, handleChange }) 
                 value={formData.nationality}
                 onChange={handleChange}
               >
-                {NATIONALITIES.map(nat => (
-                  <MenuItem key={nat} value={nat}>{nat}</MenuItem>
+                {NATIONALITIES.map((nat) => (
+                  <MenuItem key={nat} value={nat}>
+                    {nat}
+                  </MenuItem>
                 ))}
               </Select>
               {errors.nationality && (

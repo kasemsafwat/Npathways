@@ -13,6 +13,8 @@ import {
   Grid,
   Card,
   CardContent,
+  Snackbar,
+  Alert
 } from "@mui/material";
 import CustomStepper from "./CustomStepper";
 import { useNavigate } from "react-router-dom";
@@ -35,8 +37,11 @@ const EntryExamComponent = () => {
     challenge: false,
     function: false,
   });
+  const [openSnackbar, setOpenSnackbar] = useState(false); 
+  const [snackbarMessage, setSnackbarMessage] = useState(""); 
+  const [snackbarSeverity, setSnackbarSeverity] = useState("error");
 
-   useEffect(() => {
+  useEffect(() => {
     const savedExamData = localStorage.getItem("examData");
     if (savedExamData) {
       try {
@@ -80,10 +85,12 @@ const EntryExamComponent = () => {
     setErrors(newErrors);
     return !Object.values(newErrors).some(err => err);
   };
-
   const handleNext = () => {
-    if (!validateFields()) return;
-    
+    if (!validateFields()) {
+      setSnackbarMessage("Please fill in all the required fields.");
+      setOpenSnackbar(true); 
+      return;
+    } 
     const examAnswers = [
       { 
         question: "Which of these is a prime number?", 
@@ -98,10 +105,12 @@ const EntryExamComponent = () => {
         answer: functionAnswer 
       }
     ];
-      setExamAnswers(examAnswers);
+    setExamAnswers(examAnswers);
     navigate("/enrollment/review");
   };
-
+  const handleCloseSnackbar = () => {
+    setOpenSnackbar(false);
+  };
   return (
     <Container maxWidth="md" sx={{ mt: 4, mb: 4 }}>
       <Typography
@@ -230,8 +239,19 @@ const EntryExamComponent = () => {
           </Box>
         </CardContent>
       </Card>
+
+      {/* Snackbar */}
+      <Snackbar
+        open={openSnackbar}
+        autoHideDuration={6000}
+        onClose={handleCloseSnackbar}
+        anchorOrigin={{ vertical: "top", horizontal: "right" }}
+      >
+        <Alert onClose={handleCloseSnackbar} severity={snackbarSeverity} sx={{ width: "100%" }}>
+          {snackbarMessage}
+        </Alert>
+      </Snackbar>
     </Container>
   );
 };
-
 export default EntryExamComponent;

@@ -35,11 +35,19 @@ const styles = {
   },
 };
 
-const FormSection = ({ title, name, expanded, handleToggleSection, children, required = false }) => (
+const FormSection = ({
+  title,
+  name,
+  expanded,
+  handleToggleSection,
+  children,
+  required = false,
+}) => (
   <Box sx={styles.formSection}>
     <Box sx={styles.sectionHeader} onClick={() => handleToggleSection(name)}>
       <Typography variant="h6" sx={styles.sectionTitle}>
-        {title}{required && " *"}
+        {title}
+        {required && " *"}
       </Typography>
       <IconButton>
         <ExpandMoreIcon sx={styles.iconButton(expanded)} />
@@ -49,7 +57,11 @@ const FormSection = ({ title, name, expanded, handleToggleSection, children, req
   </Box>
 );
 
-export default function MotivationLetterSection({ formData, errors, handleChange }) {
+export default function MotivationLetterSection({
+  formData,
+  errors,
+  handleChange,
+}) {
   const [expandedSections, setExpandedSections] = useState({
     motivationLetter: true,
   });

@@ -8,7 +8,7 @@ import {
   MenuItem,
   Typography,
   Box,
-  IconButton
+  IconButton,
 } from "@mui/material";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 
@@ -45,11 +45,19 @@ const styles = {
   },
 };
 
-const FormSection = ({ title, name, expanded, handleToggleSection, children, required = false }) => (
+const FormSection = ({
+  title,
+  name,
+  expanded,
+  handleToggleSection,
+  children,
+  required = false,
+}) => (
   <Box sx={styles.formSection}>
     <Box sx={styles.sectionHeader} onClick={() => handleToggleSection(name)}>
       <Typography variant="h6" sx={styles.sectionTitle}>
-        {title}{required && " *"}
+        {title}
+        {required && " *"}
       </Typography>
       <IconButton>
         <ExpandMoreIcon sx={styles.iconButton(expanded)} />
@@ -65,7 +73,7 @@ export default function ContactInfoSection({ formData, errors, handleChange }) {
   });
 
   const handleToggleSection = (section) => {
-    setExpandedSections(prev => ({
+    setExpandedSections((prev) => ({
       ...prev,
       [section]: !prev[section],
     }));

@@ -25,5 +25,4 @@ const CustomStepper = () => {
     </Box>
   );
 };
-
 export default CustomStepper;
