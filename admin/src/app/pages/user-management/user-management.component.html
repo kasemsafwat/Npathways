@@ -1,1 +1,90 @@
-<p>user-management works!</p>
+<div class="user-management">
+  <h1>User Management</h1>
+  <p class="subtitle">Manage students, instructors, and admins across the platform</p>
+
+  <div class="users-section">
+    <div class="header">
+      <div>
+        <h2>Users</h2>
+        <p class="subtitle">Manage users and their permissions</p>
+      </div>
+      <button class="add-user-btn">
+        <i class="bi bi-person-plus"></i>
+        Add User
+      </button>
+    </div>
+
+    <div class="tabs">
+      <button class="tab" [class.active]="selectedTab === 'all'" (click)="selectTab('all')">All Users</button>
+      <button class="tab" [class.active]="selectedTab === 'students'" (click)="selectTab('students')">Students</button>
+      <button class="tab" [class.active]="selectedTab === 'instructors'" (click)="selectTab('instructors')">Instructors</button>
+      <button class="tab" [class.active]="selectedTab === 'admins'" (click)="selectTab('admins')">Admins</button>
+    </div>
+
+    <div class="filters-row">
+      <div class="search-box">
+        <i class="bi bi-search"></i>
+        <input type="text" placeholder="Search users..." [(ngModel)]="searchQuery">
+      </div>
+      <button class="filter-btn">
+        <i class="bi bi-funnel"></i>
+        Filters
+      </button>
+    </div>
+
+    <table class="users-table">
+      <thead>
+        <tr>
+          <th>User</th>
+          <th>Role <i class="bi bi-arrow-down-up"></i></th>
+          <th>Status</th>
+          <th>Join Date</th>
+          <th>Courses</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let user of filteredUsers" [attr.data-user-id]="user.id">
+          <td class="user-cell">
+            <div class="avatar">
+              <img [src]="user.avatar || 'assets/default-avatar.png'" alt="User avatar">
+            </div>
+            <div class="user-info">
+              <div class="name">{{user.name}}</div>
+              <div class="email">{{user.email}}</div>
+            </div>
+          </td>
+          <td>
+            <span class="role-badge" [class]="user.role.toLowerCase()">{{user.role}}</span>
+          </td>
+          <td>
+            <span class="status-badge" [class]="user.status.toLowerCase()">{{user.status}}</span>
+          </td>
+          <td>{{user.joinDate | date:'MMM dd, yyyy'}}</td>
+          <td>{{user.courses}}</td>
+          <td>
+            <div class="actions-dropdown" [class.show]="user.showActions">
+              <button class="action-btn" (click)="toggleActions(user, $event)">
+                <i class="bi bi-three-dots-vertical"></i>
+              </button>
+              <div class="dropdown-menu" [class.show]="user.showActions">
+                <button class="dropdown-item" (click)="editUser(user)">
+                  <i class="bi bi-pencil-fill"></i>
+                  <span>Edit</span>
+                </button>
+                <button class="dropdown-item" (click)="suspendUser(user)">
+                  <i class="bi bi-ban"></i>
+                  <span>Suspend</span>
+                </button>
+                <button class="dropdown-item delete" (click)="deleteUser(user)">
+                  <i class="bi bi-trash3-fill"></i>
+                  <span>Delete</span>
+                </button>
+              </div>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
