@@ -8,7 +8,7 @@ import { AuthService } from './services/auth.service';
   standalone: true,
   imports: [CommonModule, RouterModule],
   templateUrl: './app.component.html',
-  styleUrls: ['./app.component.css']
+  styleUrls: ['./app.component.css'],
 })
 export class AppComponent {
   isLoggedIn = false;
@@ -21,16 +21,29 @@ export class AppComponent {
     
     // Subscribe to auth state changes
     this.authService.isAuthenticated$.subscribe(() => {
+      console.log('auth state changed');
       this.updateAuthState();
     });
   }
 
   private updateAuthState() {
     this.isLoggedIn = this.authService.hasToken();
+
+    console.log('updateAuthState called');
     if (this.isLoggedIn) {
-      const user = this.authService.getUserFromToken();
-      this.userName = user?.name || '';
-      this.userRole = user?.role || '';
+      this.authService.getProfile().subscribe({
+        next: (profile) => {
+          console.log('Profile:', profile);
+          this.userName = `${profile.firstName} ${profile.lastName}`;
+          this.userRole = profile?.role || '';
+        },
+        error: (err) => {
+          console.error('Error loading profile:', err);
+          this.userName = '';
+          this.userRole = '';
+        },
+      });
+      console.log('updateAuthState called');
     } else {
       this.userName = '';
       this.userRole = '';
