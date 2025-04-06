@@ -23,4 +23,5 @@ router.use("/certificate", certificateRouter);
 router.use("/admin", adminRouter);
 router.use("/pathway", pathwayRouter);
 router.use("/enrollment", enrollmentRouter);
+
 export default router;
