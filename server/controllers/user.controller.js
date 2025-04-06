@@ -9,6 +9,8 @@ import sendEmail from "../services/email.js";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 import crypto from "crypto";
+import CourseModel from "../models/course.model.js";
+import PathwayModel from "../models/pathway.model.js";
 
 const userController = {
   newUser: async (req, res) => {
@@ -315,6 +317,75 @@ const userController = {
       });
     } catch (error) {
       console.error("Verify User Error:", error);
+      return res.status(500).send({
+        message: error.message,
+      });
+    }
+  },
+
+  getUsersInCourse: async (req, res) => {
+    try {
+      const { courseId } = req.params;
+      const userId = req.user._id;
+
+      if (!courseId.match(/^[0-9a-fA-F]{24}$/)) {
+        return res.status(400).json({ error: "Invalid course ID" });
+      }
+
+      const course = await CourseModel.findById(courseId);
+      if (!course) {
+        return res.status(404).json({ error: "Course not found" });
+      }
+
+      let users = await User.find({
+        courses: courseId,
+        _id: { $ne: userId },
+      });
+
+      users = users.map((user) => {
+        let userObject = user.toObject();
+        delete userObject.password;
+        delete userObject.tokens;
+        return userObject;
+      });
+
+      return res.status(200).send(users);
+    } catch (error) {
+      console.error("Get Users In Course Error:", error);
+      return res.status(500).send({
+        message: error.message,
+      });
+    }
+  },
+  getUsersInPathway: async (req, res) => {
+    try {
+      const { pathwayId } = req.params;
+      const userId = req.user._id;
+
+      if (!pathwayId.match(/^[0-9a-fA-F]{24}$/)) {
+        return res.status(400).json({ error: "Invalid pathway ID" });
+      }
+
+      const pathway = await PathwayModel.findById(pathwayId);
+      if (!pathway) {
+        return res.status(404).json({ error: "Pathway not found" });
+      }
+
+      let users = await User.find({
+        pathways: pathwayId,
+        _id: { $ne: userId },
+      });
+
+      users = users.map((user) => {
+        let userObject = user.toObject();
+        delete userObject.password;
+        delete userObject.tokens;
+        return userObject;
+      });
+
+      return res.status(200).send(users);
+    } catch (error) {
+      console.error("Get Users In Pathway Error:", error);
       return res.status(500).send({
         message: error.message,
       });

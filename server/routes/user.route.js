@@ -8,6 +8,7 @@ import {
 } from "../middleware/user.middleware.js";
 import { authentication } from "../middleware/auth.middleware.js";
 
+// The prefix is /api/user
 const router = express.Router();
 
 router.post("/signup", newUserValidation, userController.newUser);
@@ -33,6 +34,21 @@ router.post(
   authentication,
   userController.changUserImage
 );
+
+// //////////////////////
+// Requested route to get all users in a course or pathway
+router.get(
+  "/getUsersInCourse/:courseId",
+  authentication,
+  userController.getUsersInCourse
+);
+router.get(
+  "/getUsersInPathway/:pathwayId",
+  authentication,
+  userController.getUsersInPathway
+);
+// //////////////////////
+
 // Logout
 
 // ///////////////////
