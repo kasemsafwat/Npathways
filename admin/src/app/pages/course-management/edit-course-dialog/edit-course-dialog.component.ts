@@ -75,7 +75,6 @@ export class EditCourseDialogComponent {
       this.errorMessage = '';
 
       const courseData: Course = {
-        _id: this.course._id,
         name: this.course.name.trim(),
         description: this.course.description.trim(),
         requiredExams: this.course.requiredExams || [],
@@ -83,16 +82,14 @@ export class EditCourseDialogComponent {
         lessons: this.course.lessons.map(lesson => ({
           name: lesson.name.trim(),
           duration: Number(lesson.duration),
-          _id: lesson._id
         })),
-        status: this.course.status,
-        image: this.course.image,
         category: this.course.category,
         price: this.course.price
       };
 
       this.coursesService.updateCourse(this.course._id, courseData).subscribe({
         next: () => {
+            console.log(courseData)
           this.courseUpdated.emit();
           this.closeDialog();
           this.isSubmitting = false;
