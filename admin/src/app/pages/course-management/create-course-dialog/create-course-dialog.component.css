@@ -1,0 +1,111 @@
+.modal {
+  background-color: rgba(0, 0, 0, 0.5);
+}
+
+.modal-dialog {
+  max-width: 700px;
+}
+
+.modal-content {
+  border-radius: 12px;
+  border: none;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+}
+
+.modal-header {
+  border-bottom: 1px solid #E5E7EB;
+  padding: 1.25rem 1.5rem;
+}
+
+.modal-title {
+  font-weight: 600;
+  color: #111827;
+}
+
+.modal-body {
+  padding: 1.5rem;
+}
+
+.modal-footer {
+  border-top: 1px solid #E5E7EB;
+  padding: 1.25rem 1.5rem;
+}
+
+/* Form styles */
+.form-label {
+  font-weight: 500;
+  color: #374151;
+  margin-bottom: 0.5rem;
+}
+
+.form-control {
+  border-color: #E5E7EB;
+  border-radius: 6px;
+  padding: 0.625rem 0.75rem;
+}
+
+.form-control:focus {
+  border-color: #2563EB;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+/* Lesson card styles */
+.lesson-item .card {
+  border-color: #E5E7EB;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+}
+
+.lesson-item .card:hover {
+  border-color: #D1D5DB;
+}
+
+.lesson-item .card-body {
+  padding: 1rem;
+}
+
+/* Button styles */
+.btn-outline-primary {
+  border-color: #2563EB;
+  color: #2563EB;
+}
+
+.btn-outline-primary:hover {
+  background-color: #2563EB;
+  border-color: #2563EB;
+  color: white;
+}
+
+.btn-primary {
+  background-color: #2563EB;
+  border-color: #2563EB;
+}
+
+.btn-primary:hover {
+  background-color: #1D4ED8;
+  border-color: #1D4ED8;
+}
+
+.btn-primary:disabled {
+  background-color: #93C5FD;
+  border-color: #93C5FD;
+}
+
+/* Responsive styles */
+@media (max-width: 768px) {
+  .modal-dialog {
+    margin: 1rem;
+  }
+
+  .lesson-item .row {
+    row-gap: 1rem;
+  }
+
+  .lesson-item .col-md-2 {
+    width: 100%;
+  }
+
+  .btn-outline-danger {
+    height: 38px;
+  }
+} 

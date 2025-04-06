@@ -1,20 +1,27 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { CoursesService, Course } from '../../services/course.service';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { CreateCourseDialogComponent } from './create-course-dialog/create-course-dialog.component';
+import { EditCourseDialogComponent } from './edit-course-dialog/edit-course-dialog.component';
 
 @Component({
   selector: 'app-course-management',
   templateUrl: './course-management.component.html',
   styleUrls: ['./course-management.component.css'],
   standalone: true,
-  imports: [CommonModule, FormsModule]
+  imports: [CommonModule, FormsModule, CreateCourseDialogComponent, EditCourseDialogComponent]
 })
 export class CourseManagementComponent implements OnInit {
+  @ViewChild(CreateCourseDialogComponent) createDialog!: CreateCourseDialogComponent;
+  @ViewChild(EditCourseDialogComponent) editDialog!: EditCourseDialogComponent;
+  
   courses: Course[] = [];
   filteredCourses: Course[] = [];
   activeTab: 'all' | 'active' | 'drafts' | 'inactive' = 'all';
   searchQuery: string = '';
+  showDeleteConfirm = false;
+  courseToDelete: Course | null = null;
 
   constructor(private coursesService: CoursesService) {}
 
@@ -85,5 +92,42 @@ export class CourseManagementComponent implements OnInit {
       month: 'short',
       day: 'numeric'
     });
+  }
+
+  openCreateDialog(): void {
+    this.createDialog.openDialog();
+  }
+
+  onCourseCreated(): void {
+    this.loadCourses();
+  }
+
+  openDeleteConfirm(course: Course, event: Event): void {
+    event.stopPropagation(); // Prevent event bubbling
+    this.courseToDelete = course;
+    this.showDeleteConfirm = true;
+  }
+
+  closeDeleteConfirm(): void {
+    this.showDeleteConfirm = false;
+    this.courseToDelete = null;
+  }
+
+  async deleteCourse(): Promise<void> {
+    if (!this.courseToDelete?._id) return;
+
+    try {
+      await this.coursesService.deleteCourse(this.courseToDelete._id).toPromise();
+      this.loadCourses(); // Refresh the course list
+      this.closeDeleteConfirm();
+    } catch (error) {
+      console.error('Error deleting course:', error);
+      // You might want to show an error message to the user here
+    }
+  }
+
+  openEditDialog(course: Course, event: Event): void {
+    event.stopPropagation(); // Prevent event bubbling
+    this.editDialog.openDialog(course);
   }
 }

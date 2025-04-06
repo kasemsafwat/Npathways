@@ -30,7 +30,7 @@
 .nav-tabs .nav-link {
   border: none;
   color: #6B7280;
-  padding: 0.75rem 0;
+  padding: 0.75rem 1.5rem;
   font-weight: 500;
   font-size: 0.9375rem;
   background: transparent;
@@ -40,13 +40,13 @@
 
 .nav-tabs .nav-link:hover {
   color: #111827;
-  border: none;
+  background-color: #F3F4F6;
 }
 
 .nav-tabs .nav-link.active {
-  color: #111827;
-  border: none;
-  background: transparent;
+  color: #2563EB;
+  border-bottom: 2px solid #2563EB;
+  background-color: transparent;
   font-weight: 600;
 }
 
@@ -89,7 +89,7 @@
 }
 
 .nav-link.active .count {
-  color: #111827;
+  color: #2563EB;
 }
 
 /* Container for the tabs */
@@ -221,6 +221,11 @@
 
   .col-md-8.text-end {
     text-align: left !important;
+  }
+
+  .nav-tabs .nav-link {
+    padding: 0.5rem 1rem;
+    font-size: 0.875rem;
   }
 }
 
