@@ -113,4 +113,12 @@ router.get(
   authAdminController.getDashboard_Admin
 );
 
+// ////  Student
+
+router.get(
+  "/getAllStudents",
+  protectRoutes,
+  allowTo("admin"),
+  AdminControlller.getAllStudents
+);
 export default router;
