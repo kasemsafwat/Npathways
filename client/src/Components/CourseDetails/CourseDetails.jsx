@@ -3,17 +3,20 @@ import axios from "axios";
 import React, { useEffect } from "react";
 import { useParams } from "react-router";
 import image from "../../assets/Rectangle 72.png";
+import person from "../../assets/user.png";
 import { Button } from "bootstrap/dist/js/bootstrap.bundle.min";
 export default function CourseDetails() {
   let [course, setCourse] = React.useState({});
   let [loading, setLoading] = React.useState(true);
   let { id } = useParams();
+  let userName = localStorage.getItem("userName");
   async function getSingleCourse() {
     try {
       const response = await axios.get(
         `http://localhost:5024/api/course/${id}`
       );
       setCourse(response.data);
+      // console.log(localStorage)
       setLoading(false);
     } catch (error) {
       console.error("Error fetching course details:", error);
@@ -61,7 +64,6 @@ export default function CourseDetails() {
               >
                 ${course.priceBeforeDiscount || "50.00"}
               </Typography>
-              {/* <Button variant="contained">Contained</Button> */}
             </Box>
             <button
               style={{
@@ -72,7 +74,7 @@ export default function CourseDetails() {
                 borderRadius: "20px",
                 marginTop: "30px",
                 fontSize: "25px",
-                fontWeight: "bold"
+                fontWeight: "bold",
               }}
             >
               Buy
@@ -89,25 +91,61 @@ export default function CourseDetails() {
                 border: "3px solid grey",
               }}
             >
-            <i className="fa-regular fa-heart fa-lg"></i>  Wishlist
+              <i className="fa-regular fa-heart fa-lg"></i> Wishlist
             </button>
-<Typography variant="h5" sx={{ m: 1 }}>
-  {course.name}
-</Typography >
-<Typography variant="h5" sx={{ m: 1 }}>
-  {course.description}
-</Typography >
-<Typography variant="h5" sx={{ m: 1 }}>
-  {course.status}
-</Typography >
-<Typography variant="h5" sx={{ m: 1 }}>
-  {course.createdAt}
-</Typography >
-<Typography variant="h5" sx={{ m: 1 }}>
-  {course.updatedAt}
-</Typography>
+            <Typography variant="h6" sx={{ m: 1 }}>
+              <strong>Course Name</strong>: {course.name}
+            </Typography>
+            <Typography variant="h6" sx={{ m: 1 }}>
+              <strong>Course Description</strong>: {course.description}
+            </Typography>
+            <Typography variant="h6" sx={{ m: 1 }}>
+              <strong>Course Status</strong>: {course.status}
+            </Typography>
+            <Typography variant="h6" sx={{ m: 1 }}>
+              <strong>Lessons</strong>: {course?.lessons?.length || 0}
+            </Typography>
           </Box>
         </Grid>
+        <Box sx={{ml:"20px"}}>
+          <Typography variant="h4" sx={{ m: 2 }}>
+            <strong>Lorem ipsum dolor sit amet.</strong>
+          </Typography>
+          <Box container my={5} display="flex">
+            <CardMedia
+              component="img"
+              alt={course.name}
+              image={person}
+              sx={{
+                width: "10%",
+                objectFit: "cover",
+                borderRadius: "30px",
+                marginLeft: "20px",
+              }}
+            ></CardMedia>
+            <Typography variant="h5" sx={{ my: "auto", ml: 2 }}>
+              <strong>{userName}</strong>
+              <br />
+              Bim Engineer
+            </Typography>
+          </Box>
+          <Typography variant="h5" sx={{ m: 2 }}>
+            <strong>About Course</strong>
+          </Typography>
+          <Grid xs={8}>
+            <Typography variant="h6" sx={{ m: 2 }}>
+              Lorem ipsum, dolor sit amet consectetur adipisicing elit.
+              Voluptatum similique itaque deserunt, ducimus dolorum officia,
+              quia ipsum, doloremque mollitia et cumque id accusantium vero
+              quas? Itaque tenetur voluptatem omnis qui odit exercitationem
+              corporis dicta repellendus eum odio maxime aperiam, neque illum et
+              sequi alias nihil deleniti nobis fugiat. Temporibus voluptate quae
+              provident veniam, obcaecati minima sunt beatae ab! Dolore enim nam
+              maxime dolor eius illo mollitia explicabo inventore iste fugiat
+              officiis cumque 
+            </Typography>
+          </Grid>
+        </Box>
       </Grid>
     </>
   );
