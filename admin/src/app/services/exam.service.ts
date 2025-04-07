@@ -66,10 +66,12 @@ export class ExamService {
     return this.http.delete<void>(url);
     // Example URL: DELETE http://localhost:5024/api/exam/deleteExam/{id}
   }
-  uploadQuestionsSheet(file: File): Observable<any> {
+
+
+  uploadQuestionsSheet(file: File, examId: string): Observable<any> {
     const formData = new FormData();
     formData.append('file', file, file.name);
-    return this.http.post(`${this.apiUrl}/uploadQuestionsSheet`, formData, {
+    return this.http.post(`${this.apiUrl}/uploadQuestionsSheet/${examId}`, formData, {
       headers: {
         'Content-Type': 'multipart/form-data',
       },
