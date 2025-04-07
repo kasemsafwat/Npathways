@@ -99,12 +99,30 @@ export class AuthService {
       },
     });
   }
+  
+
   updateProfile(profileData: any): Observable<any> {
-    const url = 'http://localhost:5024/api/admin/profile';
-    return this.http.put<any>(url, profileData);
+    const url = 'http://localhost:5024/api/admin/';
+    return this.http.patch<any>(url, profileData, {
+      headers: {
+        Authorization: `Bearer ${this.getToken()}`,
+      },
+    });
   }
-  changePassword(passwordData: any): Observable<any> {
-    const url = 'http://localhost:5024/api/admin/change-password';
-    return this.http.put<any>(url, passwordData);
+  updatePassword(passwordData: any): Observable<any> {
+    const url = 'http://localhost:5024/api/admin/update/password';
+    return this.http.put<any>(url, passwordData, {
+      headers: {
+        Authorization: `Bearer ${this.getToken()}`,
+      },
+    });
+  }
+  updateAdminData(id: string, adminData: any): Observable<any> {
+    const url = `http://localhost:5024/api/admin/updateData/${id}`;
+    return this.http.put<any>(url, adminData, {
+      headers: {
+        Authorization: `Bearer ${this.getToken()}`,
+      },
+    });
   }
 }
