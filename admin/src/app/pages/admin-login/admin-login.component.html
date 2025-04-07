@@ -7,6 +7,14 @@
   <p class="login-description">Sign in to your account to access the admin dashboard</p>
 </div>
 
+<!-- User Info Display (only shown when logged in) -->
+<div *ngIf="userName && userRole" class="user-info">
+  <div class="welcome-message">
+    <h3>Welcome, {{ userName }}!</h3>
+    <p>Role: {{ userRole }}</p>
+  </div>
+</div>
+
   <div class="login-card p-5">
     <h1>Login</h1>
     <p>Enter your email and password below to login</p>
