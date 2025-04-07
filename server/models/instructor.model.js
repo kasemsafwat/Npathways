@@ -42,6 +42,9 @@ const instructorSchema = new Schema({
             ref: "Course",
             },
         ],
+        changePasswordAt: Date,
+        passwordResetToken: String,
+        passwordResetExpires: Date,
 
 },{ timestamps: true });
 // Hash password before saving the instructor
@@ -57,5 +60,16 @@ instructorSchema.pre("save", async function (next) {
         return next(error);
    }
 });
+instructorSchema.methods.createResetPasswordToken = function () {
+  const resetToken = crypto.randomBytes(32).toString("hex");
+  this.passwordResetToken = crypto
+    .createHash("sha256")
+    .update(resetToken)
+    .digest("hex");
+  this.passwordResetExpires = Date.now() + 15 * 60 * 1000;
+  console.log(resetToken, this.passwordResetToken);
+
+  return resetToken;
+};
 const Instructor=mongoose.model("Instructor", instructorSchema);
 export default Instructor; 

@@ -44,8 +44,6 @@ export const authentication = async (req, res, next) => {
         message: "Unauthorized user",
       });
     }
-    // console.log(valid);
-
     delete user.tokens;
     delete user.password;
     req.user = user;
