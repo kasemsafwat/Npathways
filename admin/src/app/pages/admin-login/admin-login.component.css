@@ -127,3 +127,48 @@
 .no-account:hover {
   text-decoration: underline;
 }
+
+.user-info {
+  background-color: #1a2526;
+  border-radius: 8px;
+  padding: 20px;
+  margin: 20px 0;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  width: 100%;
+  max-width: 400px;
+  text-align: center;
+  animation: fadeIn 0.5s ease-in;
+}
+
+.welcome-message {
+  text-align: center;
+}
+
+.welcome-message h3 {
+  color: #fff;
+  margin-bottom: 10px;
+  font-size: 24px;
+}
+
+.welcome-message p {
+  color: #dbdbdb;
+  margin: 5px 0;
+  font-size: 16px;
+}
+
+.redirect-message {
+  color: #dbdbdb;
+  font-style: italic;
+  margin-top: 15px;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

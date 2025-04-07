@@ -5,6 +5,8 @@ import { CourseManagementComponent } from './pages/course-management/course-mana
 import { EnrollmentManagementComponent } from './pages/enrollment-management/enrollment-management.component';
 import { ReportsAnalyticsComponent } from './pages/reports-analytics/reports-analytics.component';
 import { AdminLoginComponent } from './pages/admin-login/admin-login.component';
+import { ExamManagementComponent } from './pages/exam-management/exam-management.component';
+import { ExamDetailsComponent } from './pages/exam-details/exam-details.component';
 import { authGuard } from './guards/auth.guard';
 
 export const routes: Routes = [
@@ -15,5 +17,7 @@ export const routes: Routes = [
   { path: 'course-management', component: CourseManagementComponent, canActivate: [authGuard] },
   { path: 'enrollment-management', component: EnrollmentManagementComponent, canActivate: [authGuard] },
   { path: 'reports-analytics', component: ReportsAnalyticsComponent, canActivate: [authGuard] },
+  { path: 'exam-management', component: ExamManagementComponent, canActivate: [authGuard] },
+  { path: 'exam-details/:id', component: ExamDetailsComponent, canActivate: [authGuard] },
   // { path: '**', component:NotFoundComponent },
 ];

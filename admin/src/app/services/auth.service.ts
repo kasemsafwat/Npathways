@@ -91,11 +91,15 @@ export class AuthService {
   isAdmin(): boolean {
     return this.getUserRole() === 'admin';
   }
+
   getProfile(): Observable<any> {
     const url = 'http://localhost:5024/api/admin/';
     return this.http.get<any>(url, {
       headers: {
         Authorization: `Bearer ${this.getToken()}`,
+      }, */
+      headers: {
+        token: `${this.getToken()}`,
       },
     });
   }
