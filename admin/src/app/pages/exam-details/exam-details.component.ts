@@ -193,7 +193,6 @@ export class ExamDetailsComponent implements OnInit {
             next: (updatedExam) => {
               this.exam = updatedExam;
               this.isEditing = false;
-              alert('Exam updated successfully!');
             },
             error: (error) => {
               console.error('Error updating exam:', error);
