@@ -8,6 +8,7 @@ import fs from "fs";
 import { fileURLToPath } from "url";
 import sendEmail from "../services/email.js";
 import User from "../models/user.model.js";
+import Admin from "../models/admin.model.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -16,8 +17,13 @@ const instructorContoller = {
   newInstructor: async (req, res) => {
     try {
       let data = req.body;
-      let duplicateEmail = await Instructor.findOne({ email: data.email });
-      if (duplicateEmail) {
+      const isDuplicateEmail = await Promise.all([
+        User.findOne({ email: data.email }),
+        Instructor.findOne({ email: data.email }),
+        Admin.findOne({ email: data.email }),
+      ]).then((results) => results.some((result) => result));
+
+      if (isDuplicateEmail) {
         return res.status(403).send({
           message:
             "This email is already registered. Please use a different email.",
@@ -35,6 +41,7 @@ const instructorContoller = {
       });
     }
   },
+  // todo optimize login for universal login
   Login: async (req, res) => {
     try {
       let { email, password } = req.body;
@@ -309,29 +316,29 @@ const instructorContoller = {
   },
   // Instructor Permissions
   //   1) Create Course()   ==>  updateMyCourse  ==> getMyCourse(T)  ==>  getCourseStudents (T)
-  createCourse: async (req, res) => {
-    try {
-      const { name, description, requiredExams } = req.body;
-      const newCourse = new CourseModel({
-        name,
-        description,
-        requiredExams,
-        instructors: [req.instructor._id],
-        image: req.file?.filename,
-      });
+  // createCourse: async (req, res) => {
+  //   try {
+  //     const { name, description, requiredExams } = req.body;
+  //     const newCourse = new CourseModel({
+  //       name,
+  //       description,
+  //       requiredExams,
+  //       instructors: [req.instructor._id],
+  //       image: req.file?.filename,
+  //     });
 
-      const savedCourse = await newCourse.save();
-      await Instructor.findByIdAndUpdate(req.instructor._id, {
-        $push: { courses: savedCourse._id },
-      });
+  //     const savedCourse = await newCourse.save();
+  //     await Instructor.findByIdAndUpdate(req.instructor._id, {
+  //       $push: { courses: savedCourse._id },
+  //     });
 
-      res.status(201).json(savedCourse);
-    } catch (error) {
-      res
-        .status(500)
-        .json({ message: "Create Course Error: " + error.message });
-    }
-  },
+  //     res.status(201).json(savedCourse);
+  //   } catch (error) {
+  //     res
+  //       .status(500)
+  //       .json({ message: "Create Course Error: " + error.message });
+  //   }
+  // },
   getMyCourses: async (req, res) => {
     try {
       const courses = await CourseModel.find({
@@ -345,28 +352,28 @@ const instructorContoller = {
         .json({ message: "Get My Courses Error: " + error.message });
     }
   },
-  getCourseStudents: async (req, res) => {
-    try {
-      const courseId = req.params.id;
-      const course = await CourseModel.findOne({
-        _id: courseId,
-        instructors: req.instructor._id,
-      }).populate("students", "firstName lastName email");
+  // getCourseStudents: async (req, res) => {
+  //   try {
+  //     const courseId = req.params.id;
+  //     const course = await CourseModel.findOne({
+  //       _id: courseId,
+  //       instructors: req.instructor._id,
+  //     }).populate("students", "firstName lastName email");
 
-      if (!course) {
-        return res.status(404).json({ message: "Course not found " });
-      }
-      res.status(200).json({
-        courseName: course.name,
-        totalStudents: course.students.length,
-        students: course.students,
-      });
-    } catch (error) {
-      res
-        .status(500)
-        .json({ message: "Get Course Students Error: " + error.message });
-    }
-  },
+  //     if (!course) {
+  //       return res.status(404).json({ message: "Course not found " });
+  //     }
+  //     res.status(200).json({
+  //       courseName: course.name,
+  //       totalStudents: course.students.length,
+  //       students: course.students,
+  //     });
+  //   } catch (error) {
+  //     res
+  //       .status(500)
+  //       .json({ message: "Get Course Students Error: " + error.message });
+  //   }
+  // },
 
   //* Added these points to finish the page, feel free to edit it
 

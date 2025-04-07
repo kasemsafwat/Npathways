@@ -11,19 +11,24 @@ const __dirname = path.dirname(__filename);
 import crypto from "crypto";
 import CourseModel from "../models/course.model.js";
 import PathwayModel from "../models/pathway.model.js";
+import Instructor from "../models/instructor.model.js";
+import Admin from "../models/admin.model.js";
 
 const userController = {
   newUser: async (req, res) => {
     try {
-      let data = req.body;
-      data.email = data.email.toLowerCase();
+      const data = { ...req.body, email: req.body.email.toLowerCase() };
+      
+      const isDuplicateEmail = await Promise.all([
+      User.findOne({ email: data.email }),
+      Instructor.findOne({ email: data.email }),
+      Admin.findOne({ email: data.email })
+      ]).then(results => results.some(result => result));
 
-      let duplicateEmail = await User.findOne({ email: data.email });
-      if (duplicateEmail) {
-        return res.status(403).send({
-          message:
-            "This email is already registered. Please use a different email.",
-        });
+      if (isDuplicateEmail) {
+      return res.status(403).send({
+        message: "This email is already registered. Please use a different email."
+      });
       }
       let newUser = new User(data);
       await newUser.save();
@@ -37,6 +42,7 @@ const userController = {
       });
     }
   },
+  // todo optimize login for universal login
   login: async (req, res) => {
     try {
       let { email, password } = req.body;
@@ -83,6 +89,7 @@ const userController = {
       });
     }
   },
+  
   getAllUsers: async (req, res) => {
     try {
       const userId = req.user._id;

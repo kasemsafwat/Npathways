@@ -1,5 +1,6 @@
 import Admin from "../models/admin.model.js";
 import User from "../models/user.model.js";
+import Instructor from "../models/instructor.model.js";
 import Course from "../models/course.model.js";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
@@ -17,14 +18,17 @@ const authAdminController = {
   register: async (req, res) => {
     try {
       let data = req.body;
-      let dublicatedEmail = await Admin.findOne({ email: data.email });
-      if (dublicatedEmail) {
+      const isDuplicateEmail = await Promise.all([
+        User.findOne({ email: data.email }),
+        Instructor.findOne({ email: data.email }),
+        Admin.findOne({ email: data.email })
+        ]).then(results => results.some(result => result));
+  
+        if (isDuplicateEmail) {
         return res.status(403).send({
-          message:
-            "This email is already registered. Please use a different email.",
+          message: "This email is already registered. Please use a different email."
         });
-      }
-
+        }
       const user = new Admin({
         firstName: data.firstName,
         lastName: data.lastName,
@@ -44,7 +48,7 @@ const authAdminController = {
       });
     }
   },
-
+// todo optimize login for universal login
   login: async (req, res) => {
     try {
       let { email, password } = req.body;
