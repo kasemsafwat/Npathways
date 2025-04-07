@@ -3,11 +3,12 @@ import ExamController from "../controllers/exam.controller.js";
 import verifyInput from "../middleware/verify.middleware.js";
 import { authentication } from "../middleware/auth.middleware.js";
 import { upload } from "../config/multer.storage.js";
+import { authenticationInstructor } from "../middleware/AuthInstructor.middleware.js";
 
 // The prefix is /api/exam
 const router = Router();
 
-router.get("/", ExamController.getAllExams);
+router.get("/", authenticationInstructor, ExamController.getAllExams);
 
 router.get("/submittedExams", authentication, ExamController.getSubmittedExams);
 router.post(
@@ -17,10 +18,24 @@ router.post(
   ExamController.submitExam
 );
 
-router.get("/:id", ExamController.getExamById);
-router.post("/createExam", verifyInput, ExamController.createExam);
-router.put("/updateExam/:id", verifyInput, ExamController.updateExam);
-router.delete("/deleteExam/:id", ExamController.deleteExam);
+router.get("/:id", authenticationInstructor, ExamController.getExamById);
+router.post(
+  "/createExam",
+  authenticationInstructor,
+  verifyInput,
+  ExamController.createExam
+);
+router.put(
+  "/updateExam/:id",
+  authenticationInstructor,
+  verifyInput,
+  ExamController.updateExam
+);
+router.delete(
+  "/deleteExam/:id",
+  authenticationInstructor,
+  ExamController.deleteExam
+);
 
 // The sheet should have a fromat like the following:
 // Question | Answer1 | Answer2 | Answer3(optional) | Answer4(optional) | CorrectAnswer | Difficulty
@@ -29,8 +44,8 @@ router.delete("/deleteExam/:id", ExamController.deleteExam);
 // اللهم بلغت اللهم فاشهد
 router.post(
   "/uploadQuestionsSheet/:id",
-  // authentication,
   upload.single("file"),
+  authenticationInstructor,
   ExamController.uploadQuestionsSheet
 );
 

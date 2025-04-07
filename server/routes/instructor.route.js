@@ -59,30 +59,37 @@ router.patch(
 //Instructor Permissions
 //   1) Create Course()   ==>  updateMyCourse  ==> getMyCourse(T)  ==>  getCourseStudents (T)
 
+router.post(
+  "/createCourse",
+  upload.single("image"),
+  verifyInput,
+  authenticationInstructor,
+  CourseController.createCourse
+);
 // router.post(
 //   "/courses",
 //   upload.single("image"),
-//   verifyInput,
 //   authenticationInstructor,
-//   CourseController.createCourse
+//   instructorContoller.createCourse
 // );
-router.post(
-  "/courses",
-  upload.single("image"),
-  authenticationInstructor,
-  instructorContoller.createCourse
-);
 router.get(
   "/courses",
   authenticationInstructor,
   instructorContoller.getMyCourses
 );
-
-router.get(
-  "/courses/:id",
+router.put(
+  "/updateCourse/:id",
+  upload.single("image"),
+  verifyInput,
   authenticationInstructor,
-  instructorContoller.getCourseStudents
+  CourseController.updateCourse
 );
+
+// router.get(
+//   "/courses/:id",
+//   authenticationInstructor,
+//   instructorContoller.getCourseStudents
+// );
 
 //? /////////////////////////
 router.get(
