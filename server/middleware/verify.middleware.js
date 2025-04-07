@@ -8,6 +8,7 @@ const courseRoute = "/api/course";
 const chatRoute = "/api/chat";
 const certificateRoute = "/api/certificate";
 const enrollmentRoute = "/api/enrollment";
+const instructorRoute = "/api/instructor";
 
 const exampleExam = {
   name: "Exam 1",
@@ -286,9 +287,15 @@ function getSchema(link, method) {
     return createExamSchema;
   } else if (link.includes(`${examRoute}/updateExam`)) {
     return updateExamSchema;
-  } else if (link === `${courseRoute}/createCourse`) {
+  } else if (
+    link === `${courseRoute}/createCourse` ||
+    link === `${instructorRoute}/createCourse`
+  ) {
     return createCourseSchema;
-  } else if (link.includes(`${courseRoute}/updateCourse`)) {
+  } else if (
+    link.includes(`${courseRoute}/updateCourse`) ||
+    link.includes(`${instructorRoute}/updateCourse`)
+  ) {
     return updateCourseSchema;
   } else if (link.includes(`${chatRoute}/sendMessage`)) {
     return sendMessageSchema;
@@ -310,7 +317,7 @@ export default async function verifyInput(req, res, next) {
   const schema = getSchema(req.originalUrl, req.method);
 
   if (!schema) {
-    return res.status(404).json({ error: "Route not found" });
+    return res.status(404).json({ error: "Route not verified" });
   }
 
   // Parse stringified JSON arrays and objects in request body

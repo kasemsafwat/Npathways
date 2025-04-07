@@ -36,12 +36,12 @@ const instructorSchema = new Schema({
         type: String,
         default: 'instructor',
       },
-        courses: [
-            {
-            type: mongoose.Schema.Types.ObjectId,
-            ref: "Course",
-            },
-        ],
+        // courses: [
+        //     {
+        //     type: mongoose.Schema.Types.ObjectId,
+        //     ref: "Course",
+        //     },
+        // ],
         changePasswordAt: Date,
         passwordResetToken: String,
         passwordResetExpires: Date,
