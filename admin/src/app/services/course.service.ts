@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { Instructor } from './instructor.service';
+import { HttpHeadersService } from './http-headers.service';
 
 interface Lesson {
   name: string;
@@ -28,10 +29,15 @@ export interface Course {
 export class CoursesService {
   private apiUrl = 'http://localhost:5024/api/course';
 
-  constructor(private http: HttpClient) {}
+  constructor(
+    private http: HttpClient,
+    private headerService: HttpHeadersService
+  ) {}
 
   getCourses(): Observable<Course[]> {
-    return this.http.get<Course[]>(this.apiUrl);
+    return this.http.get<Course[]>(this.apiUrl, {
+      headers: this.headerService.getAuthHeaders(),
+    });
   }
 
   getCourseById(id: string): Observable<Course> {
@@ -54,5 +60,11 @@ export class CoursesService {
 
   deleteCourse(id: string): Observable<void> {
     return this.http.delete<void>(`${this.apiUrl}/deleteCourse/${id}`);
+  }
+  // STILL IN UNDER DEVELOPMENT
+  getUsersInCourse(id: string): Observable<any> {
+    return this.http.get<any>(
+      `http://localhost:5024/api/user/getUsersInCourse/${id}`
+    );
   }
 }
