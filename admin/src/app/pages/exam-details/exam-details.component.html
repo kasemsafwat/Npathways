@@ -1,0 +1,143 @@
+<div class="exam-details-container">
+  <div class="header-actions">
+    <button class="btn btn-secondary me-2" (click)="goBack()">
+      Back
+    </button>
+    <button class="btn btn-primary" (click)="toggleEdit()">
+      {{ isEditing ? 'Cancel Edit' : 'Edit Exam' }}
+    </button>
+  </div>
+
+  <form [formGroup]="examForm" (ngSubmit)="saveExam()" class="exam-form">
+    <div class="basic-info">
+      <h2>Exam Details</h2>
+      <div class="form-group">
+        <label>Exam Name</label>
+        <input
+          type="text"
+          class="dark-input"
+          formControlName="name"
+          [readonly]="!isEditing"
+        />
+      </div>
+      <div class="form-group">
+        <label>Time Limit (minutes)</label>
+        <input
+          type="number"
+          class="dark-input"
+          formControlName="timeLimit"
+          [readonly]="!isEditing"
+        />
+      </div>
+    </div>
+
+    <div class="questions-section">
+      <div class="questions-header">
+        <h3>Questions</h3>
+        <button
+          *ngIf="isEditing"
+          type="button"
+          class="btn btn-success"
+          (click)="addQuestion()"
+        >
+          Add Question
+        </button>
+      </div>
+
+      <div formArrayName="questions" class="questions-list">
+        <div
+          *ngFor="let question of questions.controls; let i = index"
+          [formGroupName]="i"
+          class="question-card"
+        >
+          <div class="question-header">
+            <h4>Question {{i + 1}}</h4>
+            <button
+              *ngIf="isEditing"
+              type="button"
+              class="btn btn-outline-danger"
+              (click)="removeQuestion(i)"
+            >
+              Remove
+            </button>
+          </div>
+
+          <div class="form-group">
+            <label>Question Text</label>
+            <input
+              type="text"
+              class="dark-input"
+              formControlName="question"
+              [readonly]="!isEditing"
+            />
+          </div>
+
+          <div class="form-group">
+            <label>Difficulty</label>
+            <select
+              class="dark-input"
+              formControlName="difficulty"
+              [disabled]="!isEditing"
+            >
+              <option *ngFor="let diff of difficulties" [value]="diff">
+                {{diff | titlecase}}
+              </option>
+            </select>
+          </div>
+
+          <div formArrayName="answers" class="answers-section">
+            <h5>Answers</h5>
+            <div
+              *ngFor="let answer of getAnswers(i).controls; let j = index"
+              [formGroupName]="j"
+              class="answer-item"
+            >
+              <div class="answer-content">
+                <input
+                  type="text"
+                  class="dark-input"
+                  formControlName="answer"
+                  [readonly]="!isEditing"
+                  placeholder="Answer text"
+                />
+                <div class="answer-actions">
+                  <label class="checkbox-container">
+                    <input
+                      type="checkbox"
+                      formControlName="isCorrect"
+                      [disabled]="!isEditing"
+                    />
+                    <span class="checkmark"></span>
+                    Correct
+                  </label>
+                  <button
+                    *ngIf="isEditing"
+                    type="button"
+                    class="btn btn-outline-danger btn-sm"
+                    (click)="removeAnswer(i, j)"
+                  >
+                    Remove
+                  </button>
+                </div>
+              </div>
+            </div>
+            <button
+              *ngIf="isEditing"
+              type="button"
+              class="btn btn-outline-primary"
+              (click)="addAnswer(i)"
+            >
+              Add Answer
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="form-actions" *ngIf="isEditing">
+      <button type="submit" class="btn btn-primary" [disabled]="!examForm.valid">
+        Save Changes
+      </button>
+    </div>
+  </form>
+</div>

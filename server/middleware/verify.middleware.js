@@ -7,6 +7,7 @@ const examRoute = "/api/exam";
 const courseRoute = "/api/course";
 const chatRoute = "/api/chat";
 const certificateRoute = "/api/certificate";
+const enrollmentRoute = "/api/enrollment";
 
 const exampleExam = {
   name: "Exam 1",
@@ -194,6 +195,91 @@ const updateCertificateSchema = Joi.object({
   createdAt: Joi.date(),
 });
 
+const createEnrollmentSchema = Joi.object({
+  firstName: Joi.string().required().messages({
+    "string.empty": "First name is required",
+    "any.required": "First name is required",
+  }),
+  lastName: Joi.string().required().messages({
+    "string.empty": "Last name is required",
+    "any.required": "Last name is required",
+  }),
+  dateOfBirth: Joi.date().required().messages({
+    "date.base": "Date of birth is required",
+    "any.required": "Date of birth is required",
+  }),
+  email: Joi.string().email().required().messages({
+    "string.email": "Enter a valid email",
+    "string.empty": "Email is required",
+    "any.required": "Email is required",
+  }),
+  phone: Joi.string().required().messages({
+    "string.empty": "Phone number is required",
+    "any.required": "Phone number is required",
+  }),
+  address: Joi.object({
+    country: Joi.string().required().messages({
+      "string.empty": "Country is required",
+      "any.required": "Country is required",
+    }),
+    city: Joi.string(),
+    street: Joi.string(),
+  })
+    .required()
+    .messages({
+      "object.base": "Address is required",
+      "any.required": "Address is required",
+    }),
+  motivationLetter: Joi.string().required().messages({
+    "string.empty": "Motivation letter is required",
+    "any.required": "Motivation letter is required",
+  }),
+  exam: Joi.array()
+    .items(
+      Joi.object({
+        question: Joi.string().required().messages({
+          "string.empty": "Question is required",
+          "any.required": "Question is required",
+        }),
+        answer: Joi.string().required().messages({
+          "string.empty": "Answer is required",
+          "any.required": "Answer is required",
+        }),
+      })
+    )
+    .required()
+    .messages({
+      "array.base": "Exam is required",
+      "any.required": "Exam is required",
+    }),
+  nationality: Joi.string(),
+  facultyName: Joi.string(),
+  GPA: Joi.number(),
+});
+
+const updateEnrollmentSchema = Joi.object({
+  firstName: Joi.string(),
+  lastName: Joi.string(),
+  dateOfBirth: Joi.date(),
+  email: Joi.string().email(),
+  phone: Joi.string(),
+  address: Joi.object({
+    country: Joi.string(),
+    city: Joi.string(),
+    street: Joi.string(),
+  }),
+  motivationLetter: Joi.string(),
+  exam: Joi.array().items(
+    Joi.object({
+      question: Joi.string(),
+      answer: Joi.string(),
+    })
+  ),
+  nationality: Joi.string(),
+  facultyName: Joi.string(),
+  GPA: Joi.number(),
+});
+
 function getSchema(link, method) {
   if (method !== "POST" && method !== "PUT") return null;
   if (link === `${examRoute}/createExam`) {
@@ -212,6 +298,10 @@ function getSchema(link, method) {
     return createCertificateSchema;
   } else if (link.includes(`${certificateRoute}/updateCertificate`)) {
     return updateCertificateSchema;
+  } else if (link === `${enrollmentRoute}/createEnrollment`) {
+    return createEnrollmentSchema;
+  } else if (link.includes(`${enrollmentRoute}/updateEnrollment`)) {
+    return updateEnrollmentSchema;
   }
   return null;
 }

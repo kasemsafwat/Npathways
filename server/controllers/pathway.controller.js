@@ -454,5 +454,35 @@ const PathwayController = {
       });
     }
   },
+  getUserPathway: async (req, res) => {
+    try {
+      const userId = req.user._id;
+      const user = await User.findById(userId).populate({
+        path: "pathways",
+        select: "name description courses",
+        populate: {
+          path: "courses",
+          select: "name description requiredExams instructors lessons",
+        },
+      });
+      if (!user) {
+        return res.status(404).send({ error: "User not found" });
+      }
+      if (user.pathways.length === 0) {
+        return res.status(200).send({
+          message: "User is not enrolled in any pathways",
+        });
+      }
+      res.status(200).send({
+        message: "User pathways retrieved successfully",
+        data: user.pathways,
+      });
+    } catch (error) {
+      console.error(`Error in PathWay controller: ${error}`);
+      return res.status(500).send({
+        message: "PathWayController: " + error.message,
+      });
+    }
+  },
 };
 export default PathwayController;

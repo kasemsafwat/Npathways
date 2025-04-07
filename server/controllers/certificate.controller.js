@@ -1,6 +1,6 @@
-import CertificateModel from '../models/certificate.model.js';
-import UserModel from '../models/user.model.js';
-import CourseModel from '../models/course.model.js';
+import CertificateModel from "../models/certificate.model.js";
+import UserModel from "../models/user.model.js";
+import CourseModel from "../models/course.model.js";
 
 class CertificateController {
   static async getAllCertificates(req, res) {
@@ -9,7 +9,7 @@ class CertificateController {
       res.status(200).json(certificates);
     } catch (error) {
       console.error(`Error in certificate controller: ${error.message}`);
-      res.status(500).json({ message: 'Internal server error' });
+      res.status(500).json({ message: "Internal server error" });
     }
   }
 
@@ -18,17 +18,17 @@ class CertificateController {
       const { id } = req.params;
 
       if (!id.match(/^[0-9a-fA-F]{24}$/)) {
-        return res.status(400).json({ message: 'Invalid certificate ID' });
+        return res.status(400).json({ message: "Invalid certificate ID" });
       }
 
       const certificate = await CertificateModel.findById(id);
       if (!certificate) {
-        return res.status(404).json({ message: 'Certificate not found' });
+        return res.status(404).json({ message: "Certificate not found" });
       }
       res.status(200).json(certificate);
     } catch (error) {
       console.error(`Error in certificate controller: ${error.message}`);
-      res.status(500).json({ message: 'Internal server error' });
+      res.status(500).json({ message: "Internal server error" });
     }
   }
 
@@ -40,13 +40,13 @@ class CertificateController {
 
       const course = await CourseModel.findById(courseId);
 
-      if (!course) return res.status(404).json({ message: 'Course not found' });
+      if (!course) return res.status(404).json({ message: "Course not found" });
 
       const certificate = await CertificateModel.create(req.body);
       res.status(201).json(certificate);
     } catch (error) {
       console.error(`Error in certificate controller: ${error.message}`);
-      res.status(500).json({ message: 'Internal server error' });
+      res.status(500).json({ message: "Internal server error" });
     }
   }
 
@@ -55,7 +55,7 @@ class CertificateController {
       const { id } = req.params;
 
       if (!id.match(/^[0-9a-fA-F]{24}$/)) {
-        return res.status(400).json({ message: 'Invalid certificate ID' });
+        return res.status(400).json({ message: "Invalid certificate ID" });
       }
 
       const certificate = await CertificateModel.findByIdAndUpdate(
@@ -66,12 +66,12 @@ class CertificateController {
         }
       );
       if (!certificate) {
-        return res.status(404).json({ message: 'Certificate not found' });
+        return res.status(404).json({ message: "Certificate not found" });
       }
       res.status(200).json(certificate);
     } catch (error) {
       console.error(`Error in certificate controller: ${error.message}`);
-      res.status(500).json({ message: 'Internal server error' });
+      res.status(500).json({ message: "Internal server error" });
     }
   }
 
@@ -80,17 +80,17 @@ class CertificateController {
       const { id } = req.params;
 
       if (!id.match(/^[0-9a-fA-F]{24}$/)) {
-        return res.status(400).json({ message: 'Invalid certificate ID' });
+        return res.status(400).json({ message: "Invalid certificate ID" });
       }
 
       const deletedCertificate = await CertificateModel.findByIdAndDelete(id);
       if (!deletedCertificate) {
-        return res.status(404).json({ message: 'Certificate not found' });
+        return res.status(404).json({ message: "Certificate not found" });
       }
-      res.status(200).json({ message: 'Certificate deleted successfully' });
+      res.status(200).json({ message: "Certificate deleted successfully" });
     } catch (error) {
       console.error(`Error in certificate controller: ${error.message}`);
-      res.status(500).json({ message: 'Internal server error' });
+      res.status(500).json({ message: "Internal server error" });
     }
   }
 
@@ -99,19 +99,19 @@ class CertificateController {
       const { userId, certificateId } = req.body;
 
       if (!userId || !userId.match(/^[0-9a-fA-F]{24}$/))
-        return res.status(400).json({ message: 'Invalid user ID' });
+        return res.status(400).json({ message: "Invalid user ID" });
 
       if (!certificateId || !certificateId.match(/^[0-9a-fA-F]{24}$/))
-        return res.status(400).json({ message: 'Invalid certificate ID' });
+        return res.status(400).json({ message: "Invalid certificate ID" });
 
       const certificate = await CertificateModel.findById(certificateId);
       if (!certificate) {
-        return res.status(404).json({ message: 'Certificate not found' });
+        return res.status(404).json({ message: "Certificate not found" });
       }
 
       const user = await UserModel.findById(userId);
       if (!user) {
-        return res.status(404).json({ message: 'User not found' });
+        return res.status(404).json({ message: "User not found" });
       }
 
       const hasCertificate =
@@ -122,20 +122,34 @@ class CertificateController {
       if (hasCertificate) {
         return res
           .status(400)
-          .json({ message: 'User already has the certificate' });
+          .json({ message: "User already has the certificate" });
       }
 
       user.certificates.push({ id: certificateId, name: certificate.name });
       await user.save();
 
       if (!user) {
-        return res.status(404).json({ message: 'User not found' });
+        return res.status(404).json({ message: "User not found" });
       }
 
-      res.status(200).json({ message: 'Certificate granted successfully' });
+      res.status(200).json({ message: "Certificate granted successfully" });
     } catch (error) {
       console.error(`Error in certificate controller: ${error.message}`);
-      res.status(500).json({ message: 'Internal server error' });
+      res.status(500).json({ message: "Internal server error" });
+    }
+  }
+  static async getUserCertificates(req, res) {
+    try {
+      const userId = req.user._id;
+      const certificates = await UserModel.findById(userId)
+        .populate("certificates")
+        .select("certificates")
+        .then((user) => user.certificates);
+
+      res.status(200).json(certificates);
+    } catch (error) {
+      console.error(`Error in certificate controller: ${error.message}`);
+      res.status(500).json({ message: "Internal server error" });
     }
   }
 }

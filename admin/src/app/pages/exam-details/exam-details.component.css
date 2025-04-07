@@ -1,0 +1,149 @@
+.exam-details-container {
+  padding: 2rem;
+  background-color: #0f1218;
+  min-height: 100vh;
+  color: #ffffff;
+}
+
+.header-actions {
+  margin-bottom: 2rem;
+  display: flex;
+  gap: 1rem;
+}
+
+.exam-form {
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.basic-info {
+  background-color: #1e2229;
+  padding: 1.5rem;
+  border-radius: 8px;
+  margin-bottom: 2rem;
+}
+
+h2, h3, h4, h5 {
+  color: #ffffff;
+  margin-bottom: 1.5rem;
+}
+
+.form-group {
+  margin-bottom: 1.5rem;
+}
+
+label {
+  display: block;
+  margin-bottom: 0.5rem;
+  color: #a0a0a0;
+}
+
+.dark-input {
+  width: 100%;
+  padding: 0.75rem;
+  background-color: #2a2f35;
+  border: 1px solid #3f4550;
+  border-radius: 4px;
+  color: #ffffff;
+  font-size: 1rem;
+  outline: none;
+  transition: border-color 0.3s;
+}
+
+.dark-input:focus {
+  border-color: #3f51b5;
+}
+
+.dark-input:disabled,
+.dark-input[readonly] {
+  background-color: #1e2229;
+  border-color: #2a2f35;
+  color: #6c757d;
+}
+
+.questions-section {
+  margin-top: 2rem;
+}
+
+.questions-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.question-card {
+  background-color: #1e2229;
+  padding: 1.5rem;
+  border-radius: 8px;
+  margin-bottom: 1.5rem;
+}
+
+.question-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.answers-section {
+  margin-top: 1.5rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid #2a2f35;
+}
+
+.answer-item {
+  margin-bottom: 1rem;
+}
+
+.answer-content {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+}
+
+.answer-actions {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+}
+
+.checkbox-container {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+}
+
+.form-actions {
+  margin-top: 2rem;
+  display: flex;
+  justify-content: flex-end;
+}
+
+/* Custom checkbox styling */
+.checkbox-container input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  background-color: #2a2f35;
+  border: 1px solid #3f4550;
+  border-radius: 3px;
+  appearance: none;
+  cursor: pointer;
+  position: relative;
+}
+
+.checkbox-container input[type="checkbox"]:checked {
+  background-color: #3f51b5;
+  border-color: #3f51b5;
+}
+
+.checkbox-container input[type="checkbox"]:checked::after {
+  content: '✓';
+  position: absolute;
+  color: white;
+  font-size: 14px;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}

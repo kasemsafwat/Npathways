@@ -22,34 +22,16 @@ const Login = () => {
   const navigate = useNavigate();
   const { login, isEnrolled, isLoading } = useContext(AuthContext);
   const initialValues = {
-    email: "",
-    password: "",
+    email: "moody@example.com",
+    password: "Test@123",
   };
   const handleShowPassword = () => {
     setShowPassword(!showPassword);
   };
   async function sendDataToAPI(values) {
     try {
-      setApiError(null);
-      let { data } = await axios.post(
-        `http://localhost:5024/api/user/login`,
-        values,
-        { withCredentials: true }
-      );
-      console.log(data);
-      if (data.message === "Login successfully") {
-        localStorage.setItem("userId", data.userId);
-        localStorage.setItem("userName", `${data.firstName} ${data.lastName}`);
-
-        const isUserEnrolled = await login();
-        console.log("isEnrolled", isUserEnrolled);
-
-        if (isUserEnrolled) {
-          navigate("/");
-        } else {
-          navigate("/terms-and-conditions");
-        }
-      }
+      login(values);
+      navigate("/student/mypathway");
     } catch (error) {
       console.log(error);
       setApiError(error.response?.data?.message || "Login failed");
@@ -63,30 +45,43 @@ const Login = () => {
 
   return (
     <Container
-      maxWidth="sm"
-      className="d-flex align-items-center justify-content-center"
-      style={{ minHeight: "100vh" }}
+      maxWidth="md"
+      sx={{
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        width: "35%",
+        marginTop: "100px",
+        padding: "50px 150px 100px ",
+        borderRadius: "20px",
+        backgroundColor: "#f5f5f5",
+        boxShadow: "10px 10px 10px rgba(0, 0, 0, 0.1)",
+      }}
     >
       <div
         style={{
-          padding: "20px",
-          borderRadius: "20px",
-          boxShadow: "0 8px 16px rgba(0, 0, 0, 0.4)",
-          backgroundColor: "white",
+          width: "80%",
+          borderRadius: "15px",
         }}
       >
-        <Typography variant="h4" align="center" gutterBottom>
+        <Typography
+          variant="h4"
+          sx={{
+            textAlign: "center",
+            marginBottom: "30px",
+            fontWeight: "bold",
+            color: "#333",
+          }}
+        >
           Login
         </Typography>
-        {apiError ? (
-          <div className="alert alert-danger mb-2" role="alert">
+        {apiError && (
+          <div className="alert alert-danger mb-3" role="alert">
             {apiError}
           </div>
-        ) : (
-          ""
         )}
         <form onSubmit={formik.handleSubmit}>
-          <Grid container spacing={5}>
+          <Grid container spacing={3}>
             <Grid item xs={12}>
               <TextField
                 fullWidth
@@ -98,9 +93,16 @@ const Login = () => {
                 onChange={formik.handleChange}
                 onBlur={formik.handleBlur}
                 error={formik.touched.email && Boolean(formik.errors.email)}
+                sx={{
+                  "& .MuiOutlinedInput-root": {
+                    borderRadius: "8px",
+                  },
+                }}
               />
               {formik.touched.email && formik.errors.email && (
-                <div className="alert alert-danger mt-2">
+                <div
+                  style={{ color: "red", fontSize: "0.8rem", marginTop: "5px" }}
+                >
                   {formik.errors.email}
                 </div>
               )}
@@ -120,38 +122,52 @@ const Login = () => {
                 error={
                   formik.touched.password && Boolean(formik.errors.password)
                 }
+                sx={{
+                  "& .MuiOutlinedInput-root": {
+                    borderRadius: "8px",
+                  },
+                }}
               />
               {formik.touched.password && formik.errors.password && (
-                <div className="alert alert-danger mt-2">
+                <div
+                  style={{ color: "red", fontSize: "0.8rem", marginTop: "5px" }}
+                >
                   {formik.errors.password}
                 </div>
               )}
             </Grid>
-
             <Grid item xs={12} style={{ textAlign: "end", marginTop: "-30px" }}>
               <Button
                 variant="text"
-                style={{ color: "black" }}
+                style={{ color: "black", margin: "10px" }}
                 onClick={handleShowPassword}
               >
                 {showPassword ? "Hide Password" : "Show Password"}
               </Button>
             </Grid>
+
             <Grid
               item
               xs={12}
               sx={{
                 display: "flex",
                 justifyContent: "center",
+                alignItems: "center",
               }}
             >
               <Button
                 variant="contained"
                 type="submit"
-                style={{
-                  backgroundColor: "#4A3AFF",
-                  padding: "10px 70px",
+                sx={{
+                  borderRadius: "20px",
+                  padding: "12px",
+                  backgroundColor: "MuiButton-light",
+                  textTransform: "none",
                   fontSize: "16px",
+                  width: "50%",
+                  "&:hover": {
+                    backgroundColor: "primary.dark",
+                  },
                 }}
               >
                 Login

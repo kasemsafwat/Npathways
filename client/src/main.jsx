@@ -10,6 +10,7 @@ import "@fortawesome/fontawesome-free/css/all.min.css";
 import { createTheme, CssBaseline, ThemeProvider } from "@mui/material";
 import { BrowserRouter } from "react-router";
 import { AuthProvider } from "./contexts/AuthContext";
+import { InstructorAuthProvider } from "./contexts/InstructorAuthContext.jsx";
 
 const theme = createTheme({
   typography: {
@@ -20,7 +21,7 @@ const theme = createTheme({
   palette: {
     seagreen: "#46C98B",
     primary: {
-      main: "#46C98B",
+      main: "#46C98B", // Main color
       light: "#E6F8F2", // Light green
       dark: "#2A7D5D", // Dark green
       contrastText: "#FFFFFF",
@@ -34,8 +35,8 @@ const theme = createTheme({
     text: {
       primary: "#0E121A", // Dark blue
       secondary: "#181B21", // Dark gray
-      white: "#FFFFFF",
-      gray: "#757575",
+      white: "#FFFFFF", // White
+      gray: "#757575", // Gray
     },
   },
 });
@@ -45,7 +46,9 @@ createRoot(document.getElementById("root")).render(
     <ThemeProvider theme={theme}>
       <CssBaseline />
       <AuthProvider>
-        <App />
+        <InstructorAuthProvider>
+          <App />
+        </InstructorAuthProvider>
       </AuthProvider>
     </ThemeProvider>
   </BrowserRouter>

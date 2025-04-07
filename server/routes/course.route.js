@@ -8,6 +8,11 @@ import { upload } from "../config/multer.storage.js";
 const router = Router();
 
 router.get("/", CourseController.getAllCourses);
+router.get(
+  "/enrolledCourses",
+  authentication,
+  CourseController.getEnrolledCourses
+);
 router.get("/:id", CourseController.getCourseById);
 router.post(
   "/createCourse",

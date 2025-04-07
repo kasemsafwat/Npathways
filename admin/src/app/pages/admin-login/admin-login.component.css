@@ -1,0 +1,174 @@
+.login-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  padding: 20px;
+  
+}
+.app-name, .login-description{
+  color: #dbdbdb;
+}
+
+.login-card {
+  background-color: #fff;
+  padding: 30px;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  width: 100%;
+  max-width: 600px;
+  text-align: center;
+  color: #0a0f1c;
+  
+}
+
+.form-group {
+  margin-bottom: 20px;
+  text-align: left;
+}
+
+.form-group label {
+  display: block;
+  font-size: 14px;
+  font-weight: 500;
+  margin-bottom: 5px;
+  color: #333;
+}
+
+.form-group input {
+  width: 100%;
+  padding: 10px;
+  font-size: 14px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  outline: none;
+  transition: border-color 0.3s;
+}
+
+.form-group input:focus {
+  border-color: #1a2526;
+}
+
+.form-group input.is-invalid {
+  border-color: #dc3545;
+}
+
+.invalid-feedback {
+  color: #dc3545;
+  font-size: 12px;
+  margin-top: 5px;
+  display: block; /* Ensure the feedback is visible */
+}
+
+.password-input {
+  position: relative;
+}
+
+.toggle-password {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #666;
+  font-size: 14px;
+}
+
+.error-message {
+  color: #dc3545;
+  font-size: 14px;
+  margin-bottom: 15px;
+}
+
+.sign-in-button {
+  width: 100%;
+  padding: 12px;
+  background-color: #1a2526;
+  color: #fff;
+  border: none;
+  border-radius: 5px;
+  font-size: 16px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.sign-in-button:disabled {
+  background-color: #666;
+  cursor: not-allowed;
+}
+
+.sign-in-button:hover:not(:disabled) {
+  background-color: #2c3e50;
+}
+
+.forgot-password,
+.no-account {
+  display: block;
+  color: #666;
+  text-decoration: none;
+  margin-top: 20px;
+  font-size: 14px;
+}
+
+.forgot-password:hover,
+.no-account:hover {
+  color: #9da7a8;
+  text-decoration: underline;
+}
+
+.no-account {
+  color: #fff;
+}
+
+.no-account:hover {
+  text-decoration: underline;
+}
+
+.user-info {
+  background-color: #1a2526;
+  border-radius: 8px;
+  padding: 20px;
+  margin: 20px 0;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  width: 100%;
+  max-width: 400px;
+  text-align: center;
+  animation: fadeIn 0.5s ease-in;
+}
+
+.welcome-message {
+  text-align: center;
+}
+
+.welcome-message h3 {
+  color: #fff;
+  margin-bottom: 10px;
+  font-size: 24px;
+}
+
+.welcome-message p {
+  color: #dbdbdb;
+  margin: 5px 0;
+  font-size: 16px;
+}
+
+.redirect-message {
+  color: #dbdbdb;
+  font-style: italic;
+  margin-top: 15px;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

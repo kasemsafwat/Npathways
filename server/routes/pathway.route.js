@@ -1,9 +1,14 @@
 import express from "express";
-const router = express.Router();
 import { authentication } from "../middleware/auth.middleware.js";
 import PathwayController from "../controllers/pathway.controller.js";
-import { addCourseValidation, newPathWayValidation } from "../middleware/pathway.middleware.js";
+import {
+  addCourseValidation,
+  newPathWayValidation,
+} from "../middleware/pathway.middleware.js";
 import { protectRoutes, allowTo } from "../middleware/AuthAdmin.middleware.js";
+
+// The prefix is /api/pathway
+const router = express.Router();
 
 // By Admin
 router.post(
@@ -68,6 +73,14 @@ router.post("/admin/enroll-Student", PathwayController.enrollUserByAdmin);
 
 // By Student
 router.get("/student", authentication, PathwayController.getAllPathwayByUser);
+// //////////////////////////
+// we made this route to get the pathway by user id using authentication
+router.get(
+  "/student/userPathway",
+  authentication,
+  PathwayController.getUserPathway
+);
+//////////////////////////////
 router.get(
   "/student/:id",
   authentication,

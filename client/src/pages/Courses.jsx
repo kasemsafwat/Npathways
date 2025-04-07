@@ -30,8 +30,14 @@ function Courses() {
   }, []);
 
   return (
-    <Box>
-      <Box display="flex" justifyContent="center" alignItems="center">
+    <>
+      {" "}
+      <Box
+        display="flex"
+        justifyContent="center"
+        alignItems="center"
+        sx={{ mb: 3 }}
+      >
         <ToggleButtonGroup
           color="primary"
           value={alignment}
@@ -43,13 +49,16 @@ function Courses() {
           <ToggleButton value="android">Pathway</ToggleButton>
         </ToggleButtonGroup>
       </Box>
-
-      <Grid container spacing={3} sx={{ padding: 3 }}>
-        {courses.map((course) => (
-          <CoursesCard key={course.id} course={course} />
-        ))}
-      </Grid>
-    </Box>
+      <div className="container">
+        <div className="row">
+          {courses.map((course) => (
+            <div className="col-md-3 my-2" key={course._id}>
+              <CoursesCard course={course} />
+            </div>
+          ))}
+        </div>
+      </div>
+    </>
   );
 }
 

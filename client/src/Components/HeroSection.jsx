@@ -29,7 +29,7 @@ const HeroSection = () => {
               <Typography
                 variant="h3"
                 component="p"
-                sx={{ fontWeight: "bold", color: "#4A3AFF" }}
+                sx={{ fontWeight: "bold", color: "primary.main" }}
               >
                 200+
               </Typography>

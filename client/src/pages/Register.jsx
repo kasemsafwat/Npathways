@@ -1,5 +1,14 @@
 import React, { useState } from "react";
-import { TextField, Button, Container, Grid, Typography } from "@mui/material";
+import {
+  TextField,
+  Button,
+  Container,
+  Grid,
+  Typography,
+  Box,
+  Checkbox,
+  Link,
+} from "@mui/material";
 import { useFormik } from "formik";
 import * as Yup from "yup";
 import axios from "axios";
@@ -12,7 +21,7 @@ const validationSchema = Yup.object().shape({
     .email("Invalid email address")
     .required("Email is required"),
   password: Yup.string()
-    .min(8, "Password must be at least 8 characters")
+    // .min(8, "Password must be at least 8 characters")
     .required("Required"),
 });
 
@@ -59,33 +68,52 @@ const Register = () => {
   return (
     <Container
       maxWidth="sm"
-      className="d-flex align-items-center justify-content-center"
-      style={{ minHeight: "100vh" }}
+      sx={{
+        minHeight: "100vh",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+      }}
     >
-      <div
-        style={{
-          padding: "20px",
-          borderRadius: "20px",
-          boxShadow: "0 8px 16px rgba(0, 0, 0, 0.4)",
-          backgroundColor: "white",
+      <Box
+        sx={{
+          width: "100%",
+          bgcolor: "#f5f5f5",
+          borderRadius: 2,
+          p: 4,
+          boxShadow: "10px 10px 10px rgba(0, 0, 0, 0.1)",
         }}
       >
-        <Typography variant="h4" align="center" gutterBottom>
-          Register
+        <Typography
+          variant="h5"
+          align="center"
+          sx={{
+            mb: 4,
+            fontWeight: 500,
+          }}
+        >
+          Create an account
         </Typography>
-        {apiError ? (
-          <div className="alert alert-danger my-2" role="alert">
-            {apiError}
-          </div>
-        ) : (
-          ""
+        <Typography
+          variant="subtitle2"
+          align="center"
+          sx={{ mb: 4, color: "seagreen" }}
+        >
+          Start your pathway journey with us
+        </Typography>
+
+        {apiError && (
+          <Box sx={{ mb: 2 }}>
+            <Typography color="error">{apiError}</Typography>
+          </Box>
         )}
+
         <form onSubmit={formik.handleSubmit}>
-          <Grid container spacing={4}>
+          <Grid container spacing={2.5}>
             <Grid item xs={12}>
               <TextField
                 fullWidth
-                label="First Name"
+                label="First name"
                 variant="outlined"
                 id="firstName"
                 name="firstName"
@@ -95,18 +123,19 @@ const Register = () => {
                 error={
                   formik.touched.firstName && Boolean(formik.errors.firstName)
                 }
+                helperText={formik.touched.firstName && formik.errors.firstName}
+                sx={{
+                  "& .MuiOutlinedInput-root": {
+                    borderRadius: "8px",
+                  },
+                }}
               />
-              {formik.touched.firstName && formik.errors.firstName && (
-                <div className="alert alert-danger mt-2">
-                  {formik.errors.firstName}
-                </div>
-              )}
             </Grid>
 
             <Grid item xs={12}>
               <TextField
                 fullWidth
-                label="Last Name"
+                label="Last name"
                 variant="outlined"
                 id="lastName"
                 name="lastName"
@@ -116,12 +145,13 @@ const Register = () => {
                 error={
                   formik.touched.lastName && Boolean(formik.errors.lastName)
                 }
+                helperText={formik.touched.lastName && formik.errors.lastName}
+                sx={{
+                  "& .MuiOutlinedInput-root": {
+                    borderRadius: "8px",
+                  },
+                }}
               />
-              {formik.touched.lastName && formik.errors.lastName && (
-                <div className="alert alert-danger mt-2">
-                  {formik.errors.lastName}
-                </div>
-              )}
             </Grid>
 
             <Grid item xs={12}>
@@ -135,70 +165,171 @@ const Register = () => {
                 onChange={formik.handleChange}
                 onBlur={formik.handleBlur}
                 error={formik.touched.email && Boolean(formik.errors.email)}
+                helperText={formik.touched.email && formik.errors.email}
+                sx={{
+                  "& .MuiOutlinedInput-root": {
+                    borderRadius: "8px",
+                  },
+                }}
               />
-              {formik.touched.email && formik.errors.email && (
-                <div className="alert alert-danger mt-2">
-                  {formik.errors.email}
-                </div>
-              )}
             </Grid>
 
             <Grid item xs={12}>
               <TextField
                 fullWidth
                 label="Password"
-                type={showPassword ? "text" : "password"}
                 variant="outlined"
                 id="password"
                 name="password"
+                type={showPassword ? "text" : "password"}
                 value={formik.values.password}
                 onChange={formik.handleChange}
                 onBlur={formik.handleBlur}
                 error={
                   formik.touched.password && Boolean(formik.errors.password)
                 }
+                helperText={formik.touched.password && formik.errors.password}
+                sx={{
+                  "& .MuiOutlinedInput-root": {
+                    borderRadius: "8px",
+                  },
+                }}
               />
-              {formik.touched.password && formik.errors.password && (
-                <div className="alert alert-danger mt-2">
-                  {formik.errors.password}
-                </div>
-              )}
             </Grid>
 
-            <Grid item xs={12} style={{ textAlign: "end", marginTop: "-30px" }}>
-              <Button
-                variant="text"
-                style={{ color: "black" }}
-                onClick={handleShowPassword}
+            <Grid item xs={12}>
+              <Box
+                sx={{
+                  display: "flex",
+                  alignItems: "center",
+                  mb: 3,
+                }}
               >
-                {showPassword ? "Hide Password" : "Show Password"}
-              </Button>
+                <Checkbox
+                  size="small"
+                  sx={{
+                    mr: 1,
+                    color: "text.secondary",
+                    "&.Mui-checked": {
+                      color: "primary.main",
+                    },
+                  }}
+                />
+                <Typography
+                  variant="body2"
+                  sx={{
+                    fontSize: "14px",
+                    "& a": {
+                      color: "inherit",
+                      textDecoration: "underline",
+                      "&:hover": {
+                        color: "primary.main",
+                      },
+                    },
+                  }}
+                >
+                  By creating an account, I agree to our{" "}
+                  <Link
+                    onClick={() => navigate("/terms-and-conditions")}
+                    sx={{ color: "seagreen", cursor: "pointer" }}
+                  >
+                    Terms of use
+                  </Link>{" "}
+                  and <a href="/privacy">Privacy Policy</a>
+                </Typography>
+              </Box>
             </Grid>
 
             <Grid
               item
               xs={12}
-              style={{
+              sx={{
                 display: "flex",
                 justifyContent: "center",
-                marginTop: "-10px",
+                alignItems: "center",
               }}
             >
               <Button
+                fullWidth
                 variant="contained"
                 type="submit"
-                style={{
-                  backgroundColor: "#4A3AFF",
-                  padding: "10px 70px",
+                sx={{
+                  borderRadius: "20px",
+                  padding: "12px",
+                  backgroundColor: "MuiButton-light",
+                  textTransform: "none",
                   fontSize: "16px",
+                  width: "50%",
+                  "&:hover": {
+                    backgroundColor: "primary.dark",
+                  },
                 }}
               >
-                Register
+                Create an account
+              </Button>
+            </Grid>
+
+            <Grid item xs={12}>
+              <Box
+                sx={{
+                  display: "flex",
+                  alignItems: "center",
+                  mb: 2.5,
+                }}
+              >
+                <Box sx={{ flex: 1, height: "1px", bgcolor: "divider" }} />
+                <Typography
+                  variant="body2"
+                  sx={{
+                    px: 2,
+                    color: "text.secondary",
+                  }}
+                >
+                  OR
+                </Typography>
+                <Box sx={{ flex: 1, height: "1px", bgcolor: "divider" }} />
+              </Box>
+            </Grid>
+
+            <Grid
+              item
+              xs={12}
+              sx={{
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center",
+              }}
+            >
+              <Button
+                fullWidth
+                variant="outlined"
+                startIcon={
+                  <img
+                    src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg"
+                    alt="Google"
+                    style={{ width: 18, height: 18 }}
+                  />
+                }
+                sx={{
+                  py: 1.5,
+                  textTransform: "none",
+                  fontSize: "0.9375rem",
+                  borderColor: "divider",
+                  color: "text.primary",
+                  borderRadius: "20px",
+                  width: "50%",
+                  "&:hover": {
+                    borderColor: "primary.main",
+                    bgcolor: "transparent",
+                  },
+                }}
+              >
+                Continue with Google
               </Button>
             </Grid>
           </Grid>
         </form>
-      </div>
+      </Box>
     </Container>
   );
 };

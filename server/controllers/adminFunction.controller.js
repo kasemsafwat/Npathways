@@ -1,4 +1,5 @@
 import Admin from "../models/admin.model.js";
+import User from "../models/user.model.js"
 import bcrypt from "bcrypt"
 import jwt from "jsonwebtoken"
 
@@ -164,6 +165,22 @@ const AdminControlller = {
             console.error('Error updating admin: ', error);
             res.status(500).json({ message: error.message });  }
     },
+
+    // Student :
+  
+   getAllStudents : async (req, res) => {
+        try {
+           const students = await User.find(); 
+           console.log("Total Students:", students.length);
+
+          return res.status(200).json(students);
+        } catch (error) {
+          console.error("Get All Students Error:", error);
+          return res.status(500).json({
+            message: error.message,
+          });
+        }
+      }
 
 
 }

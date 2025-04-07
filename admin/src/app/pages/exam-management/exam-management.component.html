@@ -1,0 +1,99 @@
+<div class="exam-container">
+  <!-- Create New Exam Section -->
+  <div class="exam-form-section">
+    <h2 class="section-title">Create New Exam</h2>
+    <form
+      [formGroup]="examForm"
+      (ngSubmit)="isEditing ? updateExam() : createExam()"
+    >
+      <div class="form-field">
+        <input
+          class="dark-input"
+          formControlName="name"
+          placeholder="Exam Name*"
+          [class.error]="
+            examForm.get('name')?.invalid && examForm.get('name')?.touched
+          "
+        />
+      </div>
+
+      <div class="form-field">
+        <input
+          class="dark-input"
+          type="number"
+          formControlName="timeLimit"
+          placeholder="Time Limit (minutes)*"
+          [class.error]="
+            examForm.get('timeLimit')?.invalid &&
+            examForm.get('timeLimit')?.touched
+          "
+        />
+      </div>
+
+      <button
+        class="btn btn-primary action-button"
+        type="submit"
+        [disabled]="!examForm.valid"
+      >
+        {{ isEditing ? "Update" : "Create" }}
+      </button>
+      <button
+        *ngIf="isEditing"
+        class="btn btn-secondary action-button ms-2"
+        type="button"
+        (click)="resetForm()"
+      >
+        Cancel
+      </button>
+    </form>
+  </div>
+
+  <!-- Exams List Section -->
+  <div class="exams-list-section">
+    <h2 class="section-title">Exams List</h2>
+    <table class="dark-table">
+      <thead>
+        <tr>
+          <th class="text-center">Name</th>
+          <th class="text-center">Time Limit</th>
+          <th class="text-center">Questions</th>
+          <th class="text-center">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let exam of exams">
+          <td class="text-center">{{ exam.name }}</td>
+          <td class="text-center">{{ exam.timeLimit }} minutes</td>
+          <td class="text-center">{{ getQuestionCount(exam) }}</td>
+          <td class="d-flex justify-content-around align-items-center">
+            <button
+              class="btn btn-outline-primary btn me-2"
+              (click)="viewExamDetails(exam._id)"
+            >
+              View
+            </button>
+            <button
+              class="btn btn-outline-danger btn me-2"
+              (click)="deleteExam(exam._id)"
+            >
+              Delete
+            </button>
+            <!-- <div class="position-relative">
+              <input type="file"
+                     #fileInput
+                     [id]="'fileInput_' + exam._id"
+                     class="file-input"
+                     accept=".xlsx,.xls"
+                     (change)="onFileSelected($event, exam._id)"
+                     hidden>
+              <button class="btn btn-outline-success btn"
+                      (click)="fileInput.click()">
+                Upload Excel
+              </button>
+            </div> -->
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
