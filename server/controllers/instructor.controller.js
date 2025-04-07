@@ -7,6 +7,7 @@ import path from "path";
 import fs from "fs";
 import { fileURLToPath } from "url";
 import sendEmail from "../services/email.js";
+import User from "../models/user.model.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -66,7 +67,8 @@ const instructorContoller = {
         firstName: instructor.firstName,
         lastName: instructor.lastName,
         email: instructor.email,
-      });    } catch (error) {
+      });
+    } catch (error) {
       console.error("Login Instructor Error:", error);
       return res.status(500).send({
         message: error.message,
@@ -108,110 +110,114 @@ const instructorContoller = {
       let instructor = await Instructor.findByIdAndUpdate(
         req.instructor._id,
         updateData,
-        { new: true }  
-      ).select('-password');
+        { new: true }
+      ).select("-password");
       res.send(instructor);
     } catch (error) {
       return res.status(500).send({
-        message: 'Instructor Controller: ' + error.message
+        message: "Instructor Controller: " + error.message,
       });
     }
   },
-      updatePassword:async(req,res)=>{
-         try{
-             let {newPassword,oldPassword}=req.body
-             let instructor=await Instructor.findById(req.instructor._id)
-             let validPassword=await bcrypt.compare(oldPassword,instructor.password)
-             if(!validPassword){
-                 return res.status(403).send({
-                     message:"Invalid old Password"
-                 })
-             }
-             instructor.password=newPassword
-             await instructor.save()
-             res.send({
-                 message:"Password Update"
-             })
-         }catch(error){
-             return res.status(500).send({
-                 message: 'Instructor Controller: ' + error.message
-             });
-         }
-      },
-      profile:async (req,res)=>{
-        try{
-            let instructor=await Instructor.findById(req.instructor._id)
-            let instructorObject = instructor.toObject();
-            delete instructorObject.password;
-            delete instructorObject.tokens;
-            res.send(instructorObject)
-        }catch(error){
-            return res.status(500).send({
-                message: 'Instructor Controller: ' + error.message
-            });   
-        }
-     },
+  updatePassword: async (req, res) => {
+    try {
+      let { newPassword, oldPassword } = req.body;
+      let instructor = await Instructor.findById(req.instructor._id);
+      let validPassword = await bcrypt.compare(
+        oldPassword,
+        instructor.password
+      );
+      if (!validPassword) {
+        return res.status(403).send({
+          message: "Invalid old Password",
+        });
+      }
+      instructor.password = newPassword;
+      await instructor.save();
+      res.send({
+        message: "Password Update",
+      });
+    } catch (error) {
+      return res.status(500).send({
+        message: "Instructor Controller: " + error.message,
+      });
+    }
+  },
+  profile: async (req, res) => {
+    try {
+      let instructor = await Instructor.findById(req.instructor._id);
+      let instructorObject = instructor.toObject();
+      delete instructorObject.password;
+      delete instructorObject.tokens;
+      res.send(instructorObject);
+    } catch (error) {
+      return res.status(500).send({
+        message: "Instructor Controller: " + error.message,
+      });
+    }
+  },
 
-    //  Change Image
-      changInstructorImage: async (req, res) => {
-        try {
-          const { id } = req.params;
-          if (!id.match(/^[0-9a-fA-F]{24}$/)) {
-            return res.status(400).json({ error: "Invalid Instructor ID" });
-          }
-    
-          const instructor = await Instructor.findById(id);
-          if (!instructor) {
-            return res.status(404).json({ message: "Instructor not found" });
-          }
-    
-          if (req.file) {
-            const imageUrl = `${req.file.filename}`;
-    
-            // Remove old image if it exists
-            if (instructor.image) {
-              const oldImagePath = path.join(
-                __dirname,
-                "../uploads",
-                path.basename(instructor.image)
-              );
-              console.log("Attempting to delete:", oldImagePath);
-    
-              if (fs.existsSync(oldImagePath)) {
-                try {
-                  fs.unlinkSync(oldImagePath);
-                  console.log("Old image deleted successfully");
-                } catch (error) {
-                  console.error("Error deleting old image:", error);
-                }
-              } else {
-                console.log("Old image not found:", oldImagePath);
-              }
+  //  Change Image
+  changInstructorImage: async (req, res) => {
+    try {
+      const { id } = req.params;
+      if (!id.match(/^[0-9a-fA-F]{24}$/)) {
+        return res.status(400).json({ error: "Invalid Instructor ID" });
+      }
+
+      const instructor = await Instructor.findById(id);
+      if (!instructor) {
+        return res.status(404).json({ message: "Instructor not found" });
+      }
+
+      if (req.file) {
+        const imageUrl = `${req.file.filename}`;
+
+        // Remove old image if it exists
+        if (instructor.image) {
+          const oldImagePath = path.join(
+            __dirname,
+            "../uploads",
+            path.basename(instructor.image)
+          );
+          console.log("Attempting to delete:", oldImagePath);
+
+          if (fs.existsSync(oldImagePath)) {
+            try {
+              fs.unlinkSync(oldImagePath);
+              console.log("Old image deleted successfully");
+            } catch (error) {
+              console.error("Error deleting old image:", error);
             }
-            const updatedInstructor = await Instructor.findByIdAndUpdate(
-              id,
-              { image: imageUrl },
-              { new: true }
-            );
-    
-            if (!updatedInstructor) {
-              return res.status(404).json({ message: "Instructor not found" });
-            }
-    
-            return res
-              .status(200)
-              .json({ message: "Image updated successfully", instructor: updatedInstructor });
           } else {
-            return res.status(400).json({ message: "No image file provided" });
+            console.log("Old image not found:", oldImagePath);
           }
-        } catch (error) {
-          console.error("Error in changeUserImage:", error);
-          return res.status(500).json({ message: "Server error", error });
         }
-      },
+        const updatedInstructor = await Instructor.findByIdAndUpdate(
+          id,
+          { image: imageUrl },
+          { new: true }
+        );
 
-      // Forget Password
-       // Forget Password
+        if (!updatedInstructor) {
+          return res.status(404).json({ message: "Instructor not found" });
+        }
+
+        return res.status(200).json({
+          message: "Image updated successfully",
+          instructor: updatedInstructor,
+        });
+      } else {
+        return res.status(400).json({ message: "No image file provided" });
+      }
+    } catch (error) {
+      console.error("Error in changeUserImage:", error);
+      return res.status(500).json({ message: "Server error", error });
+    }
+  },
+
+  // Forget Password
+  // Forget Password
   forgetPassword: async (req, res) => {
     try {
       let { email } = req.body;
@@ -266,7 +272,7 @@ const instructorContoller = {
         .createHash("sha256")
         .update(req.params.token)
         .digest("hex");
- 
+
       const instructor = await Instructor.findOne({
         email,
         passwordResetToken: token,
@@ -284,9 +290,13 @@ const instructorContoller = {
 
       await instructor.save();
 
-      const loginToken = jwt.sign({ id: instructor._id }, process.env.SECRET_KEY, {
-        expiresIn: process.env.JWT_EXPIRES_IN || "7d",
-      });
+      const loginToken = jwt.sign(
+        { id: instructor._id },
+        process.env.SECRET_KEY,
+        {
+          expiresIn: process.env.JWT_EXPIRES_IN || "7d",
+        }
+      );
 
       return res.status(200).send({
         message: "Password reset successfully. You are now logged in!",
@@ -297,61 +307,115 @@ const instructorContoller = {
       return res.status(500).send({ message: error.message });
     }
   },
-    // Instructor Permissions
-    //   1) Create Course()   ==>  updateMyCourse  ==> getMyCourse(T)  ==>  getCourseStudents (T)
-    createCourse : async (req, res) => {
-      try {
-        const { name, description, requiredExams } = req.body;
-        const newCourse = new CourseModel({
-          name,
-          description,
-          requiredExams,
-          instructors: [req.instructor._id],
-          image: req.file?.filename,
-        });
+  // Instructor Permissions
+  //   1) Create Course()   ==>  updateMyCourse  ==> getMyCourse(T)  ==>  getCourseStudents (T)
+  createCourse: async (req, res) => {
+    try {
+      const { name, description, requiredExams } = req.body;
+      const newCourse = new CourseModel({
+        name,
+        description,
+        requiredExams,
+        instructors: [req.instructor._id],
+        image: req.file?.filename,
+      });
 
-        const savedCourse = await newCourse.save();
-        await Instructor.findByIdAndUpdate(req.instructor._id, {
-          $push: { courses: savedCourse._id },
-        });
+      const savedCourse = await newCourse.save();
+      await Instructor.findByIdAndUpdate(req.instructor._id, {
+        $push: { courses: savedCourse._id },
+      });
 
-        res.status(201).json(savedCourse);
-      } catch (error) {
-        res.status(500).json({ message: "Create Course Error: " + error.message });
-      }
-    },
-    getMyCourses :async (req, res) => {
-      try {
-        const courses = await CourseModel.find({
-          instructors: req.instructor._id,
-        }).populate("requiredExams");
-
-        res.json(courses);
-      } catch (error) {
-        res.status(500).json({ message: "Get My Courses Error: " + error.message });
-      }
-    },
-    getCourseStudents: async (req, res) => {
-      try {
-        const courseId = req.params.id;
-        const course = await CourseModel.findOne({
-          _id: courseId,
-          instructors: req.instructor._id,     
-        }).populate("students", "firstName lastName email"); 
-
-        if (!course) {
-          return res.status(404).json({ message: "Course not found " });
-        }
-        res.status(200).json({
-          courseName: course.name,
-          totalStudents: course.students.length,
-          students: course.students,
-        });
-      } catch (error) {
-        res.status(500).json({ message: "Get Course Students Error: " + error.message });
-      }
+      res.status(201).json(savedCourse);
+    } catch (error) {
+      res
+        .status(500)
+        .json({ message: "Create Course Error: " + error.message });
     }
+  },
+  getMyCourses: async (req, res) => {
+    try {
+      const courses = await CourseModel.find({
+        instructors: req.instructor._id,
+      }).populate("requiredExams");
 
+      res.json(courses);
+    } catch (error) {
+      res
+        .status(500)
+        .json({ message: "Get My Courses Error: " + error.message });
+    }
+  },
+  getCourseStudents: async (req, res) => {
+    try {
+      const courseId = req.params.id;
+      const course = await CourseModel.findOne({
+        _id: courseId,
+        instructors: req.instructor._id,
+      }).populate("students", "firstName lastName email");
 
+      if (!course) {
+        return res.status(404).json({ message: "Course not found " });
+      }
+      res.status(200).json({
+        courseName: course.name,
+        totalStudents: course.students.length,
+        students: course.students,
+      });
+    } catch (error) {
+      res
+        .status(500)
+        .json({ message: "Get Course Students Error: " + error.message });
+    }
+  },
+
+  //* Added these points to finish the page, feel free to edit it
+
+  getUsersInCourse: async (req, res) => {
+    try {
+      const courses = await CourseModel.find({
+        instructors: req.instructor._id,
+      });
+
+      if (!courses || courses.length === 0) {
+        return res.status(404).json({ error: "No courses found" });
+      }
+
+      const courseIds = courses.map((course) => course._id);
+
+      // Create a map of course IDs to course names
+      const courseMap = {};
+      courses.forEach((course) => {
+        courseMap[course._id.toString()] = course.name;
+      });
+
+      let users = await User.find({
+        courses: { $in: courseIds },
+      });
+
+      users = users.map((user) => {
+        let userObject = user.toObject();
+        delete userObject.password;
+        delete userObject.tokens;
+
+        // Get the course names for this user
+        const userCourseNames = user.courses
+          .filter((courseId) => courseMap[courseId.toString()])
+          .map((courseId) => courseMap[courseId.toString()])
+          .join(" & ");
+
+        // Add course names to user object
+        userObject.courseNames = userCourseNames;
+
+        return userObject;
+      });
+
+      return res.status(200).send(users);
+    } catch (error) {
+      console.error("Get Users In Course Error:", error);
+      return res.status(500).send({
+        message: error.message,
+      });
+    }
+  },
 };
 export default instructorContoller;
