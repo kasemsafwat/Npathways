@@ -18,6 +18,8 @@ export interface Course {
   lessons: Lesson[];
   image?: string;
   status?: string;
+  category?: string;
+  price?: number;
 }
 
 @Injectable({

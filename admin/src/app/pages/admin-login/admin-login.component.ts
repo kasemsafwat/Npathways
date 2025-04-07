@@ -21,6 +21,9 @@ export class AdminLoginComponent implements OnInit {
   isLoading = false;
   showPassword = false;
   errorMessage: string | null = null;
+  userName: string | null = null;
+  userRole: string | null = null;
+  isLoggedIn = false;
 
   constructor(
     private fb: FormBuilder,
@@ -42,9 +45,15 @@ export class AdminLoginComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    // Redirect if already logged in
+    // Check if already logged in
     if (this.authService.hasToken()) {
-      this.router.navigate(['/admin-dashboard']);
+      this.isLoggedIn = true;
+      this.userName = this.authService.getUserName();
+      this.userRole = this.authService.getUserRole();
+      // Redirect after a short delay to show the welcome message
+      setTimeout(() => {
+        this.router.navigate(['/admin-dashboard']);
+      }, 2000);
     }
   }
 
@@ -79,7 +88,13 @@ export class AdminLoginComponent implements OnInit {
     this.authService.login(email, password).subscribe({
       next: () => {
         this.isLoading = false;
-        this.router.navigate(['/admin-dashboard']);
+        this.isLoggedIn = true;
+        this.userName = this.authService.getUserName();
+        this.userRole = this.authService.getUserRole();
+        // Redirect after a short delay to show the welcome message
+        setTimeout(() => {
+          this.router.navigate(['/admin-dashboard']);
+        }, 2000);
       },
       error: (error) => {
         console.error('Login failed:', error);

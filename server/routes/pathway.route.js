@@ -1,5 +1,4 @@
 import express from "express";
-const router = express.Router();
 import { authentication } from "../middleware/auth.middleware.js";
 import PathwayController from "../controllers/pathway.controller.js";
 import {
@@ -7,6 +6,9 @@ import {
   newPathWayValidation,
 } from "../middleware/pathway.middleware.js";
 import { protectRoutes, allowTo } from "../middleware/AuthAdmin.middleware.js";
+
+// The prefix is /api/pathway
+const router = express.Router();
 
 // By Admin
 router.post(

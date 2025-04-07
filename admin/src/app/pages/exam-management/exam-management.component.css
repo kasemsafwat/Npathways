@@ -1,0 +1,196 @@
+.exam-container {
+  padding: 2rem;
+  background-color: #0f1218;
+  min-height: 100vh;
+  color: #ffffff;
+}
+
+.section-title {
+  font-size: 1.5rem;
+  margin-bottom: 1.5rem;
+  color: #ffffff;
+  font-weight: normal;
+}
+
+.exam-form-section {
+  margin-bottom: 3rem;
+}
+
+.form-field {
+  margin-bottom: 1rem;
+}
+
+.dark-input {
+  width: 100%;
+  padding: 0.75rem;
+  background-color: transparent;
+  border: 1px solid #2a2f35;
+  border-radius: 4px;
+  color: #ffffff;
+  font-size: 1rem;
+  outline: none;
+  transition: border-color 0.3s;
+}
+
+.dark-input:focus {
+  border-color: #3f51b5;
+}
+
+.dark-input::placeholder {
+  color: #6c757d;
+}
+
+.dark-input.error {
+  border-color: #dc3545;
+}
+
+/* Bootstrap Button Overrides for Dark Theme */
+.btn-primary {
+  background-color: #3f51b5;
+  border-color: #3f51b5;
+  color: white;
+}
+
+.btn-primary:hover {
+  background-color: #303f9f;
+  border-color: #303f9f;
+}
+
+.btn-primary:disabled {
+  background-color: #1e2229;
+  border-color: #2a2f35;
+  opacity: 0.65;
+}
+
+.btn-secondary {
+  background-color: #2a2f35;
+  border-color: #2a2f35;
+  color: white;
+}
+
+.btn-secondary:hover {
+  background-color: #1e2229;
+  border-color: #1e2229;
+}
+
+.btn-outline-primary {
+  color: #fff;
+  border-color: #3f51b5;
+  background-color: transparent;
+}
+
+.btn-outline-primary:hover {
+  background-color: #3f51b5;
+  border-color: #3f51b5;
+  color: white;
+}
+
+.btn-outline-danger {
+  color: #fff;
+  border-color: #dc3545;
+  background-color: transparent;
+}
+
+.btn-outline-danger:hover {
+  background-color: #dc3545;
+  border-color: #dc3545;
+  color: white;
+}
+
+/* Table Styles */
+.dark-table {
+  width: 100%;
+  border-collapse: collapse;
+  background-color: #1e2229;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.dark-table th {
+  background-color: #2a2f35;
+  color: #ffffff;
+  text-align: left;
+  padding: 1rem;
+  font-weight: normal;
+}
+
+.dark-table td {
+  padding: 1rem;
+  border-bottom: 1px solid #2a2f35;
+  color: #ffffff;
+}
+
+.dark-table tbody tr:hover {
+  background-color: #2a2f35;
+}
+
+.actions-cell {
+  text-align: right;
+  white-space: nowrap;
+}
+
+/* Material Icons Adjustments */
+mat-icon {
+  font-size: 18px;
+  width: 18px;
+  height: 18px;
+  line-height: 18px;
+  vertical-align: text-bottom;
+}
+
+/* Button size adjustments */
+.btn-sm mat-icon {
+  font-size: 16px;
+  width: 16px;
+  height: 16px;
+  line-height: 16px;
+}
+
+/* File Upload Styles */
+.file-input {
+  display: none;
+}
+
+.btn-outline-success {
+  color: #fff;
+  border-color: #28a745;
+  background-color: transparent;
+}
+
+.btn-outline-success:hover {
+  background-color: #28a745;
+  border-color: #28a745;
+  color: white;
+}
+
+.btn-outline-success:disabled {
+  background-color: transparent;
+  border-color: #2a2f35;
+  color: #6c757d;
+  cursor: not-allowed;
+}
+
+/* Loading state */
+.btn-outline-success.loading {
+  position: relative;
+  color: transparent;
+}
+
+.btn-outline-success.loading::after {
+  content: '';
+  position: absolute;
+  width: 16px;
+  height: 16px;
+  top: 50%;
+  left: 50%;
+  margin: -8px 0 0 -8px;
+  border: 2px solid #ffffff;
+  border-radius: 50%;
+  border-right-color: transparent;
+  animation: spin 0.75s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}

@@ -1,0 +1,267 @@
+/* Base styles */
+
+
+.title p {
+  color: #838587;
+}
+
+/* Navigation tabs styling */
+.nav-tabs {
+  border-bottom: none;
+  gap: 2rem;
+  margin-bottom: 2rem;
+  padding: 0 0.5rem;
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE and Edge */
+}
+
+.nav-tabs::-webkit-scrollbar {
+  display: none; /* Chrome, Safari, Opera */
+}
+
+.nav-item {
+  margin: 0;
+  position: relative;
+  white-space: nowrap;
+}
+
+.nav-tabs .nav-link {
+  border: none;
+  color: #6B7280;
+  padding: 0.75rem 1.5rem;
+  font-weight: 500;
+  font-size: 0.9375rem;
+  background: transparent;
+  transition: all 0.2s ease;
+  position: relative;
+}
+
+.nav-tabs .nav-link:hover {
+  color: #111827;
+  background-color: #F3F4F6;
+}
+
+.nav-tabs .nav-link.active {
+  color: #2563EB;
+  border-bottom: 2px solid #2563EB;
+  background-color: transparent;
+  font-weight: 600;
+}
+
+.nav-tabs .nav-link.active::after {
+  content: '';
+  position: absolute;
+  bottom: -1px;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background-color: #2563EB;
+  border-radius: 2px;
+}
+
+/* Add subtle transition for the active indicator */
+.nav-tabs .nav-link::after {
+  content: '';
+  position: absolute;
+  bottom: -1px;
+  left: 50%;
+  width: 0;
+  height: 2px;
+  background-color: #2563EB;
+  transition: all 0.3s ease;
+  border-radius: 2px;
+}
+
+.nav-tabs .nav-link:hover::after {
+  left: 0;
+  width: 100%;
+}
+
+/* Optional: Add count badges to nav items */
+.nav-link .count {
+  display: inline-block;
+  margin-left: 0.5rem;
+  font-size: 0.875rem;
+  color: #6B7280;
+  font-weight: 400;
+}
+
+.nav-link.active .count {
+  color: #2563EB;
+}
+
+/* Container for the tabs */
+.nav-container {
+  border-bottom: 1px solid #E5E7EB;
+  margin: 0 -1.5rem;
+  padding: 0 1.5rem;
+}
+
+/* Card grid layout */
+.row.g-4 {
+  margin: 0 -0.5rem;
+}
+
+.col-md-4 {
+  padding: 0 0.5rem;
+}
+
+/* Card styles */
+.card {
+  height: 100%;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+.card-img-top {
+  height: 200px;
+  object-fit: cover;
+}
+
+/* Action buttons */
+.card-footer .btn {
+  padding: 0.5rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  transition: all 0.2s ease;
+}
+
+.btn-outline-secondary {
+  border-color: #E5E7EB;
+  color: #374151;
+}
+
+.btn-outline-secondary:hover {
+  background-color: #F3F4F6;
+  border-color: #E5E7EB;
+  color: #111827;
+}
+
+.btn-outline-danger {
+  border-color: #E5E7EB;
+  color: #DC2626;
+}
+
+.btn-outline-danger:hover {
+  background-color: #FEE2E2;
+  border-color: #DC2626;
+  color: #DC2626;
+}
+
+.card-footer .btn i {
+  font-size: 1rem;
+}
+
+/* Responsive styles */
+@media (max-width: 1200px) {
+  .col-md-4 {
+    flex: 0 0 50%;
+    max-width: 50%;
+  }
+}
+
+@media (max-width: 991px) {
+  .nav-tabs {
+    gap: 1.5rem;
+  }
+
+  .card-img-top {
+    height: 180px;
+  }
+}
+
+@media (max-width: 768px) {
+  .col-md-4 {
+    flex: 0 0 100%;
+    max-width: 100%;
+  }
+
+  .nav-tabs {
+    gap: 1rem;
+    margin: 0 -1rem;
+    padding: 0 1rem;
+  }
+
+  .card-footer .d-flex {
+    flex-direction: column;
+  }
+
+  .card-footer .btn {
+    width: 100%;
+    margin-bottom: 0.5rem;
+  }
+
+  .card-footer .btn:last-child {
+    margin-bottom: 0;
+  }
+
+  .title {
+    text-align: center;
+  }
+
+  /* Search and filters section */
+  .row.g-3 {
+    flex-direction: column;
+  }
+
+  .col-md-4, .col-md-8 {
+    width: 100%;
+    margin-bottom: 1rem;
+  }
+
+  .col-md-8.text-end {
+    text-align: left !important;
+  }
+
+  .nav-tabs .nav-link {
+    padding: 0.5rem 1rem;
+    font-size: 0.875rem;
+  }
+}
+
+@media (max-width: 576px) {
+  .container-fluid {
+    padding: 1rem;
+  }
+
+  .card-img-top {
+    height: 160px;
+  }
+
+  .nav-container {
+    margin: 0 -1rem;
+    padding: 0 1rem;
+  }
+
+  .card-body {
+    padding: 1rem !important;
+  }
+
+  .h3 {
+    font-size: 1.5rem;
+  }
+
+  .category-tag {
+    font-size: 0.75rem;
+  }
+
+  /* Metadata section */
+  .d-flex.justify-content-between {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .d-flex.gap-3 {
+    gap: 1rem !important;
+  }
+}
