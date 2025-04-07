@@ -95,7 +95,7 @@ export class AuthService {
   getProfile(): Observable<any> {
     const url = 'http://localhost:5024/api/admin/';
     return this.http.get<any>(url, {
-      headers: {
+     /* headers: {
         Authorization: `Bearer ${this.getToken()}`,
       }, */
       headers: {
