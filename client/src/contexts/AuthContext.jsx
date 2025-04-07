@@ -1,5 +1,6 @@
 import React, { createContext, useState, useEffect } from "react";
 import axios from "axios";
+import { useNavigate } from "react-router";
 
 axios.defaults.withCredentials = true;
 
@@ -10,6 +11,7 @@ export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [isEnrolled, setIsEnrolled] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const navigate = useNavigate();
 
   // Verify user authentication on component mount
   useEffect(() => {
@@ -28,6 +30,9 @@ export const AuthProvider = ({ children }) => {
       if (response.data) {
         setIsAuthenticated(true);
         setUser(response.data);
+        localStorage.setItem("userId", response.data.userId);
+        localStorage.setItem("firstName", response.data.firstName);
+        localStorage.setItem("lastName", response.data.lastName);
         return { success: true, data: response.data };
       }
     } catch (error) {
@@ -46,6 +51,8 @@ export const AuthProvider = ({ children }) => {
       setIsAuthenticated(false);
       setUser(null);
       setIsEnrolled(false);
+      localStorage.clear();
+      navigate("/login");
       return { success: true };
     } catch (error) {
       console.error("Logout error:", error);

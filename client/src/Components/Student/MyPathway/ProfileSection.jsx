@@ -119,6 +119,7 @@ export default function ProfileSection() {
   }
 
   if (!userData) {
+    setLoading(false);
     return (
       <Box sx={{ textAlign: "center", mt: 5 }}>
         <Typography variant="h6">No user data found.</Typography>

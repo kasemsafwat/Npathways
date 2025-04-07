@@ -20,8 +20,8 @@ const InstructorLogin = () => {
   const navigate = useNavigate();
   const { login } = useContext(InstructorAuthContext);
   const initialValues = {
-    email: "",
-    password: "",
+    email: "hala@example.com",
+    password: "Ali87654$",
   };
   const handleShowPassword = () => {
     setShowPassword(!showPassword);

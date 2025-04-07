@@ -24,6 +24,7 @@ import { EnrollmentProvider } from "./contexts/EnrollmentContext";
 import CourseDetails from "./Components/CourseDetails/CourseDetails";
 import InstructorLogin from "./pages/InstructorLogin";
 import { InstructorAuthProvider } from "./contexts/InstructorAuthContext";
+import InstructorDashboard from "./pages/Instructor/InstructorDashboard";
 
 const Layout = ({ children }) => {
   return (
@@ -68,7 +69,10 @@ function App() {
               />
               {/* End Enrollement Router */}
               {/* ADD YOUR ELEMENT */}
-              <Route path="*" element={<NotFound />} />
+              <Route
+                path="/instructor/dashboard"
+                element={<InstructorDashboard />}
+              />
 
               {/* Protected routes */}
               <Route element={<ProtectedRoute />}>
@@ -81,6 +85,7 @@ function App() {
                 <Route path="/courses" element={<Courses />} />
                 {/* Add more protected routes here */}
               </Route>
+              <Route path="*" element={<NotFound />} />
             </Routes>
           </Layout>
         </EnrollmentProvider>
