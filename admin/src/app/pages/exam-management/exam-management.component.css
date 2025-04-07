@@ -1,14 +1,17 @@
 .exam-container {
   padding: 2rem;
-  background-color: #0f1218;
+  /* background-color: #0f1218; */
+  background-color: #ffffff;
   min-height: 100vh;
-  color: #ffffff;
+  /* color: #ffffff; */
+  color: #0f1218;
 }
 
 .section-title {
   font-size: 1.5rem;
   margin-bottom: 1.5rem;
-  color: #ffffff;
+  /* color: #ffffff; */
+  color: #0f1218;
   font-weight: normal;
 }
 

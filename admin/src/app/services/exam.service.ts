@@ -13,6 +13,7 @@ export interface ExamPayload {
     difficulty: 'easy' | 'medium' | 'hard';
   }[];
 }
+
 export interface Answer {
   answer: string;
   isCorrect: boolean;
@@ -36,6 +37,7 @@ export interface Exam {
 @Injectable({
   providedIn: 'root',
 })
+
 export class ExamService {
   private apiUrl = 'http://localhost:5024/api/exam';
 

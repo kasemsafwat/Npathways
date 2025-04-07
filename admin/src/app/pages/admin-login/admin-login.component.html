@@ -18,7 +18,7 @@
   <div class="login-card p-5">
     <h1>Login</h1>
     <p>Enter your email and password below to login</p>
-    
+
     <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
       <div class="form-group">
         <label for="email">Email</label>
@@ -55,7 +55,7 @@
       </div>
 
       <button type="submit" class="sign-in-button" [disabled]="isLoading">
-        {{ isLoading ? "Signing in..." : "Login in" }}
+        {{ isLoading ? "Signing in..." : "Login" }}
       </button>
 
       <a href="#" class="forgot-password">Forgot your password?</a>
