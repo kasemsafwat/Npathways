@@ -10,6 +10,7 @@ import "@fortawesome/fontawesome-free/css/all.min.css";
 import { createTheme, CssBaseline, ThemeProvider } from "@mui/material";
 import { BrowserRouter } from "react-router";
 import { AuthProvider } from "./contexts/AuthContext";
+import { InstructorAuthProvider } from "./contexts/InstructorAuthContext.jsx";
 
 const theme = createTheme({
   typography: {
@@ -45,7 +46,9 @@ createRoot(document.getElementById("root")).render(
     <ThemeProvider theme={theme}>
       <CssBaseline />
       <AuthProvider>
-        <App />
+        <InstructorAuthProvider>
+          <App />
+        </InstructorAuthProvider>
       </AuthProvider>
     </ThemeProvider>
   </BrowserRouter>

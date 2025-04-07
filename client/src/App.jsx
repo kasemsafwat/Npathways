@@ -1,10 +1,9 @@
 // App.jsx
 import React from "react";
 import { Routes, Route } from "react-router-dom";
-import ProtectedRoute from "./components/ProtectedRoute";
+import ProtectedRoute from "./Components/ProtectedRoute";
 import { AuthProvider } from "./contexts/AuthContext";
 import Home from "./pages/Home";
-import Navbar from "./Components/NavBar/NavBar";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import NotFound from "./pages/NotFound";
@@ -23,6 +22,8 @@ import EntryExam from "./pages/EnrollmentPage/EntryExam";
 import Review from "./pages/EnrollmentPage/Review";
 import { EnrollmentProvider } from "./contexts/EnrollmentContext";
 import CourseDetails from "./Components/CourseDetails/CourseDetails";
+import InstructorLogin from "./pages/InstructorLogin";
+import { InstructorAuthProvider } from "./contexts/InstructorAuthContext";
 
 const Layout = ({ children }) => {
   return (
@@ -39,50 +40,52 @@ const Layout = ({ children }) => {
 
 function App() {
   return (
-    <AuthProvider>
-    <EnrollmentProvider>
-      <Layout>
-        <Routes>
-          {/* Public routes */}
-          <Route path="/login" element={<Login />} />
-          <Route path="/" element={<Home />} />
-          <Route path="register" element={<Register />} />
+    <InstructorAuthProvider>
+      <AuthProvider>
+        <EnrollmentProvider>
+          <Layout>
+            <Routes>
+              {/* Public routes */}
+              <Route path="/login" element={<Login />} />
+              <Route path="/InstructorLogin" element={<InstructorLogin />} />
 
-          {/*Enrollement Router  */}
-          <Route path="/enrollment/Welcome" element={<WelcomePage />} />
-          <Route
-            path="/enrollment/personal-details"
-            element={<PersonalDetails />}
-          />
-          <Route path="/enrollment/entryExam" element={<EntryExam />} />
-          <Route path="/enrollment/review" element={<Review />} />
-          <Route path="/coursedetails/:id" element={<CourseDetails />} />
+              <Route path="/" element={<Home />} />
+              <Route path="register" element={<Register />} />
 
-          <Route
-            path="/terms-and-conditions"
-            element={<TermsAndConditions />}
-          />
-          {/* End Enrollement Router */}
-          {/* ADD YOUR ELEMENT */}
-          <Route path="*" element={<NotFound />} />
+              {/*Enrollement Router  */}
+              <Route path="/enrollment/Welcome" element={<WelcomePage />} />
+              <Route
+                path="/enrollment/personal-details"
+                element={<PersonalDetails />}
+              />
+              <Route path="/enrollment/entryExam" element={<EntryExam />} />
+              <Route path="/enrollment/review" element={<Review />} />
+              <Route path="/coursedetails/:id" element={<CourseDetails />} />
 
-          {/* Protected routes */}
-          <Route element={<ProtectedRoute />}>
-            <Route path="/student/mypathway" element={<MyPathway />} />
-            <Route path="/examDetails" element={<ExamPage />} />
-            <Route path="/createExam/:examId?" element={<CreateExam />} />
-            <Route path="/finishExam" element={<FinishedExam />} />
-            <Route path="/exam/:id" element={<Exam />} />
-            <Route path="/user" element={<UserProfile />} />
-            <Route path="/courses" element={<Courses />} />
-            {/* Add more protected routes here */}
-          </Route>
-        </Routes>
-      </Layout>
-      </EnrollmentProvider>
-    </AuthProvider>
-     
-    
+              <Route
+                path="/terms-and-conditions"
+                element={<TermsAndConditions />}
+              />
+              {/* End Enrollement Router */}
+              {/* ADD YOUR ELEMENT */}
+              <Route path="*" element={<NotFound />} />
+
+              {/* Protected routes */}
+              <Route element={<ProtectedRoute />}>
+                <Route path="/student/mypathway" element={<MyPathway />} />
+                <Route path="/examDetails" element={<ExamPage />} />
+                <Route path="/createExam/:examId?" element={<CreateExam />} />
+                <Route path="/finishExam" element={<FinishedExam />} />
+                <Route path="/exam/:id" element={<Exam />} />
+                <Route path="/user" element={<UserProfile />} />
+                <Route path="/courses" element={<Courses />} />
+                {/* Add more protected routes here */}
+              </Route>
+            </Routes>
+          </Layout>
+        </EnrollmentProvider>
+      </AuthProvider>
+    </InstructorAuthProvider>
   );
 }
 
