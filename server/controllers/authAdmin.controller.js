@@ -21,14 +21,15 @@ const authAdminController = {
       const isDuplicateEmail = await Promise.all([
         User.findOne({ email: data.email }),
         Instructor.findOne({ email: data.email }),
-        Admin.findOne({ email: data.email })
-        ]).then(results => results.some(result => result));
-  
-        if (isDuplicateEmail) {
+        Admin.findOne({ email: data.email }),
+      ]).then((results) => results.some((result) => result));
+
+      if (isDuplicateEmail) {
         return res.status(403).send({
-          message: "This email is already registered. Please use a different email."
+          message:
+            "This email is already registered. Please use a different email.",
         });
-        }
+      }
       const user = new Admin({
         firstName: data.firstName,
         lastName: data.lastName,
@@ -48,7 +49,7 @@ const authAdminController = {
       });
     }
   },
-// todo optimize login for universal login
+  // todo optimize login for universal login
   login: async (req, res) => {
     try {
       let { email, password } = req.body;
@@ -68,10 +69,7 @@ const authAdminController = {
       // console.log(validPassword);
       // let secretKey=process.env.SECRET_KEY || 'secretKey';
       // let token=await jwt.sign({id:user._id},secretKey)
-      // res.cookie('access_token', `Bearer ${token}`, {
-      //       httpOnly: true,
-      //       maxAge: 60 * 60 * 24 * 2 * 1000,
-      //  });
+
       // // console.log(token);
       // user.tokens.push(token);
       // await user.save();
@@ -81,6 +79,10 @@ const authAdminController = {
       // await user.save();
       let secretKey = process.env.SECRET_KEY || "secretKey";
       let token = await jwt.sign({ id: user._id, role: user.role }, secretKey);
+      res.cookie("access_token", `Bearer ${token}`, {
+        httpOnly: true,
+        maxAge: 60 * 60 * 24 * 2 * 1000,
+      });
       return res.status(200).send({
         message: "Login successfully",
         token: token,
