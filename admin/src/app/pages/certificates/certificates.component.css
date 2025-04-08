@@ -1,0 +1,146 @@
+/* General container styling */
+.certificate-container {
+  padding: 20px;
+  font-family: sans-serif;
+}
+
+/* Heading styles */
+h2,
+h3 {
+  color: #333;
+  margin-bottom: 15px;
+}
+
+/* Form section styling */
+.create-section,
+.list-section,
+.grant-section,
+.certificate-list-section { /* Keep for backward compatibility if needed */
+  background-color: #f9f9f9;
+  padding: 20px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Form element styling */
+div {
+  margin-bottom: 15px;
+}
+
+label {
+  display: block;
+  margin-bottom: 5px;
+  font-weight: bold;
+  color: #555;
+}
+
+select,
+input[type="text"],
+textarea {
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 10px; /* Add some space below inputs */
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  box-sizing: border-box; /* Include padding and border in element's total width and height */
+  font-family: inherit; /* Inherit font */
+  font-size: 1em; /* Consistent font size */
+}
+
+textarea {
+  min-height: 80px; /* Give textarea a bit more height */
+  resize: vertical; /* Allow vertical resizing */
+}
+
+/* Input focus style */
+select:focus,
+input[type="text"]:focus,
+textarea:focus {
+  border-color: #007bff;
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
+}
+
+/* Add required attribute styling if needed (optional) */
+input:required:invalid,
+textarea:required:invalid,
+select:required:invalid {
+  /* Example: Add a subtle border color for invalid required fields before interaction */
+  /* border-left: 5px solid #ffdddd; */
+}
+
+button {
+  background-color: #007bff;
+  color: white;
+  padding: 10px 15px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 1em;
+  transition: background-color 0.3s ease;
+  margin-right: 5px; /* Add some space between buttons if needed */
+}
+
+button:hover {
+  background-color: #0056b3;
+}
+
+button:disabled {
+  background-color: #cccccc;
+  cursor: not-allowed;
+}
+
+/* Placeholder for certificate list */
+.certificate-list-section p {
+  color: #777;
+  font-style: italic;
+}
+
+/* Message styling (e.g., for 'no users found') */
+.info-message {
+  color: #666;
+  margin-top: 10px;
+  font-style: italic;
+}
+
+/* Table styling */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 15px;
+}
+
+thead {
+  background-color: #e9ecef;
+}
+
+th, td {
+  padding: 12px 15px;
+  text-align: left;
+  border-bottom: 1px solid #dee2e6;
+}
+
+tbody tr:hover {
+  background-color: #f1f1f1;
+}
+
+/* Button adjustments */
+.delete-button {
+  background-color: #dc3545; /* Red for delete */
+}
+
+.delete-button:hover {
+  background-color: #c82333;
+}
+
+.delete-button:disabled {
+  background-color: #e07a83;
+  cursor: not-allowed;
+}
+
+/* Loading/disabled states */
+/* Add specific styles if you want visual feedback for loading states */
+.loading-text {
+    color: #6c757d;
+}
