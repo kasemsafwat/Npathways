@@ -3,9 +3,15 @@
     <button class="btn btn-secondary me-2" (click)="goBack()">
       Back
     </button>
-    <button class="btn btn-primary" (click)="toggleEdit()">
-      {{ isEditing ? 'Cancel Edit' : 'Edit Exam' }}
-    </button>
+    <div class="d-flex gap-2">
+      <label class="btn btn-primary" *ngIf="isEditing">
+        <input type="file" (change)="onFileSelected($event)" accept=".xlsx,.xls" style="display: none;">
+        Upload Questions Sheet
+      </label>
+      <button class="btn btn-primary" (click)="toggleEdit()">
+        {{ isEditing ? 'Cancel Edit' : 'Edit Exam' }}
+      </button>
+    </div>
   </div>
 
   <form [formGroup]="examForm" (ngSubmit)="saveExam()" class="exam-form">
