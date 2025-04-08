@@ -3,6 +3,7 @@ import { CommonModule, DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { StudentService } from '../../services/student.service';
 import { InstructorService } from '../../services/instructor.service';
+import { AuthService } from '../../services/auth.service';
 
 interface User {
   id: string;
@@ -27,10 +28,18 @@ export class UserManagementComponent implements OnInit {
   users: User[] = [];
   selectedTab: 'all' | 'students' | 'instructors' | 'admins' = 'all';
   searchQuery: string = '';
+  showCreateAdminModal: boolean = false;
+  newAdmin = {
+    firstName: '',
+    lastName: '',
+    email: '',
+    password: ''
+  };
 
   constructor(
     private studentService: StudentService,
-    private instructorService: InstructorService
+    private instructorService: InstructorService,
+    private authService: AuthService
   ) {}
 
   ngOnInit(): void {
@@ -40,32 +49,46 @@ export class UserManagementComponent implements OnInit {
   loadUsers(): void {
     // Load students
     this.studentService.getAllStudents().subscribe(students => {
-      const studentUsers: User[] = students.map(student => ({
-        id: student.id,
+      const studentUsers: User[] = students.map((student) => ({
+        id: student._id, // أو student.id لو متأكدة إنه موجود كده
         name: `${student.firstName} ${student.lastName}`,
         email: student.email,
         role: 'Student',
         status: 'Active',
         joinDate: new Date(student.createdAt || new Date()),
         courses: student.courses?.length || 0,
-        showActions: false
+        showActions: false,
       }));
 
       // Load instructors
       this.instructorService.getAllInstructors().subscribe(instructors => {
-        const instructorUsers: User[] = instructors.map(instructor => ({
-          id: instructor.id || '',
+        const instructorUsers: User[] = instructors.map((instructor) => ({
+          id: instructor._id || '',
           name: `${instructor.firstName} ${instructor.lastName}`,
           email: instructor.email,
           role: 'Instructor',
           status: 'Active',
           joinDate: new Date(),
           courses: 0,
-          showActions: false
+          showActions: false,
         }));
 
-        // Combine both lists
-        this.users = [...studentUsers, ...instructorUsers];
+        // Load admins
+        this.authService.getAllAdmins().subscribe(admins => {
+          const adminUsers: User[] = admins.map((admin: { _id: string; firstName: string; lastName: string; email: string }) => ({
+            id: admin._id || '',
+            name: `${admin.firstName} ${admin.lastName}`,
+            email: admin.email,
+            role: 'Admin',
+            status: 'Active',
+            joinDate: new Date(),
+            courses: 0,
+            showActions: false
+          }));
+
+          // Combine all lists
+          this.users = [...studentUsers, ...instructorUsers, ...adminUsers];
+        });
       });
     });
   }
@@ -122,8 +145,40 @@ export class UserManagementComponent implements OnInit {
     user.showActions = !user.showActions;
   }
 
+  createAdmin(): void {
+    this.authService.createAdmin(this.newAdmin).subscribe({
+      next: () => {
+        this.showCreateAdminModal = false;
+        this.newAdmin = {
+          firstName: '',
+          lastName: '',
+          email: '',
+          password: ''
+        };
+        this.loadUsers(); // Reload users to show the new admin
+      },
+      error: (error) => {
+        console.error('Error creating admin:', error);
+      }
+    });
+  }
+
   editUser(user: User): void {
-    console.log('Edit user:', user);
+    if (user.role === 'Admin') {
+      const adminData = {
+        firstName: user.name.split(' ')[0],
+        lastName: user.name.split(' ')[1],
+        email: user.email
+      };
+      this.authService.updateAdminById(user.id, adminData).subscribe({
+        next: () => {
+          this.loadUsers();
+        },
+        error: (error) => {
+          console.error('Error updating admin:', error);
+        }
+      });
+    }
     user.showActions = false;
   }
 
@@ -140,6 +195,10 @@ export class UserManagementComponent implements OnInit {
         });
       } else if (user.role === 'Instructor') {
         this.instructorService.deleteInstructor(user.id).subscribe(() => {
+          this.users = this.users.filter(u => u.id !== user.id);
+        });
+      } else if (user.role === 'Admin') {
+        this.authService.deleteAdmin(user.id).subscribe(() => {
           this.users = this.users.filter(u => u.id !== user.id);
         });
       }
