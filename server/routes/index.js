@@ -26,6 +26,6 @@ router.use("/admin", adminRouter);
 router.use("/pathway", pathwayRouter);
 router.use("/enrollment", enrollmentRouter);
 router.use("/instructor", instructorRouter);
-router.post('/login',LoginContoller.universalLogin);
+router.post("/login", LoginContoller.universalLogin);
 
 export default router;
