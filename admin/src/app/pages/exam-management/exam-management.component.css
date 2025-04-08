@@ -29,7 +29,7 @@
   background-color: transparent;
   border: 1px solid #2a2f35;
   border-radius: 4px;
-  color: #ffffff;
+  color: #2a2f35;
   font-size: 1rem;
   outline: none;
   transition: border-color 0.3s;
@@ -132,17 +132,9 @@
   white-space: nowrap;
 }
 
-/* Material Icons Adjustments */
-mat-icon {
-  font-size: 18px;
-  width: 18px;
-  height: 18px;
-  line-height: 18px;
-  vertical-align: text-bottom;
-}
 
 /* Button size adjustments */
-.btn-sm mat-icon {
+.btn-sm {
   font-size: 16px;
   width: 16px;
   height: 16px;
