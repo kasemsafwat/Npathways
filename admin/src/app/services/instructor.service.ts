@@ -4,7 +4,7 @@ import { Observable } from 'rxjs';
 
 // Interface for Instructor data
 export interface Instructor {
-  id?: string;
+  _id?: string;
   firstName: string;
   lastName: string;
   email: string;
