@@ -97,6 +97,16 @@ const AdminControlller = {
         .send({ message: "Error Get instructors: " + error.message });
     }
   },
+  getAllAdmins: async (req, res) => {
+    try {
+      const admins = await Admin.find({ role: "admin" }).select(
+        "-password -tokens"
+      );
+      res.status(200).send(admins);
+    } catch (error) {
+      res.status(500).send({ message: "Error Get admins: " + error.message });
+    }
+  },
   getOneInstructor: async (req, res) => {
     try {
       const { id } = req.params;
@@ -113,6 +123,35 @@ const AdminControlller = {
       res
         .status(500)
         .send({ message: "Error Get instructor: " + error.message });
+    }
+  },
+  getAllAdmins: async (req, res) => {
+    try {
+      const admins = await Admin.find({ role: "admin" }).select(
+        "-password -tokens"
+      );
+      res.status(200).send(admins);
+    } catch (error) {
+      res.status(500).send({ message: "Error Get admins: " + error.message });
+    }
+  },
+  getAdminById: async (req, res) => {
+    try {
+      const { id } = req.params;
+      if (!id.match(/^[0-9a-fA-F]{24}$/)) {
+        return res.status(400).json({ error: "Invalid Admin ID" });
+      }
+      const admin = await Admin.findOne({
+        _id: id,
+        role: "admin",
+      }).select("-password -tokens");
+      if (!admin) {
+        return res.status(404).send({ message: "Admin not found" });
+      }
+
+      res.status(200).send(admin);
+    } catch (error) {
+      res.status(500).send({ message: "Error Get admin: " + error.message });
     }
   },
   createInstructor: async (req, res) => {
@@ -141,6 +180,35 @@ const AdminControlller = {
       });
     } catch (error) {
       console.error("Error creating instructor: ", error);
+      res.status(500).send({ message: error });
+    }
+  },
+  createAdmin: async (req, res) => {
+    try {
+      const data = req.body;
+      const duplicatedEmail = await Admin.findOne({ email: data.email });
+      if (duplicatedEmail) {
+        return res.status(403).send({
+          message:
+            "This email is already registered. Please use a different email.",
+        });
+      }
+      const admin = new Admin({
+        firstName: data.firstName,
+        lastName: data.lastName,
+        email: data.email,
+        password: data.password,
+        role: "admin",
+      });
+      await admin.save();
+      const adminObject = admin.toObject();
+      delete adminObject.password;
+      res.status(201).send({
+        message: "Admin created successfully",
+        admin: adminObject,
+      });
+    } catch (error) {
+      console.error("Error creating admin: ", error);
       res.status(500).send({ message: error });
     }
   },
