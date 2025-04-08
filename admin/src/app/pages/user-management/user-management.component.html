@@ -8,18 +8,23 @@
         <h2>Users</h2>
         <p class="subtitle">Manage users and their permissions</p>
       </div>
-      <button class="add-user-btn">
+<!--       <button class="add-user-btn">
         <i class="bi bi-person-plus"></i>
         Add User
-      </button>
+      </button> -->
     </div>
 
-    <div class="tabs">
-      <button class="tab" [class.active]="selectedTab === 'all'" (click)="selectTab('all')">All Users</button>
-      <button class="tab" [class.active]="selectedTab === 'students'" (click)="selectTab('students')">Students</button>
-      <button class="tab" [class.active]="selectedTab === 'instructors'" (click)="selectTab('instructors')">Instructors</button>
-      <button class="tab" [class.active]="selectedTab === 'admins'" (click)="selectTab('admins')">Admins</button>
+    <div class="nav-container">
+      <div class="nav nav-tabs">
+        <li class="nav-item"><a class="nav-link" href="javascript:void(0)" [class.active]="selectedTab === 'all'" (click)="selectTab('all')">All Users</a></li>
+        <li class="nav-item"><a class="nav-link" href="javascript:void(0)" [class.active]="selectedTab === 'students'" (click)="selectTab('students')">Students</a></li>
+        <li class="nav-item"><a class="nav-link" href="javascript:void(0)" [class.active]="selectedTab === 'instructors'" (click)="selectTab('instructors')">Instructors</a></li>
+        <li class="nav-item"><a class="nav-link" href="javascript:void(0)" [class.active]="selectedTab === 'admins'" (click)="selectTab('admins')">Admins</a></li>
+  
+      </div>
     </div>
+    <div class="tabs">
+</div> 
 
     <div class="filters-row">
       <div class="search-box">
