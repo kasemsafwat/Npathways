@@ -2,10 +2,24 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 
+interface DashboardData {
+  students: {
+    total: number;
+    active: number;
+  };
+  courses: {
+    total: number;
+    published: number;
+  };
+  instructors: {
+    total: number;
+    available: number;
+  };
+}
+
 interface DashboardResponse {
-  totalUsers?: number;
-  totalOrders?: number;
-  recentActivity?: any[];
+  message: string;
+  data: DashboardData;
 }
 
 @Injectable({

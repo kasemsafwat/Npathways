@@ -14,7 +14,7 @@ interface Lesson {
   templateUrl: './edit-course-dialog.component.html',
   styleUrls: ['./edit-course-dialog.component.css'],
   standalone: true,
-  imports: [CommonModule, FormsModule]
+  imports: [CommonModule, FormsModule],
 })
 export class EditCourseDialogComponent {
   @Output() close = new EventEmitter<void>();
@@ -25,7 +25,7 @@ export class EditCourseDialogComponent {
     description: '',
     requiredExams: [],
     instructors: [],
-    lessons: []
+    lessons: [],
   };
 
   showDialog = false;
@@ -37,11 +37,12 @@ export class EditCourseDialogComponent {
   openDialog(course: Course): void {
     this.course = {
       ...course,
-      lessons: course.lessons?.map(lesson => ({
-        name: lesson.name || '',
-        duration: Number(lesson.duration) || 30,
-        _id: lesson._id
-      })) || []
+      lessons:
+        course.lessons?.map((lesson) => ({
+          name: lesson.name || '',
+          duration: Number(lesson.duration) || 30,
+          _id: lesson._id,
+        })) || [],
     };
     this.showDialog = true;
     this.errorMessage = '';
@@ -56,7 +57,7 @@ export class EditCourseDialogComponent {
   addLesson(): void {
     this.course.lessons.push({
       name: '',
-      duration: 30
+      duration: 30,
     });
   }
 
@@ -79,31 +80,34 @@ export class EditCourseDialogComponent {
         description: this.course.description.trim(),
         requiredExams: this.course.requiredExams || [],
         instructors: this.course.instructors || [],
-        lessons: this.course.lessons.map(lesson => ({
+        lessons: this.course.lessons.map((lesson) => ({
           name: lesson.name.trim(),
           duration: Number(lesson.duration),
         })),
         category: this.course.category,
-        price: this.course.price
+        price: this.course.price,
       };
 
-      this.coursesService.updateCourse(this.course._id, courseData).subscribe({
-        next: () => {
-            console.log(courseData)
-          this.courseUpdated.emit();
-          this.closeDialog();
-          this.isSubmitting = false;
-        },
-        error: (error) => {
-          console.error('Error updating course:', error);
-          this.errorMessage = error.error?.message || 'Failed to update course. Please try again.';
-          this.isSubmitting = false;
-        }
-      });
+      // this.coursesService.updateCourse(this.course._id).subscribe({
+      //   next: () => {
+      //     console.log(courseData);
+      //     this.courseUpdated.emit();
+      //     this.closeDialog();
+      //     this.isSubmitting = false;
+      //   },
+      //   error: (error) => {
+      //     console.error('Error updating course:', error);
+      //     this.errorMessage =
+      //       error.error?.message ||
+      //       'Failed to update course. Please try again.';
+      //     this.isSubmitting = false;
+      //   },
+      // });
     } catch (error: any) {
       console.error('Error updating course:', error);
-      this.errorMessage = error.error?.message || 'Failed to update course. Please try again.';
+      this.errorMessage =
+        error.error?.message || 'Failed to update course. Please try again.';
       this.isSubmitting = false;
     }
   }
-} 
+}

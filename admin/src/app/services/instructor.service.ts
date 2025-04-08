@@ -15,7 +15,7 @@ export interface Instructor {
   providedIn: 'root',
 })
 export class InstructorService {
-  private readonly BASE_URL = 'http://localhost:5024/api/admin';
+  private readonly BASE_URL = 'http://localhost:5024/api/instructor';
 
   constructor(private http: HttpClient) {}
 
@@ -26,6 +26,7 @@ export class InstructorService {
   getInstructorById(id: string): Observable<Instructor> {
     return this.http.get<Instructor>(`${this.BASE_URL}/instructors/${id}`);
   }
+  
 
   createInstructor(instructor: Instructor): Observable<any> {
     return this.http.post(`${this.BASE_URL}/createNewInstructor`, instructor);
