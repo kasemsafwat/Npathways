@@ -28,6 +28,18 @@ router.patch(
 // ////////////////////////////////////
 
 // // Admine
+router.get(
+  "/getAllAdmins",
+  protectRoutes,
+  allowTo("admin"),
+  AdminControlller.getAllAdmins
+);
+router.get(
+  "/getAdminbyId/:id",
+  protectRoutes,
+  allowTo("admin"),
+  AdminControlller.getAdminById
+);
 router
   .route("/:id")
   .delete(protectRoutes, allowTo("admin"), AdminControlller.deleteInstructor);
@@ -71,6 +83,13 @@ router.post(
   allowTo("admin"),
   newAdminValidation,
   AdminControlller.createInstructor
+);
+router.post(
+  "/createNewAdmin",
+  protectRoutes,
+  allowTo("admin"),
+  newAdminValidation,
+  AdminControlller.createAdmin
 );
 router.post(
   "/create-NewStudent",
