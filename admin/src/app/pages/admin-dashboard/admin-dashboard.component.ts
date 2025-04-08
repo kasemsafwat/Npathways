@@ -1,7 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Chart, ChartConfiguration, ChartOptions, registerables } from 'chart.js';
 import { BaseChartDirective } from 'ng2-charts';
+import { ChartConfiguration, ChartOptions } from 'chart.js';
+import { DashboardService } from '../../services/dashboard.service';
 
 @Component({
   selector: 'app-admin-dashboard',
@@ -14,10 +15,13 @@ export class AdminDashboardComponent implements OnInit {
   currentDate = new Date();
 
   // Statistics
-  totalStudents = 2854;
-  activeCourses = 145;
-  totalEnrollments = 4652;
-  monthlyRevenue = 48395;
+  totalStudents = 0;
+  activeStudents = 0;
+  totalCourses = 0;
+  publishedCourses = 0;
+  totalInstructors = 0;
+  availableInstructors = 0;
+  monthlyRevenue = 0;
 
   // Recent Transactions
   recentTransactions = [
@@ -46,7 +50,7 @@ export class AdminDashboardComponent implements OnInit {
     }]
   };
 
-  revenueChartOptions: ChartOptions = {
+  revenueChartOptions: ChartOptions<'bar'> = {
     responsive: true,
     plugins: {
       legend: { display: false },
@@ -83,7 +87,7 @@ export class AdminDashboardComponent implements OnInit {
     ]
   };
 
-  enrollmentChartOptions: ChartOptions = {
+  enrollmentChartOptions: ChartOptions<'line'> = {
     responsive: true,
     plugins: {
       legend: { display: true },
@@ -99,9 +103,26 @@ export class AdminDashboardComponent implements OnInit {
     }
   };
 
-  constructor() {
-    Chart.register(...registerables);
+  constructor(private dashboardService: DashboardService) {}
+
+  ngOnInit(): void {
+    this.loadDashboardData();
   }
 
-  ngOnInit(): void {}
+  loadDashboardData(): void {
+    this.dashboardService.getDashboardData().subscribe({
+      next: (response) => {
+        console.log('Dashboard data:', response);
+        this.totalStudents = response.data.students.total;
+        this.activeStudents = response.data.students.active;
+        this.totalCourses = response.data.courses.total;
+        this.publishedCourses = response.data.courses.published;
+        this.totalInstructors = response.data.instructors.total;
+        this.availableInstructors = response.data.instructors.available;
+      },
+      error: (error) => {
+        console.error('Error loading dashboard data:', error);
+      }
+    });
+  }
 }
