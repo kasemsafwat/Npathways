@@ -40,9 +40,11 @@ class CourseController {
         req.body;
       let image = "";
       if (req.file) {
+        const HOST = process.env.HOST || "http://localhost";
+        const PORT = process.env.PORT || 5024;
         const uploadName = `${Date.now()}-${req.file.originalname}`;
         const uploadPath = path.join("uploads", uploadName);
-        image = uploadName;
+        image = `${HOST}:${PORT}/uploads/${uploadName}`;
         fs.writeFileSync(uploadPath, req.file.buffer, (err) => {
           if (err) {
             res.status(500).json({ error: "Failed to save file" });
@@ -83,9 +85,12 @@ class CourseController {
       let image = req.body.image;
       if (req.file) {
         // Save new image
+        const HOST = process.env.HOST || "http://localhost";
+        const PORT = process.env.PORT || 5024;
         const uploadName = `${Date.now()}-${req.file.originalname}`;
         const uploadPath = path.join("uploads", uploadName);
-        image = uploadName;
+        image = `${HOST}:${PORT}/uploads/${uploadName}`;
+        console.log(image);
         fs.writeFileSync(uploadPath, req.file.buffer, (err) => {
           if (err) {
             return res.status(500).json({ error: "Failed to save file" });
@@ -94,7 +99,10 @@ class CourseController {
 
         // Delete old image if exists
         if (course.image) {
-          const oldImagePath = path.join("uploads", course.image);
+          const oldImagePath = path.join(
+            "uploads",
+            path.basename(course.image)
+          );
           if (fs.existsSync(oldImagePath)) {
             fs.unlinkSync(oldImagePath);
           }

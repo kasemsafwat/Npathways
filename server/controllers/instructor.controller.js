@@ -167,18 +167,14 @@ const instructorContoller = {
   //  Change Image
   changInstructorImage: async (req, res) => {
     try {
-      const { id } = req.params;
-      if (!id.match(/^[0-9a-fA-F]{24}$/)) {
-        return res.status(400).json({ error: "Invalid Instructor ID" });
-      }
-
-      const instructor = await Instructor.findById(id);
-      if (!instructor) {
-        return res.status(404).json({ message: "Instructor not found" });
-      }
+      const instructorId = req.instructor._id;
 
       if (req.file) {
-        const imageUrl = `${req.file.filename}`;
+        const instructor = await Instructor.findById(instructorId);
+
+        const HOST = process.env.HOST || "http://localhost";
+        const PORT = process.env.PORT || 5024;
+        const imageUrl = `${HOST}:${PORT}/uploads/${req.file.filename}`;
 
         // Remove old image if it exists
         if (instructor.image) {
@@ -187,21 +183,21 @@ const instructorContoller = {
             "../uploads",
             path.basename(instructor.image)
           );
-          console.log("Attempting to delete:", oldImagePath);
+          // console.log("Attempting to delete:", oldImagePath);
 
           if (fs.existsSync(oldImagePath)) {
             try {
               fs.unlinkSync(oldImagePath);
-              console.log("Old image deleted successfully");
+              // console.log("Old image deleted successfully");
             } catch (error) {
-              console.error("Error deleting old image:", error);
+              // console.error("Error deleting old image:", error);
             }
           } else {
-            console.log("Old image not found:", oldImagePath);
+            // console.log("Old image not found:", oldImagePath);
           }
         }
         const updatedInstructor = await Instructor.findByIdAndUpdate(
-          id,
+          instructorId,
           { image: imageUrl },
           { new: true }
         );
@@ -209,6 +205,10 @@ const instructorContoller = {
         if (!updatedInstructor) {
           return res.status(404).json({ message: "Instructor not found" });
         }
+
+        const userResponse = updatedInstructor.toObject();
+        delete userResponse.password;
+        delete userResponse.tokens;
 
         return res.status(200).json({
           message: "Image updated successfully",

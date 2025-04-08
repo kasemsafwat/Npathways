@@ -29,7 +29,7 @@ router.get("/:id", authentication, userController.getUserById);
 
 // changUserImage
 router.post(
-  "/changUserImage/:id",
+  "/changUserImage/",
   userUpload.single("image"),
   authentication,
   userController.changUserImage

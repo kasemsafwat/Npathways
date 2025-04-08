@@ -99,7 +99,7 @@ router.put(
 
 // changUserImage
 router.post(
-  "/changInstructorImage/:id",
+  "/changInstructorImage",
   userUpload.single("image"),
   protectRoutes,
   allowTo("instructor"),
