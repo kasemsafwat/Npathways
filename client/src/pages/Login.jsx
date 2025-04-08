@@ -30,11 +30,11 @@ const Login = () => {
   };
   async function sendDataToAPI(values) {
     try {
-      login(values);
-      navigate("/student/mypathway");
-    } catch (error) {
-      console.log(error);
-      setApiError(error.response?.data?.message || "Login failed");
+      const { success, error } = await login(values);
+      if (success) navigate("/student/mypathway");
+      if (error) setApiError(error || "Login failed");
+    } catch (err) {
+      console.log(err);
     }
   }
   const formik = useFormik({
