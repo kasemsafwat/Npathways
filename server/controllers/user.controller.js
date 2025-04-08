@@ -333,7 +333,7 @@ const userController = {
   getUsersInCourse: async (req, res) => {
     try {
       const { courseId } = req.params;
-      const userId = req.user._id;
+      const userId = req.user ? req.user._id : null;
 
       if (!courseId.match(/^[0-9a-fA-F]{24}$/)) {
         return res.status(400).json({ error: "Invalid course ID" });
@@ -367,7 +367,7 @@ const userController = {
   getUsersInPathway: async (req, res) => {
     try {
       const { pathwayId } = req.params;
-      const userId = req.user._id;
+      const userId = req.user ? req.user._id : null;
 
       if (!pathwayId.match(/^[0-9a-fA-F]{24}$/)) {
         return res.status(400).json({ error: "Invalid pathway ID" });

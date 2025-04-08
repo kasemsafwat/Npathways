@@ -12,6 +12,7 @@ import { protectRoutes, allowTo } from "../middleware/AuthAdmin.middleware.js";
 import { CompletStudentValidation } from "../middleware/user.middleware.js";
 import StudentControlller from "../controllers/student.controller.js";
 import { userUpload } from "../middleware/userImage.middleware.js";
+import userController from "../controllers/user.controller.js";
 
 // The prefix is /api/admin
 const router = express.Router();
@@ -141,4 +142,20 @@ router.get(
   allowTo("admin"),
   AdminControlller.getAllStudents
 );
+
+//? /////////////////////////
+router.get(
+  "/getUsersInCourse/:courseId",
+  protectRoutes,
+  allowTo("admin"),
+  userController.getUsersInCourse
+);
+router.get(
+  "/getUsersInPathway/:pathwayId",
+  protectRoutes,
+  allowTo("admin"),
+  userController.getUsersInPathway
+);
+//? /////////////////////////
+
 export default router;
