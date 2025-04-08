@@ -34,6 +34,7 @@ router.delete(
   authenticationInstructor,
   CourseController.deleteCourse
 );
+router.get("/getStudentsInCourse/:id", CourseController.getStudentsInCourse);
 
 router.post("/enrollInCourse", authentication, CourseController.enrollInCourse);
 

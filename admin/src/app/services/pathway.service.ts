@@ -29,8 +29,14 @@ export default class PathwayService {
     return this.http.get<Pathway>(`${this.apiUrl}/${id}/courses`);
   }
   getStudentsInPathway(id: string) {
-    return this.http.get<Pathway>(`${this.apiUrl}/${id}/students`);
+    return this.http.get<Pathway>(
+      `http://localhost:5024/api/admin/getUsersInPathway/${id}`
+    );
   }
+  getUsersInPathway(id: string) {
+    return this.http.get<Pathway>(`${this.apiUrl}/${id}/users`);
+  }
+
   updatePathway(id: string, pathway: Pathway) {
     return this.http.put<Pathway>(`${this.apiUrl}/${id}`, pathway);
   }

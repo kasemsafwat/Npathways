@@ -5,6 +5,7 @@ import { useParams } from "react-router";
 import image from "../../assets/Rectangle 72.png";
 import person from "../../assets/user.png";
 import { Button } from "bootstrap/dist/js/bootstrap.bundle.min";
+import { loadStripe } from "@stripe/stripe-js";
 export default function CourseDetails() {
   let [course, setCourse] = React.useState({});
   let [loading, setLoading] = React.useState(true);
@@ -25,6 +26,23 @@ export default function CourseDetails() {
   useEffect(() => {
     getSingleCourse();
   }, []);
+
+  const makePayment = async () => {
+    const stripe = await loadStripe(process.env.PUBLISH_KEY);
+
+    const body = {
+      amount: course.priceAfterDiscount || 39.99,
+    };
+    const response = await axios.post(
+      `http://localhost:5024/api/payment/create-checkout-session`,
+      body,
+      { "Content-Type": "application/json" }
+    );
+    const session = response.data;
+    const result = await stripe.redirectToCheckout({
+      sessionId: session.id,
+    });
+  };
   return (
     <>
       <Grid container my={5}>
@@ -76,6 +94,7 @@ export default function CourseDetails() {
                 fontSize: "25px",
                 fontWeight: "bold",
               }}
+              onClick={makePayment}
             >
               Buy
             </button>
@@ -107,7 +126,7 @@ export default function CourseDetails() {
             </Typography>
           </Box>
         </Grid>
-        <Box sx={{ml:"20px"}}>
+        <Box sx={{ ml: "20px" }}>
           <Typography variant="h4" sx={{ m: 2 }}>
             <strong>Lorem ipsum dolor sit amet.</strong>
           </Typography>
@@ -142,7 +161,7 @@ export default function CourseDetails() {
               sequi alias nihil deleniti nobis fugiat. Temporibus voluptate quae
               provident veniam, obcaecati minima sunt beatae ab! Dolore enim nam
               maxime dolor eius illo mollitia explicabo inventore iste fugiat
-              officiis cumque 
+              officiis cumque
             </Typography>
           </Grid>
         </Box>
