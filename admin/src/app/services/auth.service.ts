@@ -16,7 +16,7 @@ interface LoginResponse {
   providedIn: 'root',
 })
 export class AuthService {
-  private readonly API_URL = 'http://localhost:5024/api/admin/login';
+  private readonly API_URL = 'http://localhost:5024/api/login';
   private tokenKey = 'admin_auth_token';
 
   private isAuthenticatedSubject = new BehaviorSubject<boolean>(
@@ -29,17 +29,27 @@ export class AuthService {
   login(email: string, password: string): Observable<LoginResponse> {
     const loginData: LoginRequest = { email, password };
 
-    return this.http.post<LoginResponse>(this.API_URL, loginData).pipe(
-      tap((response) => {
-        localStorage.setItem(this.tokenKey, response.token);
-        this.isAuthenticatedSubject.next(true);
-      })
-    );
+    return this.http
+      .post<LoginResponse>(this.API_URL, loginData, { withCredentials: true })
+      .pipe(
+        tap((response) => {
+          localStorage.setItem(this.tokenKey, response.token);
+          this.isAuthenticatedSubject.next(true);
+        })
+      );
   }
 
   logout(): void {
     localStorage.removeItem(this.tokenKey);
     this.isAuthenticatedSubject.next(false);
+    this.http.delete('http://localhost:5024/api/user/logout').subscribe(
+      (response) => {
+        console.log('Logout successful', response);
+      },
+      (error) => {
+        console.error('Logout failed', error);
+      }
+    );
   }
 
   getToken(): string | null {
@@ -95,38 +105,20 @@ export class AuthService {
   getProfile(): Observable<any> {
     const url = 'http://localhost:5024/api/admin/';
     return this.http.get<any>(url, {
-     /* headers: {
-        Authorization: `Bearer ${this.getToken()}`,
-      }, */
-      headers: {
-        token: `${this.getToken()}`,
-      },
+      withCredentials: true,
     });
   }
-  
 
   updateProfile(profileData: any): Observable<any> {
     const url = 'http://localhost:5024/api/admin/';
-    return this.http.patch<any>(url, profileData, {
-      headers: {
-        Authorization: `Bearer ${this.getToken()}`,
-      },
-    });
+    return this.http.patch<any>(url, profileData);
   }
   updatePassword(passwordData: any): Observable<any> {
     const url = 'http://localhost:5024/api/admin/update/password';
-    return this.http.put<any>(url, passwordData, {
-      headers: {
-        Authorization: `Bearer ${this.getToken()}`,
-      },
-    });
+    return this.http.put<any>(url, passwordData);
   }
   updateAdminData(id: string, adminData: any): Observable<any> {
     const url = `http://localhost:5024/api/admin/updateData/${id}`;
-    return this.http.put<any>(url, adminData, {
-      headers: {
-        Authorization: `Bearer ${this.getToken()}`,
-      },
-    });
+    return this.http.put<any>(url, adminData);
   }
 }

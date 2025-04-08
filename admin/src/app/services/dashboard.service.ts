@@ -1,7 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { HttpHeadersService } from './http-headers.service';
 
 interface DashboardResponse {
   totalUsers?: number;
@@ -15,14 +14,9 @@ interface DashboardResponse {
 export class DashboardService {
   private readonly API_URL = 'http://localhost:5024/api/admin/dashboard';
 
-  constructor(
-    private http: HttpClient,
-    private headerService: HttpHeadersService
-  ) {}
+  constructor(private http: HttpClient) {}
 
   getDashboardData(): Observable<DashboardResponse> {
-    return this.http.get<DashboardResponse>(this.API_URL, {
-      headers: this.headerService.getAuthHeaders(),
-    });
+    return this.http.get<DashboardResponse>(this.API_URL);
   }
 }

@@ -1,7 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { HttpHeadersService } from './http-headers.service';
 export interface ExamPayload {
   name: string;
   timeLimit: number;
@@ -41,58 +40,39 @@ export interface Exam {
 export class ExamService {
   private apiUrl = 'http://localhost:5024/api/exam';
 
-  constructor(
-    private http: HttpClient,
-    private headerService: HttpHeadersService
-  ) {}
+  constructor(private http: HttpClient) {}
 
   getExams(): Observable<Exam[]> {
-    return this.http.get<Exam[]>(this.apiUrl, {
-      headers: this.headerService.getAuthHeaders(),
-    });
+    return this.http.get<Exam[]>(this.apiUrl);
   }
 
   getExamById(id: string): Observable<Exam> {
     const url = `${this.apiUrl}/${id}`;
-    return this.http.get<Exam>(url, {
-      headers: this.headerService.getAuthHeaders(),
-    });
+    return this.http.get<Exam>(url);
   }
 
   createExam(examData: ExamPayload): Observable<Exam> {
     const url = `${this.apiUrl}/createExam`;
-    return this.http.post<Exam>(url, examData, {
-      headers: this.headerService.getAuthHeaders(),
-    });
+    return this.http.post<Exam>(url, examData);
   }
 
   updateExam(id: string, examData: ExamPayload): Observable<Exam> {
     const url = `${this.apiUrl}/updateExam/${id}`;
-    return this.http.put<Exam>(url, examData, {
-      headers: this.headerService.getAuthHeaders(),
-    });
+    return this.http.put<Exam>(url, examData);
   }
 
   deleteExam(id: string): Observable<void> {
     const url = `${this.apiUrl}/deleteExam/${id}`;
-    return this.http.delete<void>(url, {
-      headers: this.headerService.getAuthHeaders(),
-    });
+    return this.http.delete<void>(url);
   }
 
   uploadQuestionsSheet(file: File, examId: string): Observable<any> {
     const formData = new FormData();
     formData.append('file', file, file.name);
 
-    const headers = this.headerService.getAuthHeaders();
-    const uploadHeaders = headers;
-
     return this.http.post(
       `${this.apiUrl}/uploadQuestionsSheet/${examId}`,
-      formData,
-      {
-        headers: uploadHeaders,
-      }
+      formData
     );
   }
 }
