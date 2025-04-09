@@ -43,7 +43,7 @@ router.post(
 );
 
 router.post(
-  "/changeInstructorImage/:id",
+  "/changeInstructorImage/",
   userUpload.single("image"),
   authenticationInstructor,
   instructorContoller.changInstructorImage

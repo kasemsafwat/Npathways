@@ -4,6 +4,7 @@ import { useNavigate } from "react-router";
 
 axios.defaults.withCredentials = true;
 
+// eslint-disable-next-line react-refresh/only-export-components
 export const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
@@ -20,10 +21,11 @@ export const AuthProvider = ({ children }) => {
 
   // Login function
   const login = async (credentials) => {
+    let response;
     try {
       setIsLoading(true);
-      const response = await axios.post(
-        "http://localhost:5024/api/auth/login",
+      response = await axios.post(
+        "http://localhost:5024/api/login",
         credentials
       );
 
@@ -36,8 +38,11 @@ export const AuthProvider = ({ children }) => {
         return { success: true, data: response.data };
       }
     } catch (error) {
-      console.error("Login error:", error);
-      return { success: false, error: error.response?.data || error.message };
+      // console.error("Login error:", error);
+      return {
+        success: false,
+        error: error.response?.data?.message || error.message,
+      };
     } finally {
       setIsLoading(false);
     }
@@ -76,7 +81,7 @@ export const AuthProvider = ({ children }) => {
         setUser(null);
       }
     } catch (error) {
-      console.error("Verification error:", error);
+      // console.error("Verification error:", error);
       setIsAuthenticated(false);
       setUser(null);
     } finally {

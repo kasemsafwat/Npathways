@@ -3,7 +3,6 @@ import SubmittedExamModel from "../models/submittedExam.model.js";
 import ExcelJS from "exceljs";
 import fs from "fs";
 import path from "path";
-import { upload } from "../config/multer.storage.js";
 
 class ExamController {
   static async getAllExams(req, res) {
@@ -229,11 +228,9 @@ class ExamController {
       // Validate file type
       const fileExtension = path.extname(req.file.originalname).toLowerCase();
       if (fileExtension !== ".xlsx") {
-        return res
-          .status(400)
-          .json({
-            message: "Invalid file format. Only .xlsx files are allowed.",
-          });
+        return res.status(400).json({
+          message: "Invalid file format. Only .xlsx files are allowed.",
+        });
       }
 
       const uploadName = `${Date.now()}-${req.file.originalname}`;

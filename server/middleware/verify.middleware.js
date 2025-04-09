@@ -118,6 +118,8 @@ const createCourseSchema = Joi.object({
   ),
   description: Joi.string().required(),
   image: Joi.string(),
+  price: Joi.number().required(),
+  discount: Joi.number().default(0),
 });
 
 const updateCourseSchema = Joi.object({
@@ -143,6 +145,8 @@ const updateCourseSchema = Joi.object({
   ),
   description: Joi.string(),
   image: Joi.string(),
+  price: Joi.number(),
+  discount: Joi.number(),
 });
 
 const sendMessageSchema = Joi.object({

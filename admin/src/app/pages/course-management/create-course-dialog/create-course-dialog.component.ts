@@ -13,7 +13,7 @@ interface Lesson {
   templateUrl: './create-course-dialog.component.html',
   styleUrls: ['./create-course-dialog.component.css'],
   standalone: true,
-  imports: [CommonModule, FormsModule]
+  imports: [CommonModule, FormsModule],
 })
 export class CreateCourseDialogComponent {
   @Output() close = new EventEmitter<void>();
@@ -24,7 +24,7 @@ export class CreateCourseDialogComponent {
     description: '',
     requiredExams: [] as string[],
     instructors: [] as string[],
-    lessons: [] as Lesson[]
+    lessons: [] as Lesson[],
   };
 
   showDialog = false;
@@ -39,9 +39,35 @@ export class CreateCourseDialogComponent {
     this.course.lessons.splice(index, 1);
   }
 
+  courseImage: File | null = null;
+
+  onImageSelected(event: Event) {
+    const input = event.target as HTMLInputElement;
+    if (input.files && input.files.length > 0) {
+      this.courseImage = input.files[0];
+    }
+  }
+
   async saveCourse() {
     try {
-      await this.coursesService.createCourse(this.course).toPromise();
+      const formData = new FormData();
+      formData.append('name', this.course.name);
+      formData.append('description', this.course.description);
+
+      // Add image if selected
+      if (this.courseImage) {
+        formData.append('image', this.courseImage);
+      }
+
+      // Convert arrays to JSON strings for FormData
+      formData.append(
+        'requiredExams',
+        JSON.stringify(this.course.requiredExams)
+      );
+      formData.append('instructors', JSON.stringify(this.course.instructors));
+      formData.append('lessons', JSON.stringify(this.course.lessons));
+
+      await this.coursesService.createCourse(formData).toPromise();
       this.courseCreated.emit();
       this.closeDialog();
     } catch (error) {
@@ -62,7 +88,7 @@ export class CreateCourseDialogComponent {
       description: '',
       requiredExams: [],
       instructors: [],
-      lessons: []
+      lessons: [],
     };
   }
-} 
+}

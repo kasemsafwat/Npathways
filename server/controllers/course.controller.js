@@ -36,13 +36,22 @@ class CourseController {
 
   static async createCourse(req, res) {
     try {
-      const { name, description, requiredExams, instructors, lessons } =
-        req.body;
+      const {
+        name,
+        description,
+        requiredExams,
+        instructors,
+        lessons,
+        price,
+        discount,
+      } = req.body;
       let image = "";
       if (req.file) {
+        const HOST = process.env.HOST || "http://localhost";
+        const PORT = process.env.PORT || 5024;
         const uploadName = `${Date.now()}-${req.file.originalname}`;
         const uploadPath = path.join("uploads", uploadName);
-        image = uploadName;
+        image = `${HOST}:${PORT}/uploads/${uploadName}`;
         fs.writeFileSync(uploadPath, req.file.buffer, (err) => {
           if (err) {
             res.status(500).json({ error: "Failed to save file" });
@@ -56,6 +65,8 @@ class CourseController {
         instructors,
         lessons,
         image,
+        price,
+        discount,
       });
       res.status(201).json(course);
     } catch (error) {
@@ -67,8 +78,15 @@ class CourseController {
   static async updateCourse(req, res) {
     try {
       const { id } = req.params;
-      const { name, description, requiredExams, instructors, lessons } =
-        req.body;
+      const {
+        name,
+        description,
+        requiredExams,
+        instructors,
+        lessons,
+        price,
+        discount,
+      } = req.body;
 
       if (!id.match(/^[0-9a-fA-F]{24}$/)) {
         return res.status(400).json({ error: "Invalid course ID" });
@@ -83,9 +101,12 @@ class CourseController {
       let image = req.body.image;
       if (req.file) {
         // Save new image
+        const HOST = process.env.HOST || "http://localhost";
+        const PORT = process.env.PORT || 5024;
         const uploadName = `${Date.now()}-${req.file.originalname}`;
         const uploadPath = path.join("uploads", uploadName);
-        image = uploadName;
+        image = `${HOST}:${PORT}/uploads/${uploadName}`;
+        console.log(image);
         fs.writeFileSync(uploadPath, req.file.buffer, (err) => {
           if (err) {
             return res.status(500).json({ error: "Failed to save file" });
@@ -94,7 +115,10 @@ class CourseController {
 
         // Delete old image if exists
         if (course.image) {
-          const oldImagePath = path.join("uploads", course.image);
+          const oldImagePath = path.join(
+            "uploads",
+            path.basename(course.image)
+          );
           if (fs.existsSync(oldImagePath)) {
             fs.unlinkSync(oldImagePath);
           }
@@ -103,7 +127,16 @@ class CourseController {
 
       course = await CourseModel.findByIdAndUpdate(
         id,
-        { name, description, requiredExams, instructors, lessons, image },
+        {
+          name,
+          description,
+          requiredExams,
+          instructors,
+          lessons,
+          image,
+          price,
+          discount,
+        },
         { new: true }
       );
 
@@ -212,6 +245,22 @@ class CourseController {
       const instructorId = req.user._id;
       const courses = await CourseModel.find({ instructors: instructorId });
       res.status(200).json(courses);
+    } catch (error) {
+      console.error(`Error in course controller: ${error}`);
+      res.status(500).json({ error: "Internal server error" });
+    }
+  }
+  static async getStudentsInCourse(req, res) {
+    try {
+      const { id } = req.params;
+      if (!id.match(/^[0-9a-fA-F]{24}$/)) {
+        return res.status(400).json({ error: "Invalid course ID" });
+      }
+      const course = await CourseModel.findById(id).populate("students");
+      if (!course) {
+        return res.status(404).json({ error: "Course not found" });
+      }
+      res.status(200).json(course.students);
     } catch (error) {
       console.error(`Error in course controller: ${error}`);
       res.status(500).json({ error: "Internal server error" });

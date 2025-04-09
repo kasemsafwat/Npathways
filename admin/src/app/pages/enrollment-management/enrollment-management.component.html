@@ -1,1 +1,125 @@
-<p>enrollment-management works!</p>
+<div class="enrollment-container">
+  <div class="enrollment-header">
+    <div class="header-content">
+      <h1>Enrollment Management</h1>
+      <p class="subtitle">Review student test results and approve pathways</p>
+    </div>
+  </div>
+
+  <div class="enrollment-section">
+    <div class="section-header">
+      <div class="section-title">
+        <h2>Enrollments</h2>
+        <p class="subtitle">Review and manage student course enrollments</p>
+      </div>
+      <button class="export-btn" (click)="exportToPDF()">
+        <i class="fas fa-download"></i>
+        Export Data
+      </button>
+    </div>
+
+    <div class="enrollment-tabs">
+      <button
+        [class.active]="currentTab === 'all'"
+        (click)="setTab('all')">
+        All Enrollments
+      </button>
+      <button
+        [class.active]="currentTab === 'pending'"
+        (click)="setTab('pending')">
+        Pending Approval
+        <span class="badge">2</span>
+      </button>
+      <button
+        [class.active]="currentTab === 'approved'"
+        (click)="setTab('approved')">
+        Approved
+      </button>
+      <button
+        [class.active]="currentTab === 'rejected'"
+        (click)="setTab('rejected')">
+        Rejected
+      </button>
+    </div>
+
+    <div class="enrollment-filters">
+      <div class="search-box">
+        <i class="fas fa-search"></i>
+        <input
+          type="text"
+          [(ngModel)]="searchTerm"
+          placeholder="Search enrollments..."
+        >
+      </div>
+      <button class="filter-btn">
+        <i class="fas fa-filter"></i>
+        Filters
+      </button>
+    </div>
+
+    <div class="enrollment-table">
+      <table>
+        <thead>
+          <tr>
+            <th>Student</th>
+            <th>Course</th>
+            <th>Date</th>
+            <th>Status</th>
+            <th>Test Score</th>
+            <th>Motivation</th>
+            <th>Pathway</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let enrollment of filteredEnrollments">
+            <td class="student-cell">
+              <div class="student-info">
+                <div class="avatar">
+                  <i class="fas fa-user"></i>
+                </div>
+                <div class="student-details">
+                  <div class="student-name">{{enrollment.student.name}}</div>
+                  <div class="student-email">{{enrollment.student.email}}</div>
+                </div>
+              </div>
+            </td>
+            <td>{{enrollment.course}}</td>
+            <td>{{enrollment.date}}</td>
+            <td>
+              <span [class]="'status-badge ' + getStatusClass(enrollment.status)">
+                {{enrollment.status}}
+              </span>
+            </td>
+            <td>
+              <div class="score-wrapper">
+                <span class="score-value" [class.low-score]="enrollment.testScore < 70">
+                  {{enrollment.testScore}}%
+                </span>
+                <div class="score-bar">
+                  <div class="score-progress" [style.width.%]="enrollment.testScore"></div>
+                </div>
+              </div>
+            </td>
+            <td class="motivation-cell">
+              <i class="fas" [class.fa-check-circle]="enrollment.motivation"
+                          [class.fa-times-circle]="!enrollment.motivation"
+                          [class.text-success]="enrollment.motivation"
+                          [class.text-danger]="!enrollment.motivation"></i>
+            </td>
+            <td>
+              <span [class]="'pathway-badge ' + getPathwayClass(enrollment.pathway)">
+                {{enrollment.pathway}}
+              </span>
+            </td>
+            <td>
+              <button class="action-btn">
+                <i class="fas fa-ellipsis-h"></i>
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

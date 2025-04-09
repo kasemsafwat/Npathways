@@ -11,7 +11,6 @@ export default function InstructorCourseSection() {
   React.useEffect(() => {
     const fetchCourses = async () => {
       try {
-        //! replace with instructor API endpoint
         const response = await axios.get(
           "http://localhost:5024/api/instructor/courses",
           {
@@ -55,7 +54,7 @@ export default function InstructorCourseSection() {
           <CourseCard
             key={course._id}
             title={course.name}
-            image={bimManagerImage}
+            image={course.image || bimManagerImage}
             time={course.time}
           />
         ))}

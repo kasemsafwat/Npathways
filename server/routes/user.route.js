@@ -24,12 +24,12 @@ router.patch(
 router.get("/all", authentication, userController.getAllUsers);
 router.get("/search", authentication, userController.searchUser);
 router.get("/verify", authentication, userController.verifyUser);
-router.delete("/logout", authentication, userController.logout);
+router.delete("/logout", userController.logout);
 router.get("/:id", authentication, userController.getUserById);
 
 // changUserImage
 router.post(
-  "/changUserImage/:id",
+  "/changUserImage/",
   userUpload.single("image"),
   authentication,
   userController.changUserImage

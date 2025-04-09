@@ -18,17 +18,18 @@ const userController = {
   newUser: async (req, res) => {
     try {
       const data = { ...req.body, email: req.body.email.toLowerCase() };
-      
+
       const isDuplicateEmail = await Promise.all([
-      User.findOne({ email: data.email }),
-      Instructor.findOne({ email: data.email }),
-      Admin.findOne({ email: data.email })
-      ]).then(results => results.some(result => result));
+        User.findOne({ email: data.email }),
+        Instructor.findOne({ email: data.email }),
+        Admin.findOne({ email: data.email }),
+      ]).then((results) => results.some((result) => result));
 
       if (isDuplicateEmail) {
-      return res.status(403).send({
-        message: "This email is already registered. Please use a different email."
-      });
+        return res.status(403).send({
+          message:
+            "This email is already registered. Please use a different email.",
+        });
       }
       let newUser = new User(data);
       await newUser.save();
@@ -89,7 +90,7 @@ const userController = {
       });
     }
   },
-  
+
   getAllUsers: async (req, res) => {
     try {
       const userId = req.user._id;
@@ -158,18 +159,13 @@ const userController = {
 
   changUserImage: async (req, res) => {
     try {
-      const { id } = req.params;
-      if (!id.match(/^[0-9a-fA-F]{24}$/)) {
-        return res.status(400).json({ error: "Invalid User ID" });
-      }
-
-      const user = await User.findById(id);
-      if (!user) {
-        return res.status(404).json({ message: "User not found" });
-      }
+      const userId = req.user._id;
 
       if (req.file) {
-        const imageUrl = `${req.file.filename}`;
+        const user = await User.findById(userId);
+        const HOST = process.env.HOST || "http://localhost";
+        const PORT = process.env.PORT || 5024;
+        const imageUrl = `${HOST}:${PORT}/uploads/${req.file.filename}`;
 
         // Remove old image if it exists
         if (user.image) {
@@ -178,21 +174,21 @@ const userController = {
             "../uploads",
             path.basename(user.image)
           );
-          console.log("Attempting to delete:", oldImagePath);
+          // console.log("Attempting to delete:", oldImagePath);
 
           if (fs.existsSync(oldImagePath)) {
             try {
               fs.unlinkSync(oldImagePath);
-              console.log("Old image deleted successfully");
+              // console.log("Old image deleted successfully");
             } catch (error) {
-              console.error("Error deleting old image:", error);
+              // console.error("Error deleting old image:", error);
             }
           } else {
-            console.log("Old image not found:", oldImagePath);
+            // console.log("Old image not found:", oldImagePath);
           }
         }
         const updatedUser = await User.findByIdAndUpdate(
-          id,
+          userId,
           { image: imageUrl },
           { new: true }
         );
@@ -201,9 +197,13 @@ const userController = {
           return res.status(404).json({ message: "User not found" });
         }
 
+        const userResponse = updatedUser.toObject();
+        delete userResponse.password;
+        delete userResponse.tokens;
+
         return res
           .status(200)
-          .json({ message: "Image updated successfully", user: updatedUser });
+          .json({ message: "Image updated successfully", user: userResponse });
       } else {
         return res.status(400).json({ message: "No image file provided" });
       }
@@ -333,7 +333,7 @@ const userController = {
   getUsersInCourse: async (req, res) => {
     try {
       const { courseId } = req.params;
-      const userId = req.user._id;
+      const userId = req.user ? req.user._id : null;
 
       if (!courseId.match(/^[0-9a-fA-F]{24}$/)) {
         return res.status(400).json({ error: "Invalid course ID" });
@@ -367,7 +367,7 @@ const userController = {
   getUsersInPathway: async (req, res) => {
     try {
       const { pathwayId } = req.params;
-      const userId = req.user._id;
+      const userId = req.user ? req.user._id : null;
 
       if (!pathwayId.match(/^[0-9a-fA-F]{24}$/)) {
         return res.status(400).json({ error: "Invalid pathway ID" });

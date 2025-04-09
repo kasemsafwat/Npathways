@@ -74,7 +74,7 @@ export const InstructorAuthProvider = ({ children }) => {
         setUser(null);
       }
     } catch (error) {
-      console.error("Verification error:", error);
+      // console.error("Verification error:", error);
       setIsAuthenticated(false);
       setUser(null);
     } finally {

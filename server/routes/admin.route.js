@@ -12,6 +12,7 @@ import { protectRoutes, allowTo } from "../middleware/AuthAdmin.middleware.js";
 import { CompletStudentValidation } from "../middleware/user.middleware.js";
 import StudentControlller from "../controllers/student.controller.js";
 import { userUpload } from "../middleware/userImage.middleware.js";
+import userController from "../controllers/user.controller.js";
 
 // The prefix is /api/admin
 const router = express.Router();
@@ -28,6 +29,18 @@ router.patch(
 // ////////////////////////////////////
 
 // // Admine
+router.get(
+  "/getAllAdmins",
+  protectRoutes,
+  allowTo("admin"),
+  AdminControlller.getAllAdmins
+);
+router.get(
+  "/getAdminbyId/:id",
+  protectRoutes,
+  allowTo("admin"),
+  AdminControlller.getAdminById
+);
 router
   .route("/:id")
   .delete(protectRoutes, allowTo("admin"), AdminControlller.deleteInstructor);
@@ -73,6 +86,13 @@ router.post(
   AdminControlller.createInstructor
 );
 router.post(
+  "/createNewAdmin",
+  protectRoutes,
+  allowTo("admin"),
+  newAdminValidation,
+  AdminControlller.createAdmin
+);
+router.post(
   "/create-NewStudent",
   protectRoutes,
   allowTo("admin"),
@@ -99,7 +119,7 @@ router.put(
 
 // changUserImage
 router.post(
-  "/changInstructorImage/:id",
+  "/changInstructorImage",
   userUpload.single("image"),
   protectRoutes,
   allowTo("instructor"),
@@ -122,4 +142,20 @@ router.get(
   allowTo("admin"),
   AdminControlller.getAllStudents
 );
+
+//? /////////////////////////
+router.get(
+  "/getUsersInCourse/:courseId",
+  protectRoutes,
+  allowTo("admin"),
+  userController.getUsersInCourse
+);
+router.get(
+  "/getUsersInPathway/:pathwayId",
+  protectRoutes,
+  allowTo("admin"),
+  userController.getUsersInPathway
+);
+//? /////////////////////////
+
 export default router;

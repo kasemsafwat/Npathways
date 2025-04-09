@@ -3,7 +3,7 @@ import { Box, Container, Divider, Stack, Typography } from "@mui/material";
 import ProfileSection from "../../Components/Student/MyPathway/ProfileSection";
 import MyStudentsInstructor from "../../Components/Instructor/MyStudentsInstructor";
 import InstructorCourseSection from "../../Components/Instructor/InstructorCourseSection";
-import InstructorProfileSection from "./InstructorProfileSection";
+import InstructorProfileSection from "../../Components/Instructor/InstructorProfileSection";
 
 export default function InstructorDashboard() {
   const [tap, setTap] = useState("myStudents");

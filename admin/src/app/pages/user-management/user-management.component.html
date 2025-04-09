@@ -1,6 +1,8 @@
 <div class="user-management">
   <h1>User Management</h1>
-  <p class="subtitle">Manage students, instructors, and admins across the platform</p>
+  <p class="subtitle">
+    Manage students, instructors, and admins across the platform
+  </p>
 
   <div class="users-section">
     <div class="header">
@@ -8,7 +10,7 @@
         <h2>Users</h2>
         <p class="subtitle">Manage users and their permissions</p>
       </div>
-<!--       <button class="add-user-btn">
+      <!--       <button class="add-user-btn">
         <i class="bi bi-person-plus"></i>
         Add User
       </button> -->
@@ -16,26 +18,71 @@
 
     <div class="nav-container">
       <div class="nav nav-tabs">
-        <li class="nav-item"><a class="nav-link" href="javascript:void(0)" [class.active]="selectedTab === 'all'" (click)="selectTab('all')">All Users</a></li>
-        <li class="nav-item"><a class="nav-link" href="javascript:void(0)" [class.active]="selectedTab === 'students'" (click)="selectTab('students')">Students</a></li>
-        <li class="nav-item"><a class="nav-link" href="javascript:void(0)" [class.active]="selectedTab === 'instructors'" (click)="selectTab('instructors')">Instructors</a></li>
-        <li class="nav-item"><a class="nav-link" href="javascript:void(0)" [class.active]="selectedTab === 'admins'" (click)="selectTab('admins')">Admins</a></li>
-  
+        <li class="nav-item">
+          <a
+            class="nav-link"
+            href="javascript:void(0)"
+            [class.active]="selectedTab === 'all'"
+            (click)="selectTab('all')"
+            >All Users</a
+          >
+        </li>
+        <li class="nav-item">
+          <a
+            class="nav-link"
+            href="javascript:void(0)"
+            [class.active]="selectedTab === 'students'"
+            (click)="selectTab('students')"
+            >Students</a
+          >
+        </li>
+        <li class="nav-item">
+          <a
+            class="nav-link"
+            href="javascript:void(0)"
+            [class.active]="selectedTab === 'instructors'"
+            (click)="selectTab('instructors')"
+            >Instructors</a
+          >
+        </li>
+        <li class="nav-item">
+          <a
+            class="nav-link"
+            href="javascript:void(0)"
+            [class.active]="selectedTab === 'admins'"
+            (click)="selectTab('admins')"
+            >Admins</a
+          >
+        </li>
       </div>
     </div>
     <div class="tabs">
-</div> 
+      <button
+        style="width: auto"
+        *ngIf="selectedTab === 'admins'"
+        class="create-admin-btn"
+        (click)="showCreateAdminModal = true"
+      >
+        Create Admin
+      </button>
+    </div>
 
     <div class="filters-row">
       <div class="search-box">
         <i class="bi bi-search"></i>
-        <input type="text" placeholder="Search users..." [(ngModel)]="searchQuery">
+        <input
+          type="text"
+          placeholder="Search users..."
+          [(ngModel)]="searchQuery"
+        />
       </div>
+    </div>
+    <!-- 
       <button class="filter-btn">
         <i class="bi bi-funnel"></i>
         Filters
       </button>
-    </div>
+     -->
 
     <table class="users-table">
       <thead>
@@ -51,22 +98,32 @@
       <tbody>
         <tr *ngFor="let user of filteredUsers" [attr.data-user-id]="user.id">
           <td class="user-cell">
-            <div class="avatar">
-              <img [src]="user.avatar || 'assets/default-avatar.png'" alt="User avatar">
+            <div class="avatar" *ngIf="!user.avatar">
+              <div class="letter-avatar">
+                {{ user.name?.charAt(0) | uppercase }}
+              </div>
             </div>
+            <div class="avatar" *ngIf="user.avatar">
+              <img [src]="user.avatar" alt="User avatar" />
+            </div>
+
             <div class="user-info">
-              <div class="name">{{user.name}}</div>
-              <div class="email">{{user.email}}</div>
+              <div class="name">{{ user.name }}</div>
+              <div class="email">{{ user.email }}</div>
             </div>
           </td>
           <td>
-            <span class="role-badge" [class]="user.role.toLowerCase()">{{user.role}}</span>
+            <span class="role-badge" [class]="user.role.toLowerCase()">{{
+              user.role
+            }}</span>
           </td>
           <td>
-            <span class="status-badge" [class]="user.status.toLowerCase()">{{user.status}}</span>
+            <span class="status-badge" [class]="user.status.toLowerCase()">{{
+              user.status
+            }}</span>
           </td>
-          <td>{{user.joinDate | date:'MMM dd, yyyy'}}</td>
-          <td>{{user.courses}}</td>
+          <td>{{ user.joinDate | date : "MMM dd, yyyy" }}</td>
+          <td>{{ user.courses }}</td>
           <td>
             <div class="actions-dropdown" [class.show]="user.showActions">
               <button class="action-btn" (click)="toggleActions(user, $event)">
@@ -79,7 +136,9 @@
                 </button>
                 <button class="dropdown-item" (click)="suspendUser(user)">
                   <i class="bi bi-ban"></i>
-                  <span>Suspend</span>
+                  <span>{{
+                    user.status === "Suspended" ? "Activate" : "Suspend"
+                  }}</span>
                 </button>
                 <button class="dropdown-item delete" (click)="deleteUser(user)">
                   <i class="bi bi-trash3-fill"></i>
@@ -91,5 +150,71 @@
         </tr>
       </tbody>
     </table>
+  </div>
+</div>
+
+<!-- Create Admin Modal -->
+<div class="modal" *ngIf="showCreateAdminModal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h2>Create New Admin</h2>
+      <button class="close-btn" (click)="showCreateAdminModal = false">
+        &times;
+      </button>
+    </div>
+    <div class="modal-body">
+      <form (ngSubmit)="createAdmin()">
+        <div class="form-group">
+          <label for="firstName">First Name</label>
+          <input
+            type="text"
+            id="firstName"
+            [(ngModel)]="newAdmin.firstName"
+            name="firstName"
+            required
+          />
+        </div>
+        <div class="form-group">
+          <label for="lastName">Last Name</label>
+          <input
+            type="text"
+            id="lastName"
+            [(ngModel)]="newAdmin.lastName"
+            name="lastName"
+            required
+          />
+        </div>
+        <div class="form-group">
+          <label for="email">Email</label>
+          <input
+            type="email"
+            id="email"
+            [(ngModel)]="newAdmin.email"
+            name="email"
+            required
+          />
+        </div>
+        <div class="form-group">
+          <label for="password">Password</label>
+          <input
+            type="password"
+            id="password"
+            [(ngModel)]="newAdmin.password"
+            name="password"
+            required
+          />
+        </div>
+        <div class="modal-footer">
+          <button
+            type="button"
+            class="cancel-btn"
+            (click)="showCreateAdminModal = false"
+          >
+            Cancel
+          </button>
+          <button type="submit" class="create-btn">Create Admin</button>
+        </div>
+      </form>
+    </div>
   </div>
 </div>

@@ -1,0 +1,113 @@
+<div class="certificate-container">
+  <h2 class="text-white">Certificate Management</h2>
+
+  <!-- 1. Certificate Creation Form -->
+  <div class="form-section create-section">
+    <h3>Create New Certificate Template</h3>
+
+    <div>
+      <label for="certificateName">Certificate Name:</label>
+      <input type="text" id="certificateName" [(ngModel)]="certificateName" placeholder="Enter certificate name" required>
+    </div>
+
+    <div>
+      <label for="certificateDescription">Certificate Description:</label>
+      <textarea id="certificateDescription" [(ngModel)]="certificateDescription" placeholder="Enter certificate description" required></textarea>
+    </div>
+
+    <div>
+      <label for="courseSelectCreate">Assign to Course:</label>
+      <select id="courseSelectCreate" [(ngModel)]="selectedCourseId" (change)="onCourseChange()" required>
+        <option [ngValue]="null" disabled>-- Select a Course --</option>
+        <option *ngFor="let course of courses" [value]="course._id">
+          {{ course.name }}
+        </option>
+      </select>
+    </div>
+
+    <button (click)="createCertificate()"
+            [disabled]="!selectedCourseId || !certificateName || !certificateDescription || isCreating">
+      {{ isCreating ? 'Creating...' : 'Create Template' }}
+    </button>
+  </div>
+
+  <!-- 2. Existing Certificates List -->
+  <div class="certificate-list-section list-section">
+    <h3>Existing Certificate Templates</h3>
+    <div *ngIf="isLoadingCertificates">Loading certificates...</div>
+    <div *ngIf="!isLoadingCertificates && certificates.length === 0">No certificate templates found.</div>
+    <table *ngIf="!isLoadingCertificates && certificates.length > 0">
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Description</th>
+          <th>Associated Course</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let cert of certificates">
+          <td>{{ cert.name }}</td>
+          <td>{{ cert.description }}</td>
+          <td>{{ getCourseName(cert.courseId) }}</td>
+          <td>
+            <button class="delete-button"
+                    (click)="deleteCertificate(cert._id)"
+                    [disabled]="isDeleting === cert._id">
+              {{ isDeleting === cert._id ? 'Deleting...' : 'Delete' }}
+            </button>
+            <!-- Add Update button/logic later if needed -->
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- 3. Grant Certificate Form -->
+  <div class="form-section grant-section">
+    <h3>Grant Certificate to Student</h3>
+
+    <div>
+      <label for="certificateSelectGrant">Select Certificate Template:</label>
+      <select id="certificateSelectGrant" [(ngModel)]="selectedCertificateIdForGranting" required>
+        <option [ngValue]="null" disabled>-- Select a Certificate --</option>
+        <option *ngFor="let cert of certificates" [value]="cert._id">
+          {{ cert.name }} ({{ getCourseName(cert.courseId) }})
+        </option>
+      </select>
+    </div>
+
+    <div>
+        <label for="courseSelectGrant">Select Course (to find students):</label>
+        <select id="courseSelectGrant" [(ngModel)]="selectedCourseId" (change)="onCourseChange()" required>
+            <option [ngValue]="null" disabled>-- Select Course First --</option>
+            <option *ngFor="let course of courses" [value]="course._id">
+                {{ course.name }}
+            </option>
+        </select>
+    </div>
+
+    <div *ngIf="selectedCourseId">
+        <div *ngIf="isLoadingUsers">Loading users...</div>
+        <div *ngIf="!isLoadingUsers && users.length > 0">
+            <label for="userSelectGrant">Select Student:</label>
+            <select id="userSelectGrant" [(ngModel)]="selectedUserIdForGranting" required>
+                <option [ngValue]="null" disabled>-- Select a Student --</option>
+                <option *ngFor="let user of users" [value]="user._id">
+                    {{ user.firstName + ' ' + user.lastName || user._id }}
+                </option>
+            </select>
+        </div>
+        <div *ngIf="!isLoadingUsers && users.length === 0" class="info-message">
+            No students found for the selected course.
+        </div>
+    </div>
+
+     <button (click)="grantCertificate()"
+            [disabled]="!selectedCertificateIdForGranting || !selectedUserIdForGranting || isGranting">
+       {{ isGranting ? 'Granting...' : 'Grant Certificate' }}
+    </button>
+
+  </div>
+
+</div>

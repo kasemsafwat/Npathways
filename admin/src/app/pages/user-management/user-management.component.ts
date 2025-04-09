@@ -1,9 +1,12 @@
 import { Component, OnInit, HostListener } from '@angular/core';
 import { CommonModule, DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { StudentService } from '../../services/student.service';
+import { InstructorService } from '../../services/instructor.service';
+import { AuthService } from '../../services/auth.service';
 
 interface User {
-  id: number;
+  id: string;
   name: string;
   email: string;
   role: 'Student' | 'Instructor' | 'Admin';
@@ -22,83 +25,73 @@ interface User {
   imports: [CommonModule, FormsModule, DatePipe]
 })
 export class UserManagementComponent implements OnInit {
-  users: User[] = [
-    {
-      id: 1,
-      name: 'John Doe',
-      email: 'john.doe@example.com',
-      role: 'Student',
-      status: 'Active',
-      joinDate: new Date('2023-01-15'),
-      courses: 3
-    },
-    {
-      id: 2,
-      name: 'Sarah Johnson',
-      email: 'sarah.j@example.com',
-      role: 'Instructor',
-      status: 'Active',
-      joinDate: new Date('2022-11-20'),
-      courses: 2
-    },
-    {
-      id: 3,
-      name: 'Michael Brown',
-      email: 'm.brown@example.com',
-      role: 'Student',
-      status: 'Inactive',
-      joinDate: new Date('2023-02-05'),
-      courses: 1
-    },
-    {
-      id: 4,
-      name: 'Emily Wilson',
-      email: 'emily.w@example.com',
-      role: 'Admin',
-      status: 'Active',
-      joinDate: new Date('2022-08-12'),
-      courses: 0
-    },
-    {
-      id: 5,
-      name: 'David Lee',
-      email: 'david.lee@example.com',
-      role: 'Student',
-      status: 'Suspended',
-      joinDate: new Date('2023-03-18'),
-      courses: 4
-    },
-    {
-      id: 6,
-      name: 'Jennifer Taylor',
-      email: 'jen.taylor@example.com',
-      role: 'Instructor',
-      status: 'Active',
-      joinDate: new Date('2022-10-30'),
-      courses: 5
-    },
-    {
-      id: 7,
-      name: 'Robert Martinez',
-      email: 'r.martinez@example.com',
-      role: 'Student',
-      status: 'Active',
-      joinDate: new Date('2023-04-02'),
-      courses: 2
-    },
-    {
-      id: 8,
-      name: 'Lisa Anderson',
-      email: 'lisa.a@example.com',
-      role: 'Student',
-      status: 'Active',
-      joinDate: new Date('2023-01-25'),
-      courses: 3
-    }
-  ];
-
+  users: User[] = [];
   selectedTab: 'all' | 'students' | 'instructors' | 'admins' = 'all';
   searchQuery: string = '';
+  showCreateAdminModal: boolean = false;
+  newAdmin = {
+    firstName: '',
+    lastName: '',
+    email: '',
+    password: ''
+  };
+
+  constructor(
+    private studentService: StudentService,
+    private instructorService: InstructorService,
+    private authService: AuthService
+  ) {}
+
+  ngOnInit(): void {
+    this.loadUsers();
+  }
+
+  loadUsers(): void {
+    // Load students
+    this.studentService.getAllStudents().subscribe(students => {
+      const studentUsers: User[] = students.map((student) => ({
+        id: student._id, // أو student.id لو متأكدة إنه موجود كده
+        name: `${student.firstName} ${student.lastName}`,
+        email: student.email,
+        role: 'Student',
+        status: 'Active',
+        joinDate: new Date(student.createdAt || new Date()),
+        courses: student.courses?.length || 0,
+        showActions: false,
+      }));
+
+      // Load instructors
+      this.instructorService.getAllInstructors().subscribe(instructors => {
+        const instructorUsers: User[] = instructors.map((instructor) => ({
+          id: instructor._id || '',
+          name: `${instructor.firstName} ${instructor.lastName}`,
+          email: instructor.email,
+          role: 'Instructor',
+          status: 'Active',
+          joinDate: new Date(),
+          courses: 0,
+          showActions: false,
+        }));
+
+        // Load admins
+        this.authService.getAllAdmins().subscribe(admins => {
+          const adminUsers: User[] = admins.map((admin: { _id: string; firstName: string; lastName: string; email: string }) => ({
+            id: admin._id || '',
+            name: `${admin.firstName} ${admin.lastName}`,
+            email: admin.email,
+            role: 'Admin',
+            status: 'Active',
+            joinDate: new Date(),
+            courses: 0,
+            showActions: false
+          }));
+
+          // Combine all lists
+          this.users = [...studentUsers, ...instructorUsers, ...adminUsers];
+        });
+      });
+    });
+  }
 
   get filteredUsers(): User[] {
     let filtered = this.users;
@@ -122,10 +115,6 @@ export class UserManagementComponent implements OnInit {
     return filtered;
   }
 
-  constructor() {}
-
-  ngOnInit(): void {}
-
   selectTab(tab: 'all' | 'students' | 'instructors' | 'admins'): void {
     this.selectedTab = tab;
   }
@@ -135,7 +124,7 @@ export class UserManagementComponent implements OnInit {
     const dropdowns = document.querySelectorAll('.actions-dropdown');
     dropdowns.forEach(dropdown => {
       if (!dropdown.contains(event.target as Node)) {
-        const userId = Number((dropdown as HTMLElement).closest('tr')?.dataset['user-id']);
+        const userId = (dropdown as HTMLElement).closest('tr')?.dataset['userId'];
         const user = this.users.find(u => u.id === userId);
         if (user) {
           user.showActions = false;
@@ -156,8 +145,40 @@ export class UserManagementComponent implements OnInit {
     user.showActions = !user.showActions;
   }
 
+  createAdmin(): void {
+    this.authService.createAdmin(this.newAdmin).subscribe({
+      next: () => {
+        this.showCreateAdminModal = false;
+        this.newAdmin = {
+          firstName: '',
+          lastName: '',
+          email: '',
+          password: ''
+        };
+        this.loadUsers(); // Reload users to show the new admin
+      },
+      error: (error) => {
+        console.error('Error creating admin:', error);
+      }
+    });
+  }
+
   editUser(user: User): void {
-    console.log('Edit user:', user);
+    if (user.role === 'Admin') {
+      const adminData = {
+        firstName: user.name.split(' ')[0],
+        lastName: user.name.split(' ')[1],
+        email: user.email
+      };
+      this.authService.updateAdminById(user.id, adminData).subscribe({
+        next: () => {
+          this.loadUsers();
+        },
+        error: (error) => {
+          console.error('Error updating admin:', error);
+        }
+      });
+    }
     user.showActions = false;
   }
 
@@ -168,7 +189,19 @@ export class UserManagementComponent implements OnInit {
 
   deleteUser(user: User): void {
     if (confirm('Are you sure you want to delete this user?')) {
-      this.users = this.users.filter(u => u.id !== user.id);
+      if (user.role === 'Student') {
+        this.studentService.deleteStudent(user.id).subscribe(() => {
+          this.users = this.users.filter(u => u.id !== user.id);
+        });
+      } else if (user.role === 'Instructor') {
+        this.instructorService.deleteInstructor(user.id).subscribe(() => {
+          this.users = this.users.filter(u => u.id !== user.id);
+        });
+      } else if (user.role === 'Admin') {
+        this.authService.deleteAdmin(user.id).subscribe(() => {
+          this.users = this.users.filter(u => u.id !== user.id);
+        });
+      }
     }
     user.showActions = false;
   }

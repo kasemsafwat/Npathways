@@ -54,7 +54,7 @@ export default function CourseSection() {
           <CourseCard
             key={course._id}
             title={course.name}
-            image={bimManagerImage}
+            image={course.image || bimManagerImage}
             time={course.time}
           />
         ))}

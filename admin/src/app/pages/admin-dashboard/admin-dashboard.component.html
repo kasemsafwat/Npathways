@@ -19,7 +19,7 @@
     <button class="nav-btn">Analytics</button>
     <button class="nav-btn">Reports</button>
     <button class="nav-btn">Notifications</button>
-  </div> -->s
+  </div> -->
 
   <!-- Statistics Cards -->
   <div class="stats-grid">
@@ -31,31 +31,31 @@
       <div class="stat-value">{{ totalStudents | number }}</div>
       <div class="stat-trend up">
         <i class="fas fa-arrow-up"></i>
-        16% from last month
+        {{ activeStudents }} active students
       </div>
     </div>
 
     <div class="stat-card">
       <div class="stat-header">
-        <span>Active Courses</span>
+        <span>Total Courses</span>
         <i class="fas fa-book-open"></i>
       </div>
-      <div class="stat-value">{{ activeCourses | number }}</div>
+      <div class="stat-value">{{ totalCourses | number }}</div>
       <div class="stat-trend up">
         <i class="fas fa-arrow-up"></i>
-        4 new this month
+        {{ publishedCourses }} published courses
       </div>
     </div>
 
     <div class="stat-card">
       <div class="stat-header">
-        <span>Total Enrollments</span>
-        <i class="fas fa-user-plus"></i>
+        <span>Total Instructors</span>
+        <i class="fas fa-chalkboard-teacher"></i>
       </div>
-      <div class="stat-value">{{ totalEnrollments | number }}</div>
+      <div class="stat-value">{{ totalInstructors | number }}</div>
       <div class="stat-trend up">
         <i class="fas fa-arrow-up"></i>
-        12% from last month
+        {{ availableInstructors }} available instructors
       </div>
     </div>
 
@@ -80,7 +80,8 @@
       <p class="subtitle">Monthly revenue breakdown for the current year</p>
       <canvas
         baseChart
-        [data]="revenueChartData"
+        [datasets]="revenueChartData.datasets"
+        [labels]="revenueChartData.labels"
         [options]="revenueChartOptions"
         [type]="'bar'"
       >
@@ -116,7 +117,8 @@
       <p class="subtitle">Student enrollment data for the past 12 months</p>
       <canvas
         baseChart
-        [data]="enrollmentChartData"
+        [datasets]="enrollmentChartData.datasets"
+        [labels]="enrollmentChartData.labels"
         [options]="enrollmentChartOptions"
         [type]="'line'"
       >

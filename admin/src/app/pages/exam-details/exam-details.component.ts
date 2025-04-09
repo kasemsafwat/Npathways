@@ -207,4 +207,22 @@ export class ExamDetailsComponent implements OnInit {
   goBack(): void {
     this.router.navigate(['/exam-management']);
   }
+
+  onFileSelected(event: Event): void {
+    const file = (event.target as HTMLInputElement).files?.[0];
+    if (file && this.examId) {
+      this.examService.uploadQuestionsSheet(file, this.examId).subscribe({
+        next: (response: any) => {
+          console.log('File uploaded successfully:', response);
+          alert('Questions sheet uploaded successfully!');
+          // Reload the exam data to show the new questions
+          this.loadExamDetails();
+        },
+        error: (error: any) => {
+          console.error('Error uploading file:', error);
+          alert('Error uploading questions sheet. Please try again.');
+        }
+      });
+    }
+  }
 }
