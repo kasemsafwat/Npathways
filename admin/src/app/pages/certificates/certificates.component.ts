@@ -2,23 +2,25 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { CoursesService, Course } from '../../services/course.service';
+import { CertificatesService, Certificate as CertificateType } from '../../services/certificates.service';
 // --- Placeholder Import ---
 // import { CertificatesService, Certificate } from '../../services/certificates.service';
 
-// --- Placeholder Interface ---
-// Replace with actual interface from CertificatesService
+// Updated interface to match actual API response
 export interface Certificate {
   _id: string;
   name: string;
   description: string;
-  courseId?: string; // Optional: might be useful for display
-  // Add other relevant fields returned by the service
+  course: string; // This is the course ID
+  createdAt: string;
+  __v: number;
 }
 
 @Component({
   selector: 'app-certificates',
   standalone: true,
   imports: [CommonModule, FormsModule],
+  providers: [CertificatesService],
   templateUrl: './certificates.component.html',
   styleUrls: ['./certificates.component.css']
 })
@@ -31,7 +33,7 @@ export class CertificateComponent implements OnInit {
   certificateDescription: string = '';
 
   // --- Certificate List Properties ---
-  certificates: Certificate[] = []; // To store existing certificates
+  certificates: CertificateType[] = []; // To store existing certificates
 
   // --- Granting Properties ---
   selectedCertificateIdForGranting: string | null = null;
@@ -43,11 +45,16 @@ export class CertificateComponent implements OnInit {
   isCreating: boolean = false;
   isGranting: boolean = false;
   isDeleting: string | null = null; // Store ID of certificate being deleted
+  isUpdating: string | null = null; // Store ID of certificate being updated
+
+  // --- Update Properties ---
+  editingCertificate: CertificateType | null = null;
+  editName: string = '';
+  editDescription: string = '';
 
   constructor(
     private courseService: CoursesService,
-    // --- Placeholder Injection ---
-    // private certificatesService: CertificatesService
+    private certificatesService: CertificatesService
   ) {}
 
   ngOnInit(): void {
@@ -65,19 +72,7 @@ export class CertificateComponent implements OnInit {
   loadCertificates(): void {
     this.isLoadingCertificates = true;
     console.log('Loading certificates...');
-    // --- Placeholder Service Call ---
-    // Replace with actual service call
-    // MOCK IMPLEMENTATION START
-    setTimeout(() => {
-        this.certificates = [
-            { _id: 'cert1', name: 'Mock Cert A', description: 'Description A', courseId: this.courses[0]?._id },
-            { _id: 'cert2', name: 'Mock Cert B', description: 'Description B', courseId: this.courses[1]?._id }
-        ];
-        console.log('Mock certificates loaded:', this.certificates);
-        this.isLoadingCertificates = false;
-    }, 1000);
-    // MOCK IMPLEMENTATION END
-    /*
+
     this.certificatesService.getCertificates().subscribe({
       next: (data) => {
         this.certificates = data;
@@ -90,7 +85,6 @@ export class CertificateComponent implements OnInit {
         // Add user feedback
       }
     });
-    */
   }
 
   onCourseChange(): void {
@@ -127,32 +121,16 @@ export class CertificateComponent implements OnInit {
       return;
     }
     this.isCreating = true;
-    const certificateTemplateData = {
+    const certificateData = {
       name: this.certificateName,
       description: this.certificateDescription,
-      courseId: this.selectedCourseId,
+      course: this.selectedCourseId, // Note: API expects 'course' not 'courseId'
     };
-    console.log('Creating certificate template with data:', certificateTemplateData);
+    console.log('Creating certificate with data:', certificateData);
 
-    // --- Placeholder Service Call ---
-    // Replace with actual service call
-    // MOCK IMPLEMENTATION START
-     setTimeout(() => {
-        console.log('Mock certificate template created successfully.');
-        // Add the new cert to the list (or reload)
-        const newCert: Certificate = { ...certificateTemplateData, _id: `newMock${Date.now()}` };
-        this.certificates.push(newCert);
-        // Reset form
-        this.certificateName = '';
-        this.certificateDescription = '';
-        // Keep course selected maybe? Reset if needed: this.selectedCourseId = null;
-        this.isCreating = false;
-     }, 1000);
-    // MOCK IMPLEMENTATION END
-    /*
-    this.certificatesService.createCertificate(certificateTemplateData).subscribe({
+    this.certificatesService.createCertificate(certificateData).subscribe({
       next: (newCertificate) => {
-        console.log('Certificate template created successfully:', newCertificate);
+        console.log('Certificate created successfully:', newCertificate);
         this.loadCertificates(); // Reload the list
         // Reset form
         this.certificateName = '';
@@ -162,12 +140,54 @@ export class CertificateComponent implements OnInit {
         // Add success feedback
       },
       error: (err) => {
-        console.error('Error creating certificate template:', err);
+        console.error('Error creating certificate:', err);
         this.isCreating = false;
         // Add error feedback
       }
     });
-    */
+  }
+
+  // --- Certificate Update ---
+  startEdit(certificate: CertificateType): void {
+    this.editingCertificate = certificate;
+    this.editName = certificate.name;
+    this.editDescription = certificate.description;
+  }
+
+  cancelEdit(): void {
+    this.editingCertificate = null;
+    this.editName = '';
+    this.editDescription = '';
+    this.isUpdating = null;
+  }
+
+  updateCertificate(): void {
+    if (!this.editingCertificate || !this.editName || !this.editDescription) {
+      console.error('Certificate, Name, and Description must be provided for update');
+      return;
+    }
+
+    this.isUpdating = this.editingCertificate._id;
+    const updateData = {
+      name: this.editName,
+      description: this.editDescription
+    };
+    console.log('Updating certificate with data:', updateData);
+
+    this.certificatesService.updateCertificate(this.editingCertificate._id, updateData).subscribe({
+      next: (updatedCertificate) => {
+        console.log('Certificate updated successfully:', updatedCertificate);
+        this.loadCertificates(); // Reload the list
+        this.cancelEdit(); // Reset edit state
+        this.isUpdating = null;
+        // Add success feedback
+      },
+      error: (err) => {
+        console.error('Error updating certificate:', err);
+        this.isUpdating = null;
+        // Add error feedback
+      }
+    });
   }
 
   // --- Certificate Granting ---
@@ -184,22 +204,6 @@ export class CertificateComponent implements OnInit {
     };
     console.log('Granting certificate with data:', grantData);
 
-    // --- Placeholder Service Call ---
-    // Replace with actual service call
-    // MOCK IMPLEMENTATION START
-    setTimeout(() => {
-        console.log('Mock certificate granted successfully.');
-        // Reset granting form selections
-        this.selectedCertificateIdForGranting = null;
-        this.selectedUserIdForGranting = null;
-        // Maybe reset course/users too?
-        // this.selectedCourseId = null; // This might be annoying if granting multiple from same course
-        // this.users = [];
-        this.isGranting = false;
-        // Add success feedback
-    }, 1000);
-    // MOCK IMPLEMENTATION END
-    /*
     this.certificatesService.grantCertificate(grantData.certificateId, grantData.userId).subscribe({
       next: (response) => { // Adjust based on actual response
         console.log('Certificate granted successfully:', response);
@@ -215,50 +219,33 @@ export class CertificateComponent implements OnInit {
         // Add error feedback
       }
     });
-    */
   }
 
-   // --- Certificate Deletion ---
+  // --- Certificate Deletion ---
   deleteCertificate(id: string): void {
-    if (!confirm('Are you sure you want to delete this certificate template? This might affect granted certificates.')) {
-        return;
+    if (!confirm('Are you sure you want to delete this certificate? This might affect granted certificates.')) {
+      return;
     }
     this.isDeleting = id;
-    console.log('Deleting certificate template ID:', id);
+    console.log('Deleting certificate ID:', id);
 
-    // --- Placeholder Service Call ---
-    // Replace with actual service call
-    // MOCK IMPLEMENTATION START
-    setTimeout(() => {
-        console.log('Mock certificate deleted successfully.');
-        this.certificates = this.certificates.filter(cert => cert._id !== id);
+    this.certificatesService.deleteCertificate(id).subscribe({
+      next: () => {
+        console.log('Certificate deleted successfully.');
+        this.loadCertificates(); // Reload list
         this.isDeleting = null;
-         // If the deleted certificate was selected for granting, reset selection
+        // If the deleted certificate was selected for granting, reset selection
         if (this.selectedCertificateIdForGranting === id) {
-            this.selectedCertificateIdForGranting = null;
+          this.selectedCertificateIdForGranting = null;
         }
         // Add success feedback
-    }, 1000);
-    // MOCK IMPLEMENTATION END
-    /*
-    this.certificatesService.deleteCertificate(id).subscribe({
-        next: () => {
-            console.log('Certificate template deleted successfully.');
-            this.loadCertificates(); // Reload list
-            this.isDeleting = null;
-             // If the deleted certificate was selected for granting, reset selection
-            if (this.selectedCertificateIdForGranting === id) {
-                this.selectedCertificateIdForGranting = null;
-            }
-            // Add success feedback
-        },
-        error: (err) => {
-            console.error('Error deleting certificate template:', err);
-            this.isDeleting = null;
-            // Add error feedback
-        }
+      },
+      error: (err) => {
+        console.error('Error deleting certificate:', err);
+        this.isDeleting = null;
+        // Add error feedback
+      }
     });
-    */
   }
 
   // Helper to get course name - requires course data to be available

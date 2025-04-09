@@ -6,7 +6,8 @@
 
 /* Heading styles */
 h2,
-h3 {
+h3,
+h4 {
   color: #333;
   margin-bottom: 15px;
 }
@@ -62,14 +63,7 @@ textarea:focus {
   box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
 }
 
-/* Add required attribute styling if needed (optional) */
-input:required:invalid,
-textarea:required:invalid,
-select:required:invalid {
-  /* Example: Add a subtle border color for invalid required fields before interaction */
-  /* border-left: 5px solid #ffdddd; */
-}
-
+/* Button styling */
 button {
   background-color: #007bff;
   color: white;
@@ -91,17 +85,46 @@ button:disabled {
   cursor: not-allowed;
 }
 
-/* Placeholder for certificate list */
-.certificate-list-section p {
-  color: #777;
-  font-style: italic;
+/* Button variations */
+.edit-button {
+  background-color: #28a745; /* Green for edit */
 }
 
-/* Message styling (e.g., for 'no users found') */
-.info-message {
-  color: #666;
-  margin-top: 10px;
-  font-style: italic;
+.edit-button:hover {
+  background-color: #218838;
+}
+
+.edit-button:disabled {
+  background-color: #a8d5b5;
+  cursor: not-allowed;
+}
+
+.delete-button {
+  background-color: #dc3545; /* Red for delete */
+}
+
+.delete-button:hover {
+  background-color: #c82333;
+}
+
+.delete-button:disabled {
+  background-color: #e07a83;
+  cursor: not-allowed;
+}
+
+/* Edit form styling */
+.edit-form {
+  background-color: #f0f8ff; /* Light blue background */
+  padding: 15px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  border: 1px solid #b8daff;
+}
+
+.edit-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 15px;
 }
 
 /* Table styling */
@@ -125,22 +148,15 @@ tbody tr:hover {
   background-color: #f1f1f1;
 }
 
-/* Button adjustments */
-.delete-button {
-  background-color: #dc3545; /* Red for delete */
-}
-
-.delete-button:hover {
-  background-color: #c82333;
-}
-
-.delete-button:disabled {
-  background-color: #e07a83;
-  cursor: not-allowed;
-}
-
 /* Loading/disabled states */
-/* Add specific styles if you want visual feedback for loading states */
 .loading-text {
-    color: #6c757d;
+  color: #6c757d;
+  font-style: italic;
+}
+
+/* Message styling (e.g., for 'no users found') */
+.info-message {
+  color: #666;
+  margin-top: 10px;
+  font-style: italic;
 }
