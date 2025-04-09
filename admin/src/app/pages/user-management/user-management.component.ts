@@ -37,10 +37,6 @@ export class UserManagementComponent implements OnInit {
     password: '',
   };
 
-  // pagination variables
-  currentPage: number = 1;
-  itemsPerPage: number = 10;
-
   constructor(
     private studentService: StudentService,
     private instructorService: InstructorService,
@@ -50,6 +46,7 @@ export class UserManagementComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
+    // When query params change, we update the page number
     this.route.queryParams.subscribe((params) => {
       this.currentPage = +params['page'] || 1;
       this.loadUsers();
@@ -238,11 +235,13 @@ export class UserManagementComponent implements OnInit {
     this.userToDelete = null;
   }
 
+  // pagination variables
+  currentPage: number = 1;
+  itemsPerPage: number = 10;
   // pagination for user page
-  get paginatedUsers(): User[] {
-    const startIndex = (this.currentPage - 1) * this.itemsPerPage;
-    const endIndex = startIndex + this.itemsPerPage;
-    return this.filteredUsers.slice(startIndex, endIndex);
+  changePage(page: number): void {
+    if (page < 1 || page > this.totalPages) return; // تأكد من أن الصفحة ضمن الحدود
+    this.currentPage = page;
   }
 
   get totalPages(): number {
