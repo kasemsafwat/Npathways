@@ -166,7 +166,7 @@ export class UserManagementComponent implements OnInit {
     user.showActions = !user.showActions;
   }
 
-  createAdmin(): void {
+  createAdmin(form: any): void {
     this.authService.createAdmin(this.newAdmin).subscribe({
       next: () => {
         this.showCreateAdminModal = false;

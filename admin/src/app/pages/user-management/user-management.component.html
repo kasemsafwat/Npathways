@@ -201,7 +201,7 @@
       </button>
     </div>
     <div class="modal-body">
-      <form (ngSubmit)="createAdmin()">
+      <form #adminForm="ngForm" (ngSubmit)="createAdmin(adminForm)" novalidate>
         <div class="form-group">
           <label for="firstName">First Name</label>
           <input
@@ -210,8 +210,14 @@
             [(ngModel)]="newAdmin.firstName"
             name="firstName"
             required
+            #firstName="ngModel"
+            class="form-control"
           />
+          <div *ngIf="firstName.touched && firstName.invalid" class="error-message">
+            <div *ngIf="firstName.errors?.['required']">First Name is required.</div>
+          </div>
         </div>
+
         <div class="form-group">
           <label for="lastName">Last Name</label>
           <input
@@ -220,8 +226,14 @@
             [(ngModel)]="newAdmin.lastName"
             name="lastName"
             required
+            #lastName="ngModel"
+            class="form-control"
           />
+          <div *ngIf="lastName.touched && lastName.invalid" class="error-message">
+            <div *ngIf="lastName.errors?.['required']">Last Name is required.</div>
+          </div>
         </div>
+
         <div class="form-group">
           <label for="email">Email</label>
           <input
@@ -230,8 +242,16 @@
             [(ngModel)]="newAdmin.email"
             name="email"
             required
+            email
+            #email="ngModel"
+            class="form-control"
           />
+          <div *ngIf="email.touched && email.invalid" class="error-message">
+            <div *ngIf="email.errors?.['required']">Email is required.</div>
+            <div *ngIf="email.errors?.['email']">Please enter a valid email address.</div>
+          </div>
         </div>
+
         <div class="form-group">
           <label for="password">Password</label>
           <input
@@ -240,8 +260,18 @@
             [(ngModel)]="newAdmin.password"
             name="password"
             required
+            minlength="6"
+            #password="ngModel"
+            class="form-control"
           />
+          <div *ngIf="password.touched && password.invalid" class="error-message">
+            <div *ngIf="password.errors?.['required']">Password is required.</div>
+            <div *ngIf="password.errors?.['minlength']">
+              Password must be at least 6 characters long.
+            </div>
+          </div>
         </div>
+
         <div class="modal-footer">
           <button
             type="button"
@@ -250,12 +280,16 @@
           >
             Cancel
           </button>
-          <button type="submit" class="create-btn">Create Admin</button>
+          <button type="submit" [disabled]="adminForm.invalid" class="create-btn">
+            Create Admin
+          </button>
         </div>
       </form>
     </div>
   </div>
 </div>
+
+
 
 <!-- Delete Confirmation Modal -->
 <div
