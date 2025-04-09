@@ -10,6 +10,7 @@ import adminRouter from "./admin.route.js";
 import pathwayRouter from "./pathway.route.js";
 import enrollmentRouter from "./enrollment.route.js";
 import instructorRouter from "./instructor.route.js";
+import paymentRouter from "./payment.route.js";
 import LoginContoller from "../controllers/login.controller.js";
 
 // The prefix is /api
@@ -26,6 +27,7 @@ router.use("/admin", adminRouter);
 router.use("/pathway", pathwayRouter);
 router.use("/enrollment", enrollmentRouter);
 router.use("/instructor", instructorRouter);
+router.use("/payment", paymentRouter);
 router.post("/login", LoginContoller.universalLogin);
 
 export default router;
