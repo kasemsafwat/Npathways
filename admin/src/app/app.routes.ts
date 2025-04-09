@@ -10,14 +10,43 @@ import { ExamDetailsComponent } from './pages/exam-details/exam-details.componen
 import { authGuard } from './guards/auth.guard';
 
 export const routes: Routes = [
-  { path: '', redirectTo: 'admin-dashboard', pathMatch: 'full' },
+  { path: '', redirectTo: 'user-management', pathMatch: 'full' },
+
   { path: 'admin-login', component: AdminLoginComponent },
-  { path: 'admin-dashboard', component: AdminDashboardComponent, canActivate: [authGuard] },
-  { path: 'user-management', component: UserManagementComponent, canActivate: [authGuard] },
-  { path: 'course-management', component: CourseManagementComponent, canActivate: [authGuard] },
-  { path: 'enrollment-management', component: EnrollmentManagementComponent, canActivate: [authGuard] },
-  { path: 'certificates', component: CertificateComponent, canActivate: [authGuard] },
-  { path: 'exam-management', component: ExamManagementComponent, canActivate: [authGuard] },
-  { path: 'exam-details/:id', component: ExamDetailsComponent, canActivate: [authGuard] },
+  {
+    path: 'admin-dashboard',
+    component: AdminDashboardComponent,
+    canActivate: [authGuard],
+  },
+  {
+    path: 'user-management',
+    component: UserManagementComponent,
+    canActivate: [authGuard],
+  },
+  {
+    path: 'course-management',
+    component: CourseManagementComponent,
+    canActivate: [authGuard],
+  },
+  {
+    path: 'enrollment-management',
+    component: EnrollmentManagementComponent,
+    canActivate: [authGuard],
+  },
+  {
+    path: 'certificates',
+    component: CertificateComponent,
+    canActivate: [authGuard],
+  },
+  {
+    path: 'exam-management',
+    component: ExamManagementComponent,
+    canActivate: [authGuard],
+  },
+  {
+    path: 'exam-details/:id',
+    component: ExamDetailsComponent,
+    canActivate: [authGuard],
+  },
   // { path: '**', component:NotFoundComponent },
 ];

@@ -1,19 +1,26 @@
 <div class="login-container">
   <div class="logo">
-    <img src="pathways_chiropractic-removebg-preview.png" alt="EduAdmin Logo"  style="width: 100px; height: 100px; margin-bottom: 10px;"/> <!-- Replace with your logo -->
+    <img
+      src="pathways_chiropractic-removebg-preview.png"
+      alt="EduAdmin Logo"
+      style="width: 100px; height: 100px; margin-bottom: 10px"
+    />
+    <!-- Replace with your logo -->
   </div>
-<div class="text-center ">
+  <div class="text-center">
     <h1 class="app-name">Pathways</h1>
-  <p class="login-description">Sign in to your account to access the admin dashboard</p>
-</div>
-
-<!-- User Info Display (only shown when logged in) -->
-<div *ngIf="userName && userRole" class="user-info">
-  <div class="welcome-message">
-    <h3>Welcome, {{ userName }}!</h3>
-    <p>Role: {{ userRole }}</p>
+    <p class="login-description">
+      Sign in to your account to access the admin dashboard
+    </p>
   </div>
-</div>
+
+  <!-- User Info Display (only shown when logged in) -->
+  <div *ngIf="userName && userRole" class="user-info">
+    <div class="welcome-message">
+      <h3>Welcome, {{ userName }}!</h3>
+      <p>Role: {{ userRole }}</p>
+    </div>
+  </div>
 
   <div class="login-card p-5">
     <h1>Login</h1>
@@ -30,8 +37,12 @@
           [class.is-invalid]="email?.invalid && email?.touched"
         />
         <div class="invalid-feedback" *ngIf="email?.invalid && email?.touched">
-          <div *ngIf="email?.errors?.['required']">Email is required</div>
-          <div *ngIf="email?.errors?.['email']">Please enter a valid email</div>
+          <div *ngIf="email?.errors">
+            <div *ngIf="email?.errors?.['required']">Email is required</div>
+            <div *ngIf="email?.errors?.['email']">
+              Please enter a valid email
+            </div>
+          </div>
         </div>
       </div>
 
@@ -45,12 +56,31 @@
             placeholder="Enter your password"
             [class.is-invalid]="password?.invalid && password?.touched"
           />
-          <button type="button" class="toggle-password" (click)="togglePasswordVisibility()">
-            <i class="fas" [class]="showPassword ? 'fa-eye-slash' : 'fa-eye'"></i>
+          <button
+            type="button"
+            class="toggle-password"
+            (click)="togglePasswordVisibility()"
+          >
+            <i
+              class="fas"
+              [class]="showPassword ? 'fa-eye-slash' : 'fa-eye'"
+            ></i>
           </button>
         </div>
-        <div class="invalid-feedback" *ngIf="password?.invalid && password?.touched">
-          <div *ngIf="password?.errors?.['required']">Password is required</div>
+        <div
+          class="invalid-feedback"
+          *ngIf="password?.invalid && password?.touched"
+        >
+          <div *ngIf="password?.errors">
+            <div *ngIf="password?.errors?.['required']">
+              Password is required
+            </div>
+            <div *ngIf="password?.errors?.['pattern']">
+              Password must contain at least 8 characters, including an
+              uppercase letter, a lowercase letter, a number, and a special
+              character.
+            </div>
+          </div>
         </div>
       </div>
 
@@ -60,6 +90,9 @@
 
       <a href="#" class="forgot-password">Forgot your password?</a>
     </form>
+    <div *ngIf="errorMessage" class="error-message text-danger mt-3">
+      {{ errorMessage }}
+    </div>
   </div>
 
   <a href="#" class="no-account">Don't have an account?</a>

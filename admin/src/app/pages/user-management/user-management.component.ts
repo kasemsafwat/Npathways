@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { StudentService } from '../../services/student.service';
 import { InstructorService } from '../../services/instructor.service';
 import { AuthService } from '../../services/auth.service';
+import { Router, ActivatedRoute } from '@angular/router';
 
 interface User {
   id: string;
@@ -36,14 +37,23 @@ export class UserManagementComponent implements OnInit {
     password: '',
   };
 
+  // pagination variables
+  currentPage: number = 1;
+  itemsPerPage: number = 10;
+
   constructor(
     private studentService: StudentService,
     private instructorService: InstructorService,
-    private authService: AuthService
+    private authService: AuthService,
+    private router: Router,
+    private route: ActivatedRoute
   ) {}
 
   ngOnInit(): void {
-    this.loadUsers();
+    this.route.queryParams.subscribe((params) => {
+      this.currentPage = +params['page'] || 1;
+      this.loadUsers();
+    });
   }
 
   loadUsers(): void {
@@ -197,22 +207,54 @@ export class UserManagementComponent implements OnInit {
     user.showActions = false;
   }
 
-  deleteUser(user: User): void {
-    if (confirm('Are you sure you want to delete this user?')) {
-      if (user.role === 'Student') {
-        this.studentService.deleteStudent(user.id).subscribe(() => {
-          this.users = this.users.filter((u) => u.id !== user.id);
-        });
-      } else if (user.role === 'Instructor') {
-        this.instructorService.deleteInstructor(user.id).subscribe(() => {
-          this.users = this.users.filter((u) => u.id !== user.id);
-        });
-      } else if (user.role === 'Admin') {
-        this.authService.deleteAdmin(user.id).subscribe(() => {
-          this.users = this.users.filter((u) => u.id !== user.id);
-        });
-      }
+  userToDelete: User | null = null;
+  showDeleteConfirmationModal: boolean = false;
+
+  confirmDeleteUser(user: User): void {
+    this.userToDelete = user;
+    this.showDeleteConfirmationModal = true;
+  }
+
+  deleteConfirmedUser(): void {
+    if (!this.userToDelete) return;
+
+    const user = this.userToDelete;
+
+    if (user.role === 'Student') {
+      this.studentService.deleteStudent(user.id).subscribe(() => {
+        this.users = this.users.filter((u) => u.id !== user.id);
+      });
+    } else if (user.role === 'Instructor') {
+      this.instructorService.deleteInstructor(user.id).subscribe(() => {
+        this.users = this.users.filter((u) => u.id !== user.id);
+      });
+    } else if (user.role === 'Admin') {
+      this.authService.deleteAdmin(user.id).subscribe(() => {
+        this.users = this.users.filter((u) => u.id !== user.id);
+      });
     }
-    user.showActions = false;
+
+    this.showDeleteConfirmationModal = false;
+    this.userToDelete = null;
+  }
+
+  // pagination for user page
+  get paginatedUsers(): User[] {
+    const startIndex = (this.currentPage - 1) * this.itemsPerPage;
+    const endIndex = startIndex + this.itemsPerPage;
+    return this.filteredUsers.slice(startIndex, endIndex);
+  }
+
+  get totalPages(): number {
+    return Math.ceil(this.filteredUsers.length / this.itemsPerPage);
+  }
+
+  // Update the page number in the URL
+  goToPage(page: number): void {
+    if (page < 1 || page > this.totalPages) return; // Ensure valid page number
+    this.router.navigate([], {
+      queryParams: { page },
+      queryParamsHandling: 'merge', // Merge with existing query params
+    });
   }
 }
