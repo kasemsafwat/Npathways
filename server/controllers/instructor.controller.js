@@ -424,5 +424,16 @@ const instructorContoller = {
       });
     }
   },
+  getAllInstructors: async (req, res) => {
+    try {
+      const instructors = await Instructor.find().select("-password");
+      res.status(200).send(instructors);
+    } catch (error) {
+      console.error("Get All Instructors Error:", error);
+      return res.status(500).send({
+        message: error.message,
+      });
+    }
+  },
 };
 export default instructorContoller;

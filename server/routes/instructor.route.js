@@ -28,6 +28,11 @@ router.get("/verify", authenticationInstructor, instructorContoller.verifyUser);
 router.delete("/logout", authenticationInstructor, instructorContoller.logout);
 
 // Function:
+router.get(
+  "/getAllInstructors",
+  authenticationInstructor,
+  instructorContoller.getAllInstructors
+);
 router.get("/", authenticationInstructor, instructorContoller.profile);
 router.patch(
   "/update",
