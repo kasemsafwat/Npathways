@@ -139,7 +139,7 @@ const authAdminController = {
   },
 
   // Dashboard Of Instructor
-  // ChangeImage Of Instructor :
+  //! ChangeImage Of ADMIN :
   changInstructorImage: async (req, res) => {
     try {
       const adminId = req.admin._id;

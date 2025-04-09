@@ -1,4 +1,5 @@
 import Admin from "../models/admin.model.js";
+import Instructor from "../models/instructor.model.js";
 import User from "../models/user.model.js";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
@@ -87,9 +88,7 @@ const AdminControlller = {
 
   getAllInstructors: async (req, res) => {
     try {
-      const instructors = await Admin.find({ role: "instructor" }).select(
-        "-password -tokens"
-      );
+      const instructors = await Instructor.find().select("-password -tokens");
       res.status(200).send(instructors);
     } catch (error) {
       res
@@ -110,9 +109,8 @@ const AdminControlller = {
   getOneInstructor: async (req, res) => {
     try {
       const { id } = req.params;
-      const instructor = await Admin.findOne({
+      const instructor = await Instructor.findOne({
         _id: id,
-        role: "instructor",
       }).select("-password -tokens");
       if (!instructor) {
         return res.status(404).send({ message: "Instructor not found" });
@@ -157,14 +155,19 @@ const AdminControlller = {
   createInstructor: async (req, res) => {
     try {
       const data = req.body;
-      const duplicatedEmail = await Admin.findOne({ email: data.email });
-      if (duplicatedEmail) {
+      const isDuplicateEmail = await Promise.all([
+        User.findOne({ email: data.email }),
+        Instructor.findOne({ email: data.email }),
+        Admin.findOne({ email: data.email }),
+      ]).then((results) => results.some((result) => result));
+
+      if (isDuplicateEmail) {
         return res.status(403).send({
           message:
             "This email is already registered. Please use a different email.",
         });
       }
-      const instructor = new Admin({
+      const instructor = new Instructor({
         firstName: data.firstName,
         lastName: data.lastName,
         email: data.email,
