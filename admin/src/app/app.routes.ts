@@ -8,6 +8,7 @@ import { AdminLoginComponent } from './pages/admin-login/admin-login.component';
 import { ExamManagementComponent } from './pages/exam-management/exam-management.component';
 import { ExamDetailsComponent } from './pages/exam-details/exam-details.component';
 import { authGuard } from './guards/auth.guard';
+import { PathwaysComponent } from './pages/pathways/pathways.component';
 
 export const routes: Routes = [
   { path: '', redirectTo: 'admin-dashboard', pathMatch: 'full' },
@@ -17,6 +18,7 @@ export const routes: Routes = [
   { path: 'course-management', component: CourseManagementComponent, canActivate: [authGuard] },
   { path: 'enrollment-management', component: EnrollmentManagementComponent, canActivate: [authGuard] },
   { path: 'certificates', component: CertificateComponent, canActivate: [authGuard] },
+  { path: 'pathways', component: PathwaysComponent, canActivate: [authGuard] },
   { path: 'exam-management', component: ExamManagementComponent, canActivate: [authGuard] },
   { path: 'exam-details/:id', component: ExamDetailsComponent, canActivate: [authGuard] },
   // { path: '**', component:NotFoundComponent },

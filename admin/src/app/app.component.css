@@ -1,4 +1,4 @@
-.navbar {
+.offcanvas.offcanvas-start.show {
   position: fixed;
   left: 0;
   top: 0;
@@ -8,35 +8,45 @@
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   display: flex;
   flex-direction: column;
-  padding: 1rem 0;
-  overflow-y: hidden;
+  visibility: visible;
+  transform: none; /* Prevents sliding animation */
+  border-right: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Header Styles */
+.offcanvas-header {
+  padding: 0 1.5rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .navbar-brand {
   color: #ffffff;
   font-size: 1.5rem;
   font-weight: bold;
-  padding: 1rem 1.5rem;
-  text-decoration: none;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-  margin-bottom: 1rem;
-  
+  padding: 1rem 0;
+  display: block;
 }
 
-.navbar ul {
+/* Body Styles */
+.offcanvas-body {
+  padding: 0;
+  flex: 1;
   display: flex;
   flex-direction: column;
+}
+
+.offcanvas-body ul {
   list-style: none;
   margin: 0;
   padding: 0;
   flex: 1;
 }
 
-.navbar li {
+.offcanvas-body li {
   margin: 0;
 }
 
-.navbar a {
+.offcanvas-body a {
   color: #e0e0e0;
   text-decoration: none;
   padding: 1rem 1.5rem;
@@ -45,17 +55,18 @@
   font-weight: 500;
 }
 
-.navbar a:hover {
+.offcanvas-body a:hover {
   color: #ffffff;
   background-color: rgba(255, 255, 255, 0.1);
 }
 
-.navbar a.active {
+.offcanvas-body a.active {
   color: #ffffff;
   background-color: rgba(255, 255, 255, 0.1);
   border-left: 3px solid #518be3;
 }
 
+/* Footer Styles */
 .navbar-footer {
   padding: 1rem 1.5rem;
   border-top: 1px solid rgba(255, 255, 255, 0.1);
@@ -112,11 +123,8 @@
   background-color: rgba(255, 255, 255, 0.1);
 }
 
-.logout-btn i {
-  font-size: 1rem;
-}
-
+/* Main Content */
 .main-content {
-  margin-left: 300px;
+  margin-left: 290px;
   padding: 20px;
 }
