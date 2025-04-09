@@ -73,7 +73,7 @@
         <input type="text" placeholder="Search users..." [(ngModel)]="searchQuery">
       </div>
       </div>
-          <!-- 
+          <!--
       <button class="filter-btn">
         <i class="bi bi-funnel"></i>
         Filters
@@ -96,7 +96,7 @@
           <td class="user-cell">
             <div class="avatar" *ngIf="!user.avatar">
               <div class="letter-avatar">
-                {{ user.name?.charAt(0) | uppercase }}
+                {{ user.name.charAt(0) | uppercase }}
               </div>
             </div>
             <div class="avatar" *ngIf="user.avatar">

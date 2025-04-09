@@ -20,13 +20,13 @@ export class InstructorService {
   constructor(private http: HttpClient) {}
 
   getAllInstructors(): Observable<Instructor[]> {
-    return this.http.get<Instructor[]>(`${this.BASE_URL}/AllInstructor`);
+    return this.http.get<Instructor[]>(`http://localhost:5024/api/admin/AllInstructor`);
   }
 
   getInstructorById(id: string): Observable<Instructor> {
-    return this.http.get<Instructor>(`${this.BASE_URL}/instructors/${id}`);
+    return this.http.get<Instructor>(`ttp://localhost:5024/api/admin/instructors/${id}`);
   }
-  
+
 
   createInstructor(instructor: Instructor): Observable<any> {
     return this.http.post(`${this.BASE_URL}/createNewInstructor`, instructor);
