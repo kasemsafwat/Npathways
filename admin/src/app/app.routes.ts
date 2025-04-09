@@ -14,7 +14,6 @@ export const routes: Routes = [
   { path: '', redirectTo: 'user-management', pathMatch: 'full' },
 
   { path: 'admin-login', component: AdminLoginComponent },
-<<<<<<< HEAD
   {
     path: 'admin-dashboard',
     component: AdminDashboardComponent,
@@ -41,6 +40,11 @@ export const routes: Routes = [
     canActivate: [authGuard],
   },
   {
+    path: 'pathways',
+    component: PathwaysComponent,
+    canActivate: [authGuard],
+  },
+  {
     path: 'exam-management',
     component: ExamManagementComponent,
     canActivate: [authGuard],
@@ -50,15 +54,4 @@ export const routes: Routes = [
     component: ExamDetailsComponent,
     canActivate: [authGuard],
   },
-=======
-  { path: 'admin-dashboard', component: AdminDashboardComponent, canActivate: [authGuard] },
-  { path: 'user-management', component: UserManagementComponent, canActivate: [authGuard] },
-  { path: 'course-management', component: CourseManagementComponent, canActivate: [authGuard] },
-  { path: 'enrollment-management', component: EnrollmentManagementComponent, canActivate: [authGuard] },
-  { path: 'certificates', component: CertificateComponent, canActivate: [authGuard] },
-  { path: 'pathways', component: PathwaysComponent, canActivate: [authGuard] },
-  { path: 'exam-management', component: ExamManagementComponent, canActivate: [authGuard] },
-  { path: 'exam-details/:id', component: ExamDetailsComponent, canActivate: [authGuard] },
->>>>>>> 01ae0408a0017210490887214b3bf1ef4ca1800c
-  // { path: '**', component:NotFoundComponent },
 ];
