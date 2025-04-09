@@ -1,4 +1,4 @@
-.offcanvas.offcanvas-start.show {
+.offcanvas.offcanvas-start {
   position: fixed;
   left: 0;
   top: 0;
@@ -8,9 +8,15 @@
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   display: flex;
   flex-direction: column;
-  visibility: visible;
-  transform: none; /* Prevents sliding animation */
+  visibility: visible !important; /* Force visibility */
+  transform: none !important; /* Prevent sliding */
   border-right: 1px solid rgba(255, 255, 255, 0.1);
+  z-index: 1000; /* Ensure it stays above other content */
+}
+
+/* Remove backdrop entirely */
+.offcanvas-backdrop {
+  display: none !important;
 }
 
 /* Header Styles */

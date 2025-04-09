@@ -40,6 +40,11 @@ export const routes: Routes = [
     canActivate: [authGuard],
   },
   {
+    path: 'pathways',
+    component: PathwaysComponent,
+    canActivate: [authGuard],
+  },
+  {
     path: 'exam-management',
     component: ExamManagementComponent,
     canActivate: [authGuard],
@@ -50,5 +55,7 @@ export const routes: Routes = [
     canActivate: [authGuard],
   },
 
+
   // { path: '**', component:NotFoundComponent },
+
 ];
