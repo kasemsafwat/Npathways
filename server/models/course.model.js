@@ -40,15 +40,11 @@ const CourseSchema = new Schema(
       type: Number,
       default: 0,
     },
-
-    // ////////////////////////////
     status: {
       type: String,
       enum: ["published", "unpublished"],
       default: "unpublished",
     },
-    students: [{ type: Schema.Types.ObjectId, ref: "User" }],
-    // /////////////////////////////
   },
   { timestamps: true }
 );

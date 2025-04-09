@@ -1,6 +1,7 @@
 import CertificateModel from "../models/certificate.model.js";
 import UserModel from "../models/user.model.js";
 import CourseModel from "../models/course.model.js";
+import PathwayModel from "../models/pathway.model.js";
 
 class CertificateController {
   static async getAllCertificates(req, res) {
@@ -36,17 +37,52 @@ class CertificateController {
   // TODO: either a pathway or course is added
   static async createCertificate(req, res) {
     try {
-      const { course: courseId } = req.body;
+      const { course: courseId, pathway: pathwayId } = req.body;
 
-      const course = await CourseModel.findById(courseId);
+      if ((!courseId && !pathwayId) || (courseId && pathwayId)) {
+        return res.status(400).json({
+          message: "Either course or pathway is required",
+        });
+      }
 
-      if (!course) return res.status(404).json({ message: "Course not found" });
+      if (courseId) {
+        if (!courseId.match(/^[0-9a-fA-F]{24}$/)) {
+          return res.status(400).json({ message: "Invalid course ID" });
+        }
 
-      const certificate = await CertificateModel.create(req.body);
-      res.status(201).json(certificate);
+        const course = await CourseModel.findById(courseId);
+
+        if (!course) {
+          return res.status(404).json({ message: "Course not found" });
+        }
+
+        const certificate = await CertificateModel.create(req.body);
+
+        return res.status(201).json(certificate);
+      }
+
+      if (pathwayId) {
+        if (!pathwayId.match(/^[0-9a-fA-F]{24}$/)) {
+          return res.status(400).json({ message: "Invalid pathway ID" });
+        }
+
+        const pathway = await PathwayModel.findById(pathwayId);
+
+        if (!pathway) {
+          return res.status(404).json({ message: "Pathway not found" });
+        }
+
+        const certificate = await CertificateModel.create(req.body);
+
+        return res.status(201).json(certificate);
+      } else {
+        return res.status(400).json({
+          message: "Invalid request",
+        });
+      }
     } catch (error) {
       console.error(`Error in certificate controller: ${error.message}`);
-      res.status(500).json({ message: "Internal server error" });
+      return res.status(500).json({ message: "Internal server error" });
     }
   }
 

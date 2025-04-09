@@ -120,6 +120,7 @@ const createCourseSchema = Joi.object({
   image: Joi.string(),
   price: Joi.number().required(),
   discount: Joi.number().default(0),
+  status: Joi.string().valid("published", "unpublished").default("unpublished"),
 });
 
 const updateCourseSchema = Joi.object({
@@ -147,6 +148,7 @@ const updateCourseSchema = Joi.object({
   image: Joi.string(),
   price: Joi.number(),
   discount: Joi.number(),
+  status: Joi.string().valid("published", "unpublished").default("unpublished"),
 });
 
 const sendMessageSchema = Joi.object({

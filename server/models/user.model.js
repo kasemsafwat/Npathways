@@ -45,20 +45,6 @@ const userSchema = new Schema(
         ref: "Course",
       },
     ],
-    //  track ==> array
-    // track: [
-    //   {
-    //     ref: "Course"
-    //  }],
-    //  track ==> array
-    // todo  just track array
-    // track: {
-    //   type: String,
-    //   trim: true,
-    //   enum: ['Web Development', 'Data Science', 'Mobile Development'],
-    //   default: 'Web Development',
-    // },
-    // ],
     level: {
       type: Number,
       default: 1,
@@ -94,9 +80,9 @@ const userSchema = new Schema(
         ref: "Pathway",
       },
     ],
-      changePasswordAt: Date,
-      passwordResetToken: String,
-      passwordResetExpires: Date,
+    changePasswordAt: Date,
+    passwordResetToken: String,
+    passwordResetExpires: Date,
   },
 
   { timestamps: true }

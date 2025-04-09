@@ -28,11 +28,17 @@ app.get("/", (req, res) => {
   res.send("Server is working");
 });
 
-if (!process.env || !process.env.SECRET_KEY || !process.env.MONGO_URI) {
+if (
+  !process.env ||
+  !process.env.SECRET_KEY ||
+  !process.env.MONGO_URI ||
+  !process.env.JWT_EXPIRES_IN ||
+  !process.env.HOST ||
+  !process.env.PORT
+)
   console.error(
     "Warning: Missing environment variables, will use default values"
   );
-}
 
 const port = process.env.PORT || 5024;
 const host = process.env.HOST || "http://localhost";
