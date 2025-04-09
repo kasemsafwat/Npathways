@@ -10,7 +10,7 @@ const PaymentSchema = new Schema(
     },
     course: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "CourseModel",
+      ref: "Course",
       required: true,
     },
     paymentMethod: {
