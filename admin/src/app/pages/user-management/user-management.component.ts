@@ -46,10 +46,15 @@ export class UserManagementComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
+    // Load users data
+    this.loadUsers();
+    
     // When query params change, we update the page number
     this.route.queryParams.subscribe((params) => {
-      this.currentPage = +params['page'] || 1;
-      this.loadUsers();
+      const page = +params['page'] || 1;
+      if (page !== this.currentPage) {
+        this.currentPage = page;
+      }
     });
   }
 
@@ -57,7 +62,7 @@ export class UserManagementComponent implements OnInit {
     // Load students
     this.studentService.getAllStudents().subscribe((students) => {
       const studentUsers: User[] = students.map((student) => ({
-        id: student._id, // أو student.id لو متأكدة إنه موجود كده
+        id: student._id,
         name: `${student.firstName} ${student.lastName}`,
         email: student.email,
         role: 'Student',
@@ -82,26 +87,25 @@ export class UserManagementComponent implements OnInit {
 
         // Load admins
         this.authService.getAllAdmins().subscribe((admins) => {
-          const adminUsers: User[] = admins.map(
-            (admin: {
-              _id: string;
-              firstName: string;
-              lastName: string;
-              email: string;
-            }) => ({
-              id: admin._id || '',
-              name: `${admin.firstName} ${admin.lastName}`,
-              email: admin.email,
-              role: 'Admin',
-              status: 'Active',
-              joinDate: new Date(),
-              courses: 0,
-              showActions: false,
-            })
-          );
+          const adminUsers: User[] = admins.map((admin: { _id: string; firstName: string; lastName: string; email: string }) => ({
+            id: admin._id || '',
+            name: `${admin.firstName} ${admin.lastName}`,
+            email: admin.email,
+            role: 'Admin',
+            status: 'Active',
+            joinDate: new Date(),
+            courses: 0,
+            showActions: false,
+          }));
 
           // Combine all lists
           this.users = [...studentUsers, ...instructorUsers, ...adminUsers];
+          
+          // Update pagination if needed
+          if (this.currentPage > this.totalPages) {
+            this.currentPage = this.totalPages;
+            this.updateUrlWithoutReload(this.currentPage);
+          }
         });
       });
     });
@@ -238,22 +242,28 @@ export class UserManagementComponent implements OnInit {
   // pagination variables
   currentPage: number = 1;
   itemsPerPage: number = 10;
+
   // pagination for user page
-  changePage(page: number): void {
-    if (page < 1 || page > this.totalPages) return; // تأكد من أن الصفحة ضمن الحدود
+  goToPage(page: number): void {
+    if (page < 1 || page > this.totalPages) return;
     this.currentPage = page;
+    this.updateUrlWithoutReload(page);
   }
 
   get totalPages(): number {
     return Math.ceil(this.filteredUsers.length / this.itemsPerPage);
   }
 
-  // Update the page number in the URL
-  goToPage(page: number): void {
-    if (page < 1 || page > this.totalPages) return; // Ensure valid page number
-    this.router.navigate([], {
-      queryParams: { page },
-      queryParamsHandling: 'merge', // Merge with existing query params
-    });
+  get paginatedUsers(): User[] {
+    const startIndex = (this.currentPage - 1) * this.itemsPerPage;
+    const endIndex = startIndex + this.itemsPerPage;
+    return this.filteredUsers.slice(startIndex, endIndex);
+  }
+
+  // Update the page number in the URL without reloading
+  private updateUrlWithoutReload(page: number): void {
+    const url = new URL(window.location.href);
+    url.searchParams.set('page', page.toString());
+    window.history.pushState({}, '', url.toString());
   }
 }

@@ -166,7 +166,7 @@
     <nav *ngIf="totalPages > 1" aria-label="Page navigation" class="mt-3">
       <ul class="pagination justify-content-center">
         <li class="page-item" [class.disabled]="currentPage === 1">
-          <button class="page-link" (click)="changePage(currentPage - 1)">
+          <button class="page-link" (click)="goToPage(currentPage - 1)">
             Previous
           </button>
         </li>
@@ -176,13 +176,13 @@
           *ngFor="let page of [].constructor(totalPages); let i = index"
           [class.active]="currentPage === i + 1"
         >
-          <button class="page-link" (click)="changePage(i + 1)">
+          <button class="page-link" (click)="goToPage(i + 1)">
             {{ i + 1 }}
           </button>
         </li>
 
         <li class="page-item" [class.disabled]="currentPage === totalPages">
-          <button class="page-link" (click)="changePage(currentPage + 1)">
+          <button class="page-link" (click)="goToPage(currentPage + 1)">
             Next
           </button>
         </li>
