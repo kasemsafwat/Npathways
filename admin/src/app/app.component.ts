@@ -16,10 +16,10 @@ export class AppComponent {
   userRole = '';
 
   constructor(private authService: AuthService, private router: Router) {
-    
+
     this.updateAuthState();
 
-    
+
     this.authService.isAuthenticated$.subscribe(() => {
       this.updateAuthState();
     });
@@ -49,6 +49,6 @@ export class AppComponent {
 
   logout() {
     this.authService.logout();
-    this.router.navigate(['/admin-login']); 
+    this.router.navigate(['/admin-login']);
   }
 }

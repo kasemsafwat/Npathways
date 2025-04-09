@@ -1,39 +1,65 @@
-<nav class="navbar">
-  <div class="navbar-brand">Npathways</div>
-  <ul>
-    <li>
-      <a routerLink="/admin-dashboard" routerLinkActive="active"><i class="fa-solid fa-chart-column"></i> Dashboard</a>
-    </li>
-    <li>
-      <a routerLink="/user-management" routerLinkActive="active"><i class="fa-solid fa-user-group"></i> User Management</a>
-    </li>
-    <li>
-      <a routerLink="/course-management" routerLinkActive="active"><i class="fa-solid fa-book-open"></i> Course Management</a>
-    </li>
-    <li>
-      <a routerLink="/exam-management" routerLinkActive="active"><i class="fa-solid fa-sheet-plastic"></i> Exam Management</a>
-    </li>
-    <li>
-      <a routerLink="/enrollment-management" routerLinkActive="active"><i class="fa-solid fa-graduation-cap"></i> Enrollment Management</a>
-    </li>
-    <li>
-      <a routerLink="/certificates" routerLinkActive="active"><i class="fa-solid fa-certificate"></i> Certificates</a>
-    </li>
-  </ul>
-  <div class="navbar-footer">
-    <div class="user-info" *ngIf="isLoggedIn">
-      <img src="assets/images/avuser.jpg" alt="User" class="user-avatar">
-      <div class="user-details">
-        <span class="user-name">{{ userName }}</span>
-        <small class="user-role">{{ userRole }}</small>
-      </div>
-
-    </div>
-    <button class="logout-btn" (click)="isLoggedIn ? logout() : null" [routerLink]="isLoggedIn ? null : '/admin-login'">
-      <i class="fas fa-sign-out-alt"></i> {{ isLoggedIn ? 'Logout' : 'Login' }}
-    </button>
+<!-- Fixed Sidebar using offcanvas structure -->
+<div class="offcanvas offcanvas-start show" id="demo" tabindex="-1" aria-labelledby="offcanvasLabel">
+  <div class="offcanvas-header">
+    <div class="navbar-brand">Npathways</div>
   </div>
-</nav>
+
+  <div class="offcanvas-body">
+    <ul>
+      <li>
+        <a routerLink="/admin-dashboard" routerLinkActive="active">
+          <i class="fa-solid fa-chart-column"></i> Dashboard
+        </a>
+      </li>
+      <li>
+        <a routerLink="/user-management" routerLinkActive="active">
+          <i class="fa-solid fa-user-group"></i> User Management
+        </a>
+      </li>
+      <li>
+        <a routerLink="/course-management" routerLinkActive="active">
+          <i class="fa-solid fa-book-open"></i> Course Management
+        </a>
+      </li>
+      <li>
+        <a routerLink="/exam-management" routerLinkActive="active">
+          <i class="fa-solid fa-sheet-plastic"></i> Exam Management
+        </a>
+      </li>
+      <li>
+        <a routerLink="/enrollment-management" routerLinkActive="active">
+          <i class="fa-solid fa-graduation-cap"></i> Enrollment Management
+        </a>
+      </li>
+      <li>
+        <a routerLink="/certificates" routerLinkActive="active">
+          <i class="fa-solid fa-certificate"></i> Certificates
+        </a>
+      </li>
+      <li>
+        <a routerLink="/pathways" routerLinkActive="active">
+          <i class="fa-solid fa-shuffle"></i> Pathways
+        </a>
+      </li>
+    </ul>
+
+    <div class="navbar-footer">
+      <div class="user-info" *ngIf="isLoggedIn">
+        <img src="assets/images/avuser.jpg" alt="User" class="user-avatar">
+        <div class="user-details">
+          <span class="text-capitalize user-name">{{ userName }}</span>
+          <small class="text-capitalize user-role">{{ userRole }}</small>
+        </div>
+      </div>
+      <button
+        class="logout-btn"
+        (click)="isLoggedIn ? logout() : null"
+        [routerLink]="isLoggedIn ? null : '/admin-login'">
+        <i class="fas fa-sign-out-alt"></i> {{ isLoggedIn ? 'Logout' : 'Login' }}
+      </button>
+    </div>
+  </div>
+</div>
 
 <div class="main-content">
   <router-outlet></router-outlet>
