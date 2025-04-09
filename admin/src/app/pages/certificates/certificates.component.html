@@ -18,7 +18,7 @@
     <div>
       <label for="courseSelectCreate">Assign to Course:</label>
       <select id="courseSelectCreate" [(ngModel)]="selectedCourseId" (change)="onCourseChange()" required>
-        <option [ngValue]="null" disabled>-- Select a Course --</option>
+        <option [ngValue]="null" disabled>Select a Course</option>
         <option *ngFor="let course of courses" [value]="course._id">
           {{ course.name }}
         </option>
@@ -58,7 +58,7 @@
     </div>
 
     <!-- Certificates Table -->
-    <table class="text-dark" *ngIf="!isLoadingCertificates && certificates.length > 0">
+    <table class="text-dark overflow-x-auto" *ngIf="!isLoadingCertificates && certificates.length > 0">
       <thead>
         <tr>
           <th>Name</th>
@@ -98,7 +98,7 @@
     <div>
       <label for="certificateSelectGrant">Select Certificate:</label>
       <select id="certificateSelectGrant" [(ngModel)]="selectedCertificateIdForGranting" required>
-        <option [ngValue]="null" disabled>-- Select a Certificate --</option>
+        <option [ngValue]="null" disabled > Select a Certificate </option>
         <option *ngFor="let cert of certificates" [value]="cert._id">
           {{ cert.name }} ({{ getCourseName(cert.course) }})
         </option>
@@ -108,7 +108,7 @@
     <div>
       <label for="courseSelectGrant">Select Course (to find students):</label>
       <select id="courseSelectGrant" [(ngModel)]="selectedCourseId" (change)="onCourseChange()" required>
-        <option [ngValue]="null" disabled>-- Select Course First --</option>
+        <option [ngValue]="null" disabled > Select Course First </option>
         <option *ngFor="let course of courses" [value]="course._id">
           {{ course.name }}
         </option>
@@ -120,7 +120,7 @@
       <div *ngIf="!isLoadingUsers && users.length > 0">
         <label for="userSelectGrant">Select Student:</label>
         <select id="userSelectGrant" [(ngModel)]="selectedUserIdForGranting" required>
-          <option [ngValue]="null" disabled>-- Select a Student --</option>
+          <option [ngValue]="null" disabled > Select a Student </option>
           <option *ngFor="let user of users" [value]="user._id">
             {{ user.firstName + ' ' + user.lastName || user._id }}
           </option>
