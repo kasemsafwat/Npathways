@@ -16,7 +16,8 @@ const __dirname = path.dirname(__filename);
 const instructorContoller = {
   newInstructor: async (req, res) => {
     try {
-      let data = req.body;
+      let data = { ...req.body, email: req.body.email.toLowerCase() };
+
       const isDuplicateEmail = await Promise.all([
         User.findOne({ email: data.email }),
         Instructor.findOne({ email: data.email }),
@@ -44,7 +45,9 @@ const instructorContoller = {
   // todo optimize login for universal login
   Login: async (req, res) => {
     try {
-      let { email, password } = req.body;
+      let { password } = req.body;
+      let email = req.body.email.toLowerCase();
+
       let instructor = await Instructor.findOne({ email });
       if (!instructor) {
         return res.status(404).send({
@@ -227,7 +230,8 @@ const instructorContoller = {
   // Forget Password
   forgetPassword: async (req, res) => {
     try {
-      let { email } = req.body;
+      let email = req.body.email.toLowerCase();
+
       let instructor = await Instructor.findOne({
         email,
       });
@@ -268,7 +272,9 @@ const instructorContoller = {
   },
   resetPassword: async (req, res) => {
     try {
-      const { email, password, confirmPassword } = req.body;
+      const { password, confirmPassword } = req.body;
+      const email = req.body.email.toLowerCase();
+
       if (!email || !password || !confirmPassword) {
         return res.status(400).send({ message: "All fields are required!" });
       }

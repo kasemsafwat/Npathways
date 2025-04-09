@@ -17,7 +17,8 @@ import sendEmail from "../services/email.js";
 const authAdminController = {
   register: async (req, res) => {
     try {
-      let data = req.body;
+      let data = { ...req.body, email: req.body.email.toLowerCase() };
+
       const isDuplicateEmail = await Promise.all([
         User.findOne({ email: data.email }),
         Instructor.findOne({ email: data.email }),
@@ -53,7 +54,7 @@ const authAdminController = {
   login: async (req, res) => {
     try {
       let { email, password } = req.body;
-      let user = await Admin.findOne({ email });
+      let user = await Admin.findOne({ email: email.toLowerCase() });
       if (!user) {
         return res.status(404).send({
           message: "Invalid Email Or Password",
@@ -202,7 +203,7 @@ const authAdminController = {
   // Forget Password
   forgetPassword: async (req, res) => {
     try {
-      let { email } = req.body;
+      let email = req.body.email.toLowerCase();
       let user = await Admin.findOne({
         email,
       });
@@ -243,7 +244,9 @@ const authAdminController = {
   },
   resetPassword: async (req, res) => {
     try {
-      const { email, password, confirmPassword } = req.body;
+      const { password, confirmPassword } = req.body;
+      const email = req.body.email.toLowerCase();
+
       if (!email || !password || !confirmPassword) {
         return res.status(400).send({ message: "All fields are required!" });
       }

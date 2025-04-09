@@ -154,7 +154,7 @@ const AdminControlller = {
   },
   createInstructor: async (req, res) => {
     try {
-      const data = req.body;
+      const data = { ...req.body, email: req.body.email.toLowerCase() };
       const isDuplicateEmail = await Promise.all([
         User.findOne({ email: data.email }),
         Instructor.findOne({ email: data.email }),
@@ -188,14 +188,21 @@ const AdminControlller = {
   },
   createAdmin: async (req, res) => {
     try {
-      const data = req.body;
-      const duplicatedEmail = await Admin.findOne({ email: data.email });
-      if (duplicatedEmail) {
+      const data = { ...req.body, email: req.body.email.toLowerCase() };
+
+      const isDuplicateEmail = await Promise.all([
+        User.findOne({ email: data.email }),
+        Instructor.findOne({ email: data.email }),
+        Admin.findOne({ email: data.email }),
+      ]).then((results) => results.some((result) => result));
+
+      if (isDuplicateEmail) {
         return res.status(403).send({
           message:
             "This email is already registered. Please use a different email.",
         });
       }
+
       const admin = new Admin({
         firstName: data.firstName,
         lastName: data.lastName,
@@ -203,9 +210,12 @@ const AdminControlller = {
         password: data.password,
         role: "admin",
       });
+
       await admin.save();
+
       const adminObject = admin.toObject();
       delete adminObject.password;
+
       res.status(201).send({
         message: "Admin created successfully",
         admin: adminObject,
@@ -218,11 +228,17 @@ const AdminControlller = {
   updateAdminData: async (req, res) => {
     try {
       const { adminId } = req.params;
-      const updateData = req.body;
+      const updateData = { ...req.body, email: req.body.email.toLowerCase() };
+
+      if (!adminId.match(/^[0-9a-fA-F]{24}$/))
+        return res.status(400).json({ message: "Invalid admin ID" });
+
       const admin = await Admin.findById(adminId);
+
       if (!admin) {
         return res.status(404).json({ message: "Admin not found" });
       }
+
       if (updateData.email && updateData.email !== admin.email) {
         const duplicatedEmail = await Admin.findOne({
           email: updateData.email,
