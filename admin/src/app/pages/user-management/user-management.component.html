@@ -289,8 +289,6 @@
   </div>
 </div>
 
-
-
 <!-- Delete Confirmation Modal -->
 <div
   class="modal fade show d-block"
@@ -336,3 +334,98 @@
     </div>
   </div>
 </div>
+
+<!-- Edit User Modal -->
+<!-- Edit User Modal -->
+<div class="modal fade show d-block" tabindex="-1" role="dialog" style="background-color: rgba(0, 0, 0, 0.5)" *ngIf="showEditModal">
+  <div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Edit User</h5>
+        <button type="button" class="btn-close" aria-label="Close" (click)="showEditModal = false"></button>
+      </div>
+      <div class="modal-body">
+        <form #editForm="ngForm" (ngSubmit)="updateUser(editForm)">
+          <div class="form-group mb-3">
+            <label for="editFirstName">First Name (Optional)</label>
+            <input 
+              type="text" 
+              id="editFirstName" 
+              [(ngModel)]="userToEdit.firstName" 
+              name="firstName" 
+              class="form-control" 
+              #firstName="ngModel"
+              pattern="[a-zA-Z\s]*"
+              maxlength="50"
+            >
+            <div *ngIf="firstName.touched && firstName.invalid" class="error-message text-danger mt-1">
+              <div *ngIf="firstName.errors?.['pattern']">First Name can only contain letters and spaces.</div>
+              <div *ngIf="firstName.errors?.['maxlength']">First Name cannot exceed 50 characters.</div>
+            </div>
+          </div>
+
+          <div class="form-group mb-3">
+            <label for="editLastName">Last Name (Optional)</label>
+            <input 
+              type="text" 
+              id="editLastName" 
+              [(ngModel)]="userToEdit.lastName" 
+              name="lastName" 
+              class="form-control" 
+              #lastName="ngModel"
+              pattern="[a-zA-Z\s]*"
+              maxlength="50"
+            >
+            <div *ngIf="lastName.touched && lastName.invalid" class="error-message text-danger mt-1">
+              <div *ngIf="lastName.errors?.['pattern']">Last Name can only contain letters and spaces.</div>
+              <div *ngIf="lastName.errors?.['maxlength']">Last Name cannot exceed 50 characters.</div>
+            </div>
+          </div>
+
+          <div class="form-group mb-3">
+            <label for="editEmail">Email (Optional)</label>
+            <input 
+              type="email" 
+              id="editEmail" 
+              [(ngModel)]="userToEdit.email" 
+              name="email" 
+              class="form-control" 
+              #email="ngModel"
+              pattern="[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$"
+              maxlength="100"
+            >
+            <div *ngIf="email.touched && email.invalid" class="error-message text-danger mt-1">
+              <div *ngIf="email.errors?.['pattern']">Please enter a valid email address.</div>
+              <div *ngIf="email.errors?.['maxlength']">Email cannot exceed 100 characters.</div>
+            </div>
+          </div>
+
+          <div class="form-group mb-3">
+            <label for="editPassword">New Password (Optional)</label>
+            <input 
+              type="password" 
+              id="editPassword" 
+              [(ngModel)]="userToEdit.password" 
+              name="password" 
+              class="form-control" 
+              #password="ngModel" 
+              minlength="6"
+              maxlength="50"
+            >
+            <div *ngIf="password.touched && password.invalid" class="error-message text-danger mt-1">
+              <div *ngIf="password.errors?.['minlength']">Password must be at least 6 characters long.</div>
+              <div *ngIf="password.errors?.['maxlength']">Password cannot exceed 50 characters.</div>
+            </div>
+            <small class="text-muted">Leave empty to keep current password</small>
+          </div>
+
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" (click)="showEditModal = false">Cancel</button>
+            <button type="submit" class="btn btn-primary" [disabled]="editForm.invalid">Save Changes</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+

@@ -30,6 +30,8 @@ export class UserManagementComponent implements OnInit {
   selectedTab: 'all' | 'students' | 'instructors' | 'admins' = 'all';
   searchQuery: string = '';
   showCreateAdminModal: boolean = false;
+  showEditModal: boolean = false;
+  userToEdit: any = null;
   newAdmin = {
     firstName: '',
     lastName: '',
@@ -185,22 +187,113 @@ export class UserManagementComponent implements OnInit {
   }
 
   editUser(user: User): void {
-    if (user.role === 'Admin') {
-      const adminData = {
-        firstName: user.name.split(' ')[0],
-        lastName: user.name.split(' ')[1],
-        email: user.email,
-      };
-      this.authService.updateAdminById(user.id, adminData).subscribe({
-        next: () => {
-          this.loadUsers();
-        },
-        error: (error) => {
-          console.error('Error updating admin:', error);
-        },
-      });
+    // Split the name into first and last name
+    const nameParts = user.name.split(' ');
+    this.userToEdit = {
+      id: user.id,
+      firstName: nameParts[0] || '',
+      lastName: nameParts.slice(1).join(' ') || '',
+      email: user.email || '',
+      role: user.role,
+      password: '' // For password change
+    };
+    this.showEditModal = true;
+  }
+
+  updateUser(form: any): void {
+    if (!this.validateForm()) {
+      return;
     }
-    user.showActions = false;
+
+    const updateData: any = {};
+    
+    // Only add fields that have values
+    if (this.userToEdit.firstName) {
+      updateData.firstName = this.userToEdit.firstName;
+    }
+    if (this.userToEdit.lastName) {
+      updateData.lastName = this.userToEdit.lastName;
+    }
+    if (this.userToEdit.email) {
+      updateData.email = this.userToEdit.email;
+    }
+    if (this.userToEdit.password) {
+      updateData.password = this.userToEdit.password;
+    }
+
+    // Only proceed if there are changes
+    if (Object.keys(updateData).length === 0) {
+      this.showEditModal = false;
+      return;
+    }
+
+    if (this.userToEdit.role === 'Student') {
+      this.studentService.updateUserByAdmin(this.userToEdit.id, updateData)
+        .subscribe({
+          next: () => {
+            this.loadUsers();
+            this.showEditModal = false;
+          },
+          error: (error) => {
+            console.error('Error updating student:', error);
+          }
+        });
+    } else if (this.userToEdit.role === 'Instructor') {
+      this.instructorService.updateInstructor(this.userToEdit.id, updateData)
+        .subscribe({
+          next: () => {
+            this.loadUsers();
+            this.showEditModal = false;
+          },
+          error: (error) => {
+            console.error('Error updating instructor:', error);
+          }
+        });
+    } else if (this.userToEdit.role === 'Admin') {
+      this.authService.updateAdminById(this.userToEdit.id, updateData)
+        .subscribe({
+          next: () => {
+            this.loadUsers();
+            this.showEditModal = false;
+          },
+          error: (error) => {
+            console.error('Error updating admin:', error);
+          }
+        });
+    }
+  }
+
+  private validateForm(): boolean {
+    // Email validation
+    if (this.userToEdit.email && !this.isValidEmail(this.userToEdit.email)) {
+      return false;
+    }
+
+    // Password validation
+    if (this.userToEdit.password && (this.userToEdit.password.length < 6 || this.userToEdit.password.length > 50)) {
+      return false;
+    }
+
+    // Name validation
+    if (this.userToEdit.firstName && !this.isValidName(this.userToEdit.firstName)) {
+      return false;
+    }
+
+    if (this.userToEdit.lastName && !this.isValidName(this.userToEdit.lastName)) {
+      return false;
+    }
+
+    return true;
+  }
+
+  private isValidEmail(email: string): boolean {
+    const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+    return emailRegex.test(email);
+  }
+
+  private isValidName(name: string): boolean {
+    const nameRegex = /^[a-zA-Z\s]*$/;
+    return nameRegex.test(name) && name.length <= 50;
   }
 
   suspendUser(user: User): void {
