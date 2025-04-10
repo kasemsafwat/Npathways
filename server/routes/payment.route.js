@@ -1,6 +1,7 @@
 import express from "express";
 import PaymentController from "../controllers/payment.controller.js";
 import { authentication } from "../middleware/auth.middleware.js";
+import { protectRoutes } from "../middleware/AuthAdmin.middleware.js";
 
 const router = express.Router();
 
@@ -18,5 +19,7 @@ router.post(
   express.raw({ type: "application/json" }),
   PaymentController.handleStripeWebhook
 );
+// get all payments
+router.get("/getAllPayments", PaymentController.getAllPayments);
 
 export default router;

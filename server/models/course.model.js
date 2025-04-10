@@ -19,7 +19,7 @@ const CourseSchema = new Schema(
     instructors: [
       {
         type: Schema.Types.ObjectId,
-        ref: "User",
+        ref: "Instructor",
       },
     ],
     lessons: [
