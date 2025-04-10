@@ -1,1 +1,98 @@
-<p>pathways works!</p>
+<div class="container">
+  <h2>Pathways Management</h2>
+
+  <!-- Pathway Form -->
+  <div class="form-container">
+    <h3>{{ isEditing ? 'Edit Pathway' : 'Create New Pathway' }}</h3>
+    <form (ngSubmit)="isEditing ? updatePathway() : createPathway()">
+      <div class="form-group">
+        <label for="name">Name:</label>
+        <input
+          type="text"
+          id="name"
+          [(ngModel)]="formModel.name"
+          name="name"
+          required
+          placeholder="Enter pathway name"
+        />
+      </div>
+
+      <div class="form-group">
+        <label for="description">Description:</label>
+        <textarea
+          id="description"
+          [(ngModel)]="formModel.description"
+          name="description"
+          placeholder="Enter pathway description"
+        ></textarea>
+      </div>
+
+      <div class="form-group" *ngIf="!isEditing">
+        <label for="courseId">Add Course (ID):</label>
+        <input
+          type="text"
+          id="courseId"
+          [(ngModel)]="selectedCourseId"
+          name="courseId"
+          placeholder="Enter course ID"
+        />
+      </div>
+
+      <div class="button-group">
+        <button type="submit" class="primary-button">
+          {{ isEditing ? 'Update' : 'Create' }} Pathway
+        </button>
+        <button
+          type="button"
+          class="secondary-button"
+          (click)="resetForm()"
+          *ngIf="isEditing"
+        >
+          Cancel
+        </button>
+      </div>
+    </form>
+  </div>
+
+  <!-- Pathways Grid -->
+  <div class="pathways-grid">
+    <mat-card class="pathway-card" *ngFor="let pathway of pathways">
+      <mat-card-header>
+        <mat-card-title>{{ pathway.name }}</mat-card-title>
+        <mat-card-subtitle>
+          <!-- Temporarily removing date display to fix the error -->
+          <!-- Created: {{ pathway.date | date:'mediumDate' }} -->
+        </mat-card-subtitle>
+      </mat-card-header>
+
+      <mat-card-content>
+        <p class="description">{{ pathway.description || 'No description available' }}</p>
+
+        <div class="courses-section">
+          <h4>Courses ({{ pathway.courses?.length || 0 }})</h4>
+          <div class="courses-list">
+            <mat-chip-listbox>
+              <mat-chip *ngFor="let course of pathway.courses">
+                {{ typeof course === 'string' ? course : course.name }}
+                <button matChipRemove (click)="removeCourse(pathway._id, typeof course === 'string' ? course : (course._id || ''))">
+                  <mat-icon>cancel</mat-icon>
+                </button>
+              </mat-chip>
+            </mat-chip-listbox>
+          </div>
+        </div>
+      </mat-card-content>
+
+      <mat-card-actions>
+        <button mat-button color="primary" (click)="editPathway(pathway)">
+          <mat-icon>edit</mat-icon>
+          Edit
+        </button>
+        <button mat-button color="warn" (click)="deletePathway(pathway._id)">
+          <mat-icon>delete</mat-icon>
+          Delete
+        </button>
+      </mat-card-actions>
+    </mat-card>
+  </div>
+</div>

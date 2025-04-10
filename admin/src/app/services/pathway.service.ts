@@ -12,6 +12,7 @@ export interface Pathway {
 @Injectable({
   providedIn: 'root',
 })
+
 export default class PathwayService {
   constructor(private http: HttpClient) {}
   private apiUrl = 'http://localhost:5024/api/pathway/admin';
