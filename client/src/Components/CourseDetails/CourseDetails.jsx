@@ -24,25 +24,50 @@ export default function CourseDetails() {
   useEffect(() => {
     getSingleCourse();
   }, []);
+  const priceAfterDiscount = course.price - course.discount;
+  const [isProcessingPayment, setIsProcessingPayment] = React.useState(false);
 
   const makePayment = async () => {
-    const stripe = await loadStripe(process.env.PUBLISH_KEY);
+    try {
+      setIsProcessingPayment(true);
 
-    const body = {
-      amount: course.priceAfterDiscount || 39.99,
-    };
-    const response = await axios.post(
-      `http://localhost:5024/api/payment/create-checkout-session`,
-      body,
-      { "Content-Type": "application/json" }
-    );
-    const session = response.data;
-    const result = await stripe.redirectToCheckout({
-      sessionId: session.id,
-    });
+      const stripe = await loadStripe(
+        "pk_test_51RBR2iDc21UouuAB3g41OrIvrbvj72VbEl4QNUXzYJwNwUvi6XWWE4RNP7VytWVw1T1fe3K96z1EZqDAfe2uOhhy00UJqUHsHN"
+      );
+
+      const response = await axios.post(
+        "http://localhost:5024/api/payment/create-session",
+        { courseId: course._id },
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+          withCredentials: true,
+        }
+      );
+
+      // Check if response has sessionUrl (direct redirect)
+      if (response.data.sessionUrl) {
+        window.location.href = response.data.sessionUrl;
+        return;
+      }
+
+      // Fallback to redirectToCheckout if no sessionUrl
+      const result = await stripe.redirectToCheckout({
+        sessionId: response.data.sessionId,
+      });
+
+      if (result.error) {
+        console.error(result.error.message);
+        alert("Payment failed: " + result.error.message);
+      }
+    } catch (error) {
+      console.error("Payment failed:", error);
+      alert("Payment processing failed. Please try again later.");
+    } finally {
+      setIsProcessingPayment(false);
+    }
   };
-  const priceAfterDiscount = course.price - course.discount;
-  console.log(course);
   const instructorNames = course.instructors
     ? course.instructors
         .map((instructor) => instructor.firstName + " " + instructor.lastName)
@@ -100,10 +125,13 @@ export default function CourseDetails() {
                 fontSize: "14px",
                 fontWeight: "bold",
                 border: "none",
+                cursor: isProcessingPayment ? "not-allowed" : "pointer",
+                opacity: isProcessingPayment ? 0.7 : 1,
               }}
               onClick={makePayment}
+              disabled={isProcessingPayment}
             >
-              Buy
+              {isProcessingPayment ? "Processing..." : "Buy"}
             </button>
             <button
               style={{
