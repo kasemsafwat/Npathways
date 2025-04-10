@@ -27,17 +27,17 @@ interface ApiResponse<T> {
     MatDialogModule,
     MatSnackBarModule,
     MatChipsModule,
-    MatBadgeModule
+    MatBadgeModule,
   ],
   templateUrl: './pathways.component.html',
-  styleUrl: './pathways.component.css'
+  styleUrl: './pathways.component.css',
 })
 export class PathwaysComponent implements OnInit {
-  pathways: Pathway[] = [];
+  pathways: any;
   formModel = {
     name: '',
     description: '',
-    courses: [] as string[]
+    courses: [] as string[],
   };
   isEditing = false;
   selectedPathway: Pathway | null = null;
@@ -55,12 +55,13 @@ export class PathwaysComponent implements OnInit {
   loadPathways(): void {
     this.pathwayService.getAllPathways().subscribe({
       next: (response) => {
+        console.log(response);
         this.pathways = response.data;
       },
       error: (error) => {
-        this.showMessage('Error loading pathways');
+        // this.showMessage('Error loading pathways');
         console.error('Error loading pathways:', error);
-      }
+      },
     });
   }
 
@@ -73,7 +74,7 @@ export class PathwaysComponent implements OnInit {
     const pathway = {
       name: this.formModel.name,
       description: this.formModel.description,
-      courses: this.formModel.courses
+      courses: this.formModel.courses,
     };
 
     this.pathwayService.createPathWay(pathway).subscribe({
@@ -85,7 +86,7 @@ export class PathwaysComponent implements OnInit {
       error: (error) => {
         this.showMessage('Error creating pathway');
         console.error('Error creating pathway:', error);
-      }
+      },
     });
   }
 
@@ -95,9 +96,10 @@ export class PathwaysComponent implements OnInit {
     this.formModel = {
       name: pathway.name,
       description: pathway.description || '',
-      courses: pathway.courses?.map(course =>
-        typeof course === 'string' ? course : course._id
-      ).filter((id): id is string => id !== undefined) || []
+      courses:
+        pathway.courses
+          ?.map((course) => (typeof course === 'string' ? course : course._id))
+          .filter((id): id is string => id !== undefined) || [],
     };
   }
 
@@ -110,20 +112,22 @@ export class PathwaysComponent implements OnInit {
     const updatedPathway = {
       name: this.formModel.name,
       description: this.formModel.description,
-      courses: this.formModel.courses
+      courses: this.formModel.courses,
     };
 
-    this.pathwayService.updatePathway(this.selectedPathway._id, updatedPathway).subscribe({
-      next: () => {
-        this.showMessage('Pathway updated successfully');
-        this.loadPathways();
-        this.resetForm();
-      },
-      error: (error) => {
-        this.showMessage('Error updating pathway');
-        console.error('Error updating pathway:', error);
-      }
-    });
+    this.pathwayService
+      .updatePathway(this.selectedPathway._id, updatedPathway)
+      .subscribe({
+        next: () => {
+          this.showMessage('Pathway updated successfully');
+          this.loadPathways();
+          this.resetForm();
+        },
+        error: (error) => {
+          this.showMessage('Error updating pathway');
+          console.error('Error updating pathway:', error);
+        },
+      });
   }
 
   deletePathway(id: string): void {
@@ -136,7 +140,7 @@ export class PathwaysComponent implements OnInit {
         error: (error) => {
           this.showMessage('Error deleting pathway');
           console.error('Error deleting pathway:', error);
-        }
+        },
       });
     }
   }
@@ -147,17 +151,19 @@ export class PathwaysComponent implements OnInit {
       return;
     }
 
-    this.pathwayService.addCourse(pathwayId, [this.selectedCourseId]).subscribe({
-      next: () => {
-        this.showMessage('Course added successfully');
-        this.loadPathways();
-        this.selectedCourseId = '';
-      },
-      error: (error) => {
-        this.showMessage('Error adding course');
-        console.error('Error adding course:', error);
-      }
-    });
+    this.pathwayService
+      .addCourse(pathwayId, [this.selectedCourseId])
+      .subscribe({
+        next: () => {
+          this.showMessage('Course added successfully');
+          this.loadPathways();
+          this.selectedCourseId = '';
+        },
+        error: (error) => {
+          this.showMessage('Error adding course');
+          console.error('Error adding course:', error);
+        },
+      });
   }
 
   removeCourse(pathwayId: string, courseId: string): void {
@@ -169,7 +175,7 @@ export class PathwaysComponent implements OnInit {
       error: (error) => {
         this.showMessage('Error removing course');
         console.error('Error removing course:', error);
-      }
+      },
     });
   }
 
@@ -179,7 +185,7 @@ export class PathwaysComponent implements OnInit {
     this.formModel = {
       name: '',
       description: '',
-      courses: []
+      courses: [],
     };
   }
 
@@ -187,7 +193,7 @@ export class PathwaysComponent implements OnInit {
     this.snackBar.open(message, 'Close', {
       duration: 3000,
       horizontalPosition: 'end',
-      verticalPosition: 'top'
+      verticalPosition: 'top',
     });
   }
 }

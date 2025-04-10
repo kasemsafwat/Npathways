@@ -3,7 +3,7 @@
 
   <!-- Pathway Form -->
   <div class="form-container">
-    <h3>{{ isEditing ? 'Edit Pathway' : 'Create New Pathway' }}</h3>
+    <h3>{{ isEditing ? "Edit Pathway" : "Create New Pathway" }}</h3>
     <form (ngSubmit)="isEditing ? updatePathway() : createPathway()">
       <div class="form-group">
         <label for="name">Name:</label>
@@ -40,7 +40,7 @@
 
       <div class="button-group">
         <button type="submit" class="primary-button">
-          {{ isEditing ? 'Update' : 'Create' }} Pathway
+          {{ isEditing ? "Update" : "Create" }} Pathway
         </button>
         <button
           type="button"
@@ -66,7 +66,9 @@
       </mat-card-header>
 
       <mat-card-content>
-        <p class="description">{{ pathway.description || 'No description available' }}</p>
+        <p class="description">
+          {{ pathway.description || "No description available" }}
+        </p>
 
         <div class="courses-section">
           <h4>Courses ({{ pathway.courses?.length || 0 }})</h4>
@@ -74,7 +76,10 @@
             <mat-chip-listbox>
               <mat-chip *ngFor="let course of pathway.courses">
                 {{ typeof course === 'string' ? course : course.name }}
-                <button matChipRemove (click)="removeCourse(pathway._id, typeof course === 'string' ? course : (course._id || ''))">
+                <button
+                  matChipRemove
+                  (click)="removeCourse(pathway._id, typeof course === 'string' ? course : (course._id || ''))"
+                >
                   <mat-icon>cancel</mat-icon>
                 </button>
               </mat-chip>
