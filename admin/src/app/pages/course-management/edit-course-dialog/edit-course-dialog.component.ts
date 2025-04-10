@@ -65,7 +65,29 @@ export class EditCourseDialogComponent implements OnInit {
   onImageSelected(event: Event) {
     const input = event.target as HTMLInputElement;
     if (input.files && input.files.length > 0) {
-      this.courseImage = input.files[0];
+      const file = input.files[0];
+      
+      // Check file type
+      const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
+      if (!validTypes.includes(file.type)) {
+        this.error = 'Please select a valid image file (PNG, JPEG, JPG, or WEBP)';
+        input.value = ''; // Clear the input
+        this.imagePreview = null;
+        this.courseImage = null;
+        return;
+      }
+
+      // Check file size (max 5MB)
+      const maxSize = 5 * 1024 * 1024; // 5MB in bytes
+      if (file.size > maxSize) {
+        this.error = 'Image size should be less than 5MB';
+        input.value = ''; // Clear the input
+        this.imagePreview = null;
+        this.courseImage = null;
+        return;
+      }
+
+      this.courseImage = file;
       
       // Create preview URL
       const reader = new FileReader();

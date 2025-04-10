@@ -9,7 +9,7 @@
         <form #courseForm="ngForm">
           <!-- Course Image -->
           <div class="mb-4">
-            <label class="form-label">Course Image</label>
+            <label class="form-label">Course Image *</label>
             <div class="d-flex align-items-center gap-3">
               <img [src]="imagePreview || 'assets/images/course.jpg'" 
                    class="rounded" 
@@ -17,9 +17,9 @@
               <div class="flex-grow-1">
                 <input type="file" 
                        class="form-control" 
-                       accept="image/*"
+                       accept="image/png, image/jpeg, image/jpg, image/webp"
                        (change)="onImageSelected($event)">
-                <small class="text-muted">Recommended size: 1280x720 pixels</small>
+                <small class="text-muted d-block mt-1">Recommended size: 1280x720 pixels. Accepted formats: PNG, JPEG, JPG, WEBP</small>
               </div>
             </div>
           </div>
