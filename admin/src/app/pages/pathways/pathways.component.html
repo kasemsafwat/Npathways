@@ -1,10 +1,15 @@
 <div class="container">
-  <h2>Pathways Management</h2>
+  <h2 class="page-title text-white">Pathways Management</h2>
 
-  <!-- Pathway Form -->
+  <!-- Notification -->
+  <div class="notification" *ngIf="notification.show" [ngClass]="notification.type">
+    {{ notification.message }}
+  </div>
+
+  <!-- Create Pathway Form -->
   <div class="form-container">
-    <h3>{{ isEditing ? "Edit Pathway" : "Create New Pathway" }}</h3>
-    <form (ngSubmit)="isEditing ? updatePathway() : createPathway()">
+    <h3 class="form-title">Create New Pathway</h3>
+    <form (ngSubmit)="createPathway()" class="pathway-form">
       <div class="form-group">
         <label for="name">Name:</label>
         <input
@@ -14,6 +19,7 @@
           name="name"
           required
           placeholder="Enter pathway name"
+          class="form-input"
         />
       </div>
 
@@ -24,48 +30,44 @@
           [(ngModel)]="formModel.description"
           name="description"
           placeholder="Enter pathway description"
+          class="form-textarea"
         ></textarea>
       </div>
 
-      <div class="form-group" *ngIf="!isEditing">
-        <label for="courseId">Add Course (ID):</label>
-        <input
-          type="text"
-          id="courseId"
-          [(ngModel)]="selectedCourseId"
-          name="courseId"
-          placeholder="Enter course ID"
-        />
+      <div class="form-group">
+        <label>Select Courses:</label>
+        <div class="courses-selection">
+          <div
+            *ngFor="let course of courses"
+            class="course-option"
+            [class.selected]="course._id && isCourseSelected(course._id)"
+            (click)="course._id && toggleCourseSelection(course._id)"
+          >
+            <input
+              type="checkbox"
+              [checked]="course._id && isCourseSelected(course._id)"
+              (change)="course._id && toggleCourseSelection(course._id)"
+              class="course-checkbox"
+            />
+            <span class="course-name">{{ course.name }}</span>
+          </div>
+        </div>
       </div>
 
       <div class="button-group">
-        <button type="submit" class="primary-button">
-          {{ isEditing ? "Update" : "Create" }} Pathway
-        </button>
-        <button
-          type="button"
-          class="secondary-button"
-          (click)="resetForm()"
-          *ngIf="isEditing"
-        >
-          Cancel
-        </button>
+        <button type="submit" class="btn btn-primary">Create Pathway</button>
       </div>
     </form>
   </div>
 
   <!-- Pathways Grid -->
   <div class="pathways-grid">
-    <mat-card class="pathway-card" *ngFor="let pathway of pathways">
-      <mat-card-header>
-        <mat-card-title>{{ pathway.name }}</mat-card-title>
-        <mat-card-subtitle>
-          <!-- Temporarily removing date display to fix the error -->
-          <!-- Created: {{ pathway.date | date:'mediumDate' }} -->
-        </mat-card-subtitle>
-      </mat-card-header>
+    <div class="pathway-card" *ngFor="let pathway of pathways">
+      <div class="card-header">
+        <h3 class="card-title">{{ pathway.name }}</h3>
+      </div>
 
-      <mat-card-content>
+      <div class="card-content">
         <p class="description">
           {{ pathway.description || "No description available" }}
         </p>
@@ -73,31 +75,40 @@
         <div class="courses-section">
           <h4>Courses ({{ pathway.courses?.length || 0 }})</h4>
           <div class="courses-list">
-            <mat-chip-listbox>
-              <mat-chip *ngFor="let course of pathway.courses">
-                {{ typeof course === 'string' ? course : course.name }}
+            <div class="chips-container">
+              <span class="chip" *ngFor="let course of pathway.courses">
+                {{ getCourseName(typeof course === 'string' ? course : course._id) }}
                 <button
-                  matChipRemove
+                  class="chip-remove"
                   (click)="removeCourse(pathway._id, typeof course === 'string' ? course : (course._id || ''))"
                 >
-                  <mat-icon>cancel</mat-icon>
+                  ×
                 </button>
-              </mat-chip>
-            </mat-chip-listbox>
+              </span>
+            </div>
           </div>
         </div>
-      </mat-card-content>
+      </div>
 
-      <mat-card-actions>
-        <button mat-button color="primary" (click)="editPathway(pathway)">
-          <mat-icon>edit</mat-icon>
+      <div class="card-actions">
+        <button class="btn btn-icon" (click)="editPathway(pathway)">
+          <i class="fas fa-edit"></i>
           Edit
         </button>
-        <button mat-button color="warn" (click)="deletePathway(pathway._id)">
-          <mat-icon>delete</mat-icon>
+        <button class="btn btn-icon btn-danger" (click)="deletePathway(pathway._id)">
+          <i class="fas fa-trash"></i>
           Delete
         </button>
-      </mat-card-actions>
-    </mat-card>
+      </div>
+    </div>
   </div>
+
+  <!-- Edit Dialog -->
+  <app-edit-pathway-dialog
+    *ngIf="showEditDialog && selectedPathway"
+    [pathway]="selectedPathway"
+    [courses]="courses"
+    (close)="closeEditDialog()"
+    (save)="onSavePathway($event)"
+  ></app-edit-pathway-dialog>
 </div>

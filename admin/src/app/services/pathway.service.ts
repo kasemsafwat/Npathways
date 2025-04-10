@@ -39,15 +39,15 @@ export default class PathwayService {
   }
 
   updatePathway(id: string, pathway: any): Observable<any> {
-    return this.http.put<any>(`${this.apiUrl}/${id}`, pathway);
+    return this.http.patch<any>(`${this.apiUrl}/${id}`, pathway);
   }
   addCourse(id: string, courseIds: string[]): Observable<any> {
     return this.http.post<any>(`${this.apiUrl}/${id}/addCourse`, {
       courses: [courseIds],
     });
   }
-  removeCourse(id: string, courseIds: string[]): Observable<any> {
-    return this.http.delete<any>(`${this.apiUrl}/${id}/removeCourse`, {
+  removeCourse(id: string, courseIds: string): Observable<any> {
+    return this.http.delete<any>(`${this.apiUrl}/${id}/courses`, {
       body: { courses: [courseIds] },
     });
   }
