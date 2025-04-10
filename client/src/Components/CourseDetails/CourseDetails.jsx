@@ -1,14 +1,25 @@
 import { Box, CardMedia, Grid, Typography } from "@mui/material";
 import axios from "axios";
-import React, { useEffect } from "react";
+import React, { useContext, useEffect } from "react";
 import { useParams } from "react-router";
 import image from "../../assets/Rectangle 72.png";
 import person from "../../assets/user.png";
 import { loadStripe } from "@stripe/stripe-js";
+import { AuthContext } from "../../contexts/AuthContext";
 export default function CourseDetails() {
+  const { user } = useContext(AuthContext);
+  console.log(user);
   let [course, setCourse] = React.useState({});
   let [loading, setLoading] = React.useState(true);
   let { id } = useParams();
+  const [alreadyPurchased, setAlreadyPurchased] = React.useState(false);
+
+  useEffect(() => {
+    if (user && user.courses && user.courses.includes(id)) {
+      console.log("you already got it");
+      setAlreadyPurchased(true);
+    }
+  }, [user, id]);
   let userName = localStorage.getItem("userName");
   async function getSingleCourse() {
     try {
@@ -116,7 +127,7 @@ export default function CourseDetails() {
             </Box>
             <button
               style={{
-                background: "#46C98B",
+                background: alreadyPurchased ? "gray" : "#46C98B",
                 width: "100%",
                 paddingBlock: "6px",
                 color: "white",
@@ -125,13 +136,20 @@ export default function CourseDetails() {
                 fontSize: "14px",
                 fontWeight: "bold",
                 border: "none",
-                cursor: isProcessingPayment ? "not-allowed" : "pointer",
+                cursor:
+                  isProcessingPayment || alreadyPurchased
+                    ? "not-allowed"
+                    : "pointer",
                 opacity: isProcessingPayment ? 0.7 : 1,
               }}
               onClick={makePayment}
-              disabled={isProcessingPayment}
+              disabled={isProcessingPayment || alreadyPurchased}
             >
-              {isProcessingPayment ? "Processing..." : "Buy"}
+              {isProcessingPayment
+                ? "Processing..."
+                : alreadyPurchased
+                ? "Purchased"
+                : "Buy"}
             </button>
             <button
               style={{

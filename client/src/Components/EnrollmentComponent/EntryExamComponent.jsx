@@ -14,7 +14,7 @@ import {
   Card,
   CardContent,
   Snackbar,
-  Alert
+  Alert,
 } from "@mui/material";
 import CustomStepper from "./CustomStepper";
 import { useNavigate } from "react-router-dom";
@@ -24,7 +24,7 @@ import HourglassBottomIcon from "@mui/icons-material/HourglassBottom";
 import { EnrollmentContext } from "../../contexts/EnrollmentContext";
 
 const EntryExamComponent = () => {
-  const { setExamAnswers } = useContext(EnrollmentContext);
+  const { setExamAnswers, setStep } = useContext(EnrollmentContext);
   const navigate = useNavigate();
   const [activeStep] = useState(1);
   const steps = ["User Info", "Exam", "Result"];
@@ -37,15 +37,16 @@ const EntryExamComponent = () => {
     challenge: false,
     function: false,
   });
-  const [openSnackbar, setOpenSnackbar] = useState(false); 
-  const [snackbarMessage, setSnackbarMessage] = useState(""); 
+  const [openSnackbar, setOpenSnackbar] = useState(false);
+  const [snackbarMessage, setSnackbarMessage] = useState("");
   const [snackbarSeverity, setSnackbarSeverity] = useState("error");
 
   useEffect(() => {
     const savedExamData = localStorage.getItem("examData");
     if (savedExamData) {
       try {
-        const { selectedPrime, challengeAnswer, functionAnswer } = JSON.parse(savedExamData);
+        const { selectedPrime, challengeAnswer, functionAnswer } =
+          JSON.parse(savedExamData);
         setSelectedPrime(selectedPrime || "");
         setChallengeAnswer(challengeAnswer || "");
         setFunctionAnswer(functionAnswer || "");
@@ -66,7 +67,7 @@ const EntryExamComponent = () => {
 
   useEffect(() => {
     if (timeLeft <= 0) return;
-    const timer = setInterval(() => setTimeLeft(prev => prev - 1), 1000);
+    const timer = setInterval(() => setTimeLeft((prev) => prev - 1), 1000);
     return () => clearInterval(timer);
   }, [timeLeft]);
 
@@ -83,29 +84,30 @@ const EntryExamComponent = () => {
       function: functionAnswer.trim() === "",
     };
     setErrors(newErrors);
-    return !Object.values(newErrors).some(err => err);
+    return !Object.values(newErrors).some((err) => err);
   };
   const handleNext = () => {
     if (!validateFields()) {
       setSnackbarMessage("Please fill in all the required fields.");
-      setOpenSnackbar(true); 
+      setOpenSnackbar(true);
       return;
-    } 
+    }
     const examAnswers = [
-      { 
-        question: "Which of these is a prime number?", 
-        answer: selectedPrime 
+      {
+        question: "Which of these is a prime number?",
+        answer: selectedPrime,
       },
-      { 
-        question: "Describe your biggest challenge and how you overcame it", 
-        answer: challengeAnswer 
+      {
+        question: "Describe your biggest challenge and how you overcame it",
+        answer: challengeAnswer,
       },
-      { 
-        question: "Write a function that reverses a string", 
-        answer: functionAnswer 
-      }
+      {
+        question: "Write a function that reverses a string",
+        answer: functionAnswer,
+      },
     ];
     setExamAnswers(examAnswers);
+    setStep(3);
     navigate("/enrollment/review");
   };
   const handleCloseSnackbar = () => {
@@ -134,7 +136,12 @@ const EntryExamComponent = () => {
 
       <Card sx={{ boxShadow: 3, borderRadius: 2, p: 2 }}>
         <CardContent>
-          <Grid container spacing={2} justifyContent="space-between" alignItems="center">
+          <Grid
+            container
+            spacing={2}
+            justifyContent="space-between"
+            alignItems="center"
+          >
             <Grid item>
               <Typography variant="h5" fontWeight="bold">
                 Exam
@@ -152,14 +159,11 @@ const EntryExamComponent = () => {
             MSQs
           </Typography>
           <Typography variant="body1" sx={{ mt: 1 }}>
-            Complete the following tasks to demonstrate your abilities. Time limit: 45 minutes.
+            Complete the following tasks to demonstrate your abilities. Time
+            limit: 45 minutes.
           </Typography>
 
-          <FormControl
-            component="fieldset"
-            sx={{ mt: 3 }}
-            error={errors.prime}
-          >
+          <FormControl component="fieldset" sx={{ mt: 3 }} error={errors.prime}>
             <FormLabel component="legend">
               Which of these is a prime number?
             </FormLabel>
@@ -167,7 +171,7 @@ const EntryExamComponent = () => {
               value={selectedPrime}
               onChange={(e) => {
                 setSelectedPrime(e.target.value);
-                setErrors(prev => ({ ...prev, prime: false }));
+                setErrors((prev) => ({ ...prev, prime: false }));
               }}
             >
               <FormControlLabel value="2" control={<Radio />} label="2" />
@@ -191,7 +195,7 @@ const EntryExamComponent = () => {
             value={challengeAnswer}
             onChange={(e) => {
               setChallengeAnswer(e.target.value);
-              setErrors(prev => ({ ...prev, challenge: false }));
+              setErrors((prev) => ({ ...prev, challenge: false }));
             }}
             error={errors.challenge}
             helperText={errors.challenge && "This field is required."}
@@ -207,7 +211,7 @@ const EntryExamComponent = () => {
             value={functionAnswer}
             onChange={(e) => {
               setFunctionAnswer(e.target.value);
-              setErrors(prev => ({ ...prev, function: false }));
+              setErrors((prev) => ({ ...prev, function: false }));
             }}
             error={errors.function}
             helperText={errors.function && "This field is required."}
@@ -228,11 +232,7 @@ const EntryExamComponent = () => {
             >
               <ArrowBackIcon sx={{ mr: 1 }} /> Prev
             </Button>
-            <Button
-              variant="contained"
-              color="success"
-              onClick={handleNext}
-            >
+            <Button variant="contained" color="success" onClick={handleNext}>
               Next
               <ArrowForwardIcon sx={{ ml: 1 }} />
             </Button>
@@ -247,7 +247,11 @@ const EntryExamComponent = () => {
         onClose={handleCloseSnackbar}
         anchorOrigin={{ vertical: "top", horizontal: "right" }}
       >
-        <Alert onClose={handleCloseSnackbar} severity={snackbarSeverity} sx={{ width: "100%" }}>
+        <Alert
+          onClose={handleCloseSnackbar}
+          severity={snackbarSeverity}
+          sx={{ width: "100%" }}
+        >
           {snackbarMessage}
         </Alert>
       </Snackbar>

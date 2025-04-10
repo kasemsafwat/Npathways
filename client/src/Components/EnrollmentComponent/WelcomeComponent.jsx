@@ -1,10 +1,19 @@
-import React from "react";
+import React, { useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button, Typography, Container, Grid, Box } from "@mui/material";
 import { Edit, Create, TrackChanges, Checklist } from "@mui/icons-material";
 import welcome from "../../assets/Welcome.png";
+import { AuthContext } from "../../contexts/AuthContext";
 export default function WelcomeComponent() {
   const navigate = useNavigate();
+  const { user } = useContext(AuthContext);
+  function handleStart() {
+    if (!user) {
+      navigate("/login");
+      return;
+    }
+    navigate("/enrollment/personal-details");
+  }
   return (
     <Box sx={{ bgcolor: "#f9f9f9", minHeight: "100vh" }}>
       <Container sx={{ mt: 5 }}>
@@ -101,7 +110,7 @@ export default function WelcomeComponent() {
                 variant="contained"
                 color="success"
                 sx={{ mb: 2, alignSelf: "flex-start" }}
-                onClick={() => navigate("/enrollment/personal-details")}
+                onClick={handleStart}
               >
                 Start Application
               </Button>

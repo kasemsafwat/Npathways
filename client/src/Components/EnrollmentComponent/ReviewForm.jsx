@@ -20,7 +20,7 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { EnrollmentContext } from "../../contexts/EnrollmentContext";
 const ReviewForm = () => {
-  const { enrollmentData, setError, setEnrollmentData } =
+  const { enrollmentData, setError, setEnrollmentData, setStep } =
     useContext(EnrollmentContext);
   const [checked, setChecked] = useState(false);
   const [editingSections, setEditingSections] = useState({
@@ -79,6 +79,7 @@ const ReviewForm = () => {
         navigate("/student/mypathway");
         setSnackbarMessage("Enrollment successfully created!");
         setSnackbarSeverity("success");
+        setStep(4);
         setOpenSnackbar(true);
       }
     } catch (error) {

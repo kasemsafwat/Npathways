@@ -7,7 +7,6 @@ import axios from "axios";
 export default function PathwaySection() {
   const [pathways, setPathways] = React.useState([]);
   const [loading, setLoading] = React.useState(true);
-  const courses = pathways.map((pathway) => pathway.courses).flat();
 
   React.useEffect(() => {
     const fetchPathways = async () => {
@@ -16,6 +15,9 @@ export default function PathwaySection() {
           `http://localhost:5024/api/pathway/student/userPathway`,
           { withCredentials: true }
         );
+        if (response.data.message === "User is not enrolled in any pathways") {
+          setPathways([]);
+        }
         setPathways(response.data.data);
       } catch (error) {
         console.error("Error fetching pathways:", error);
@@ -26,6 +28,7 @@ export default function PathwaySection() {
 
     fetchPathways();
   }, []);
+  const courses = pathways.map((pathway) => pathway.courses).flat();
 
   if (loading) {
     return (

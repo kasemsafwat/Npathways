@@ -4,6 +4,7 @@ import {
   Autocomplete,
   Box,
   Button,
+  CircularProgress,
   Divider,
   Stack,
   TextField,
@@ -14,15 +15,35 @@ import React, { useContext } from "react";
 import { Link } from "react-router-dom";
 import { AuthContext } from "../../contexts/AuthContext";
 
-const navigationItems = [
+let navigationItems = [
   { label: "Home", path: "/" },
-  { label: "Courses", path: "/courses" },
-  { label: "Instructors", path: "/instructors" },
-  { label: "Chat", path: "/chat" },
+  { label: "Enrollment", path: "/enrollment/Welcome" },
 ];
 
 const NavBarNew = () => {
-  const { isAuthenticated, logout, isEnrolled } = useContext(AuthContext);
+  const {
+    isAuthenticated,
+    logout,
+    isEnrolled,
+    isStudent,
+    isInstructor,
+    isLoading,
+  } = useContext(AuthContext);
+
+  if (isStudent) {
+    navigationItems = [
+      { label: "My Pathway", path: "/student/mypathway" },
+      { label: "Courses", path: "/courses" },
+      { label: "Chat", path: "/chat" },
+    ];
+  }
+  if (isInstructor) {
+    navigationItems = [
+      { label: "Instructor Dashboard", path: "/instructor/dashboard" },
+      { label: "Courses", path: "/courses" },
+      { label: "Chat", path: "/chat" },
+    ];
+  }
 
   return (
     <AppBar position="static" sx={{ bgcolor: "#0B162C", height: 100 }}>
@@ -83,7 +104,7 @@ const NavBarNew = () => {
             display: "flex",
             alignItems: "center",
             px: 2,
-            borderRadius: "30px", // Added border radius to make it rounded
+            borderRadius: "30px",
           }}
         >
           <SearchIcon sx={{ color: "white", mr: 1 }} />
@@ -110,96 +131,104 @@ const NavBarNew = () => {
             )}
           />
         </Box>
-        {/* Dynamic Buttons */}
-        {!isEnrolled && isAuthenticated && (
-          <Button
-            sx={{
-              color: "white",
-              backgroundColor: "#46c98b",
-              textTransform: "none",
-              borderRadius: "100px",
-              width: 140,
-              height: 50,
-              fontFamily: "Poppins-Medium, Helvetica",
-              fontWeight: 500,
-              fontSize: "0.875rem",
-              letterSpacing: "-0.18px",
-              lineHeight: "20px",
-              "&:hover": {
-                bgcolor: "#3ab77a",
-              },
-            }}
-            variant="contained"
-            component={Link}
-            to="/terms-and-conditions"
-          >
-            Enroll
-          </Button>
-        )}
-        {isAuthenticated ? (
-          <Button
-            sx={{
-              color: "white",
-              backgroundColor: "#46c98b",
-              textTransform: "none",
-              borderRadius: "100px",
-              width: 140,
-              height: 50,
-              fontFamily: "Poppins-Medium, Helvetica",
-              fontWeight: 500,
-              fontSize: "0.875rem",
-              letterSpacing: "-0.18px",
-              lineHeight: "20px",
-              "&:hover": {
-                bgcolor: "#3ab77a",
-              },
-            }}
-            variant="contained"
-            onClick={logout}
-          >
-            Logout
-          </Button>
+        {/* Auth Related Buttons with Loading State */}
+        {isLoading ? (
+          <Box sx={{ display: "flex", width: 140, justifyContent: "center" }}>
+            <CircularProgress size={30} sx={{ color: "#46c98b" }} />
+          </Box>
         ) : (
           <>
-            <Typography
-              component={Link}
-              to="/login"
-              sx={{
-                fontFamily: "Poppins-Medium, Helvetica",
-                fontWeight: 500,
-                color: "white",
-                fontSize: "0.875rem",
-                letterSpacing: "-0.18px",
-                lineHeight: "20px",
-                cursor: "pointer",
-                mr: 2,
-                textDecoration: "none",
-              }}
-            >
-              Log in
-            </Typography>
-            <Button
-              variant="contained"
-              component={Link}
-              to="/register"
-              sx={{
-                bgcolor: "#46c98b",
-                borderRadius: "100px",
-                width: 140,
-                height: 50,
-                fontFamily: "Poppins-Medium, Helvetica",
-                fontWeight: 500,
-                fontSize: "0.875rem",
-                letterSpacing: "-0.18px",
-                lineHeight: "20px",
-                textTransform: "none",
-                "&:hover": {
-                  bgcolor: "#3ab77a",
-                },
-              }}
-            >
-              Register
-            </Button>
+            {!isEnrolled && isAuthenticated && !isInstructor && (
+              <Button
+                sx={{
+                  color: "white",
+                  backgroundColor: "#46c98b",
+                  textTransform: "none",
+                  borderRadius: "100px",
+                  width: 140,
+                  height: 50,
+                  fontFamily: "Poppins-Medium, Helvetica",
+                  fontWeight: 500,
+                  fontSize: "0.875rem",
+                  letterSpacing: "-0.18px",
+                  lineHeight: "20px",
+                  "&:hover": {
+                    bgcolor: "#3ab77a",
+                  },
+                }}
+                variant="contained"
+                component={Link}
+                to="/enrollment/welcome"
+              >
+                Enroll
+              </Button>
+            )}
+            {isInstructor || isStudent ? (
+              <Button
+                sx={{
+                  color: "white",
+                  backgroundColor: "#46c98b",
+                  textTransform: "none",
+                  borderRadius: "100px",
+                  width: 140,
+                  height: 50,
+                  fontFamily: "Poppins-Medium, Helvetica",
+                  fontWeight: 500,
+                  fontSize: "0.875rem",
+                  letterSpacing: "-0.18px",
+                  lineHeight: "20px",
+                  "&:hover": {
+                    bgcolor: "#3ab77a",
+                  },
+                }}
+                variant="contained"
+                onClick={logout}
+              >
+                Logout
+              </Button>
+            ) : (
+              <>
+                <Typography
+                  component={Link}
+                  to="/login"
+                  sx={{
+                    fontFamily: "Poppins-Medium, Helvetica",
+                    fontWeight: 500,
+                    color: "white",
+                    fontSize: "0.875rem",
+                    letterSpacing: "-0.18px",
+                    lineHeight: "20px",
+                    cursor: "pointer",
+                    mr: 2,
+                    textDecoration: "none",
+                  }}
+                >
+                  Log in
+                </Typography>
+                <Button
+                  variant="contained"
+                  component={Link}
+                  to="/register"
+                  sx={{
+                    bgcolor: "#46c98b",
+                    borderRadius: "100px",
+                    width: 140,
+                    height: 50,
+                    fontFamily: "Poppins-Medium, Helvetica",
+                    fontWeight: 500,
+                    fontSize: "0.875rem",
+                    letterSpacing: "-0.18px",
+                    lineHeight: "20px",
+                    textTransform: "none",
+                    "&:hover": {
+                      bgcolor: "#3ab77a",
+                    },
+                  }}
+                >
+                  Register
+                </Button>
+              </>
+            )}
           </>
         )}
       </Toolbar>

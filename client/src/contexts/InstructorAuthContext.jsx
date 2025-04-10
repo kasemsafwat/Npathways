@@ -11,9 +11,9 @@ export const InstructorAuthProvider = ({ children }) => {
   const [isLoading, setIsLoading] = useState(true);
 
   // Verify user authentication on component mount
-  useEffect(() => {
-    verifyAuth();
-  }, []);
+  // useEffect(() => {
+  //   verifyAuth();
+  // }, []);
 
   // Login function
   const login = async (credentials) => {
@@ -59,28 +59,28 @@ export const InstructorAuthProvider = ({ children }) => {
   };
 
   // Verify authentication status
-  const verifyAuth = async () => {
-    try {
-      setIsLoading(true);
-      const response = await axios.get(
-        "http://localhost:5024/api/instructor/verify"
-      );
+  // const verifyAuth = async () => {
+  //   try {
+  //     setIsLoading(true);
+  //     const response = await axios.get(
+  //       "http://localhost:5024/api/instructor/verify"
+  //     );
 
-      if (response.data) {
-        setIsAuthenticated(true);
-        setUser(response.data);
-      } else {
-        setIsAuthenticated(false);
-        setUser(null);
-      }
-    } catch (error) {
-      // console.error("Verification error:", error);
-      setIsAuthenticated(false);
-      setUser(null);
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  //     if (response.data) {
+  //       setIsAuthenticated(true);
+  //       setUser(response.data);
+  //     } else {
+  //       setIsAuthenticated(false);
+  //       setUser(null);
+  //     }
+  //   } catch (error) {
+  //     // console.error("Verification error:", error);
+  //     setIsAuthenticated(false);
+  //     setUser(null);
+  //   } finally {
+  //     setIsLoading(false);
+  //   }
+  // };
 
   return (
     <InstructorAuthContext.Provider
@@ -89,7 +89,7 @@ export const InstructorAuthProvider = ({ children }) => {
         user,
         login,
         logout,
-        verifyAuth,
+        // verifyAuth,
         isLoading,
       }}
     >

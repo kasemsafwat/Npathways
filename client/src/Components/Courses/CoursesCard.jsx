@@ -82,7 +82,7 @@ function CoursesCard({ course }) {
         <CardMedia
           component="img"
           alt={course.name}
-          image={image}
+          image={course.image}
           sx={{ objectFit: "cover", borderRadius: "30px" }}
         />
 
@@ -109,10 +109,18 @@ function CoursesCard({ course }) {
                 <ListItem key={index} sx={{ px: 0 }}>
                   <ListItemAvatar>
                     <Avatar sx={{ width: 24, height: 24 }}>
-                      {instructor.name.charAt(0)}
+                      {instructor && instructor.name
+                        ? instructor.name.charAt(0)
+                        : "?"}
                     </Avatar>
                   </ListItemAvatar>
-                  <ListItemText primary={instructor.name} />
+                  <ListItemText
+                    primary={
+                      instructor && instructor.name
+                        ? instructor.name
+                        : "Unknown Instructor"
+                    }
+                  />
                 </ListItem>
               ))}
             </List>
@@ -141,7 +149,7 @@ function CoursesCard({ course }) {
 
         <Rating name="read-only" value={4} readOnly sx={{ my: 0 }} />
         <CardActions sx={{ marginBlock: 1 }}>
-          <Button
+          {/* <Button
             variant="contained"
             color="primary"
             size="small"
@@ -149,7 +157,7 @@ function CoursesCard({ course }) {
             disabled={isEnrolled}
           >
             {isEnrolled ? "Enrolled" : "Enroll In"}
-          </Button>
+          </Button> */}
           <Button
             size="small"
             onClick={() => navigate(`/coursedetails/${course._id}`)}

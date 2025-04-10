@@ -18,7 +18,7 @@ import AddressSection from "./sectionsPersonal/AddressSection";
 import FacultySection from "./sectionsPersonal/FacultySection";
 import MotivationLetterSection from "./sectionsPersonal/MotivationLetterSection";
 export default function PersonalDetailsForm() {
-  const { setPersonalDetails } = useContext(EnrollmentContext);
+  const { setPersonalDetails, setStep } = useContext(EnrollmentContext);
   const navigate = useNavigate();
   const [activeStep] = useState(0);
   const steps = ["Personal Info", "Exam", "Review"];
@@ -38,10 +38,10 @@ export default function PersonalDetailsForm() {
   });
   const [errors, setErrors] = useState({});
   const [openSnackbar, setOpenSnackbar] = useState(false);
-  const [snackbarMessage, setSnackbarMessage] = useState(""); 
+  const [snackbarMessage, setSnackbarMessage] = useState("");
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setErrors((prev) => ({ ...prev, [name]: undefined })); 
+    setErrors((prev) => ({ ...prev, [name]: undefined }));
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
   const validatePayload = (payload) => {
@@ -56,7 +56,8 @@ export default function PersonalDetailsForm() {
     } else if (!/^[a-zA-Z]+$/.test(payload.lastName)) {
       newErrors.lastName = "Last name should contain only letters";
     }
-    if (!payload.dateOfBirth) newErrors.dateOfBirth = "Date of birth is required";
+    if (!payload.dateOfBirth)
+      newErrors.dateOfBirth = "Date of birth is required";
     if (!payload.nationality) newErrors.nationality = "Nationality is required";
     if (!payload.email?.trim()) {
       newErrors.email = "Email is required";
@@ -68,7 +69,8 @@ export default function PersonalDetailsForm() {
     } else if (!/^(01[0125])\d{8}$|^02\d{8}$/.test(payload.phone)) {
       newErrors.phone = "Enter a valid Egyptian phone number";
     }
-    if (!payload.address?.country?.trim()) newErrors["address.country"] = "Country is required";
+    if (!payload.address?.country?.trim())
+      newErrors["address.country"] = "Country is required";
     if (!payload.facultyName) newErrors.faculty = "Faculty is required";
     if (isNaN(payload.GPA) || payload.GPA < 0 || payload.GPA > 4) {
       newErrors.GPA = "Please enter a valid GPA (0-4)";
@@ -76,7 +78,8 @@ export default function PersonalDetailsForm() {
     if (!payload.motivationLetter?.trim()) {
       newErrors.motivationLetter = "Motivation letter is required";
     } else if (payload.motivationLetter.length < 50) {
-      newErrors.motivationLetter = "Motivation letter should be at least 50 characters";
+      newErrors.motivationLetter =
+        "Motivation letter should be at least 50 characters";
     }
     return newErrors;
   };
@@ -97,12 +100,15 @@ export default function PersonalDetailsForm() {
       facultyName: formData.faculty,
       GPA: formData.GPA ? parseFloat(formData.GPA) : undefined,
     };
+
     const validationErrors = validatePayload(payload);
     if (Object.keys(validationErrors).length > 0) {
-      const firstErrorMessage = validationErrors[Object.keys(validationErrors)[0]];
+      const firstErrorMessage =
+        validationErrors[Object.keys(validationErrors)[0]];
       setErrors(validationErrors);
       setSnackbarMessage(firstErrorMessage);
-      setOpenSnackbar(true); 
+      setOpenSnackbar(true);
+      setStep(2);
       return;
     }
 
@@ -132,11 +138,31 @@ export default function PersonalDetailsForm() {
         Personal Details and Motivation
       </Typography>
       <CustomStepper activeStep={activeStep} steps={steps} />
-      <PersonalInfoSection formData={formData} errors={errors} handleChange={handleChange} />
-      <ContactInfoSection formData={formData} errors={errors} handleChange={handleChange} />
-      <AddressSection formData={formData} errors={errors} handleChange={handleChange} />
-      <FacultySection formData={formData} errors={errors} handleChange={handleChange} />
-      <MotivationLetterSection formData={formData} errors={errors} handleChange={handleChange} />
+      <PersonalInfoSection
+        formData={formData}
+        errors={errors}
+        handleChange={handleChange}
+      />
+      <ContactInfoSection
+        formData={formData}
+        errors={errors}
+        handleChange={handleChange}
+      />
+      <AddressSection
+        formData={formData}
+        errors={errors}
+        handleChange={handleChange}
+      />
+      <FacultySection
+        formData={formData}
+        errors={errors}
+        handleChange={handleChange}
+      />
+      <MotivationLetterSection
+        formData={formData}
+        errors={errors}
+        handleChange={handleChange}
+      />
       <Box sx={{ display: "flex", justifyContent: "space-between", mt: 3 }}>
         <Button
           variant="contained"
@@ -157,14 +183,18 @@ export default function PersonalDetailsForm() {
       </Box>
       {/*notification */}
       <Snackbar
-            open={openSnackbar}
-            autoHideDuration={6000}
-            onClose={() => setOpenSnackbar(false)}
-            anchorOrigin={{ vertical: 'top', horizontal: 'right' }} 
-          >
-            <Alert severity="error" onClose={() => setOpenSnackbar(false)} sx={{ width: '100%' }}>
-              {snackbarMessage}
-            </Alert>
+        open={openSnackbar}
+        autoHideDuration={6000}
+        onClose={() => setOpenSnackbar(false)}
+        anchorOrigin={{ vertical: "top", horizontal: "right" }}
+      >
+        <Alert
+          severity="error"
+          onClose={() => setOpenSnackbar(false)}
+          sx={{ width: "100%" }}
+        >
+          {snackbarMessage}
+        </Alert>
       </Snackbar>
     </Container>
   );
