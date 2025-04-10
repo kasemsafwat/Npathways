@@ -619,3 +619,30 @@
   background-color: #007bff; /* لون أزرق لطيف */
   border-radius: 50%;
 }
+
+
+/* error message */
+
+/* Style for the error messages */
+.error-message {
+  color: #d9534f; /* Red color for error messages */
+  font-size: 12px;
+  margin-top: 5px;
+}
+
+.error-message div {
+  margin-bottom: 5px;
+}
+
+input.ng-invalid.ng-touched {
+  border-color: #d9534f; /* Red border for invalid inputs */
+}
+
+input.ng-valid.ng-touched {
+  border-color: #5bc0de; /* Blue border for valid inputs */
+}
+
+/* Optional: Add some margin to form groups */
+.form-group {
+  margin-bottom: 15px;
+}

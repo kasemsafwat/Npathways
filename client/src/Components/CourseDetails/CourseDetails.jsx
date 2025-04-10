@@ -1,15 +1,25 @@
-import { Box, CardMedia, Grid, Grid2, Typography } from "@mui/material";
+import { Box, CardMedia, Grid, Typography } from "@mui/material";
 import axios from "axios";
-import React, { useEffect } from "react";
+import React, { useContext, useEffect } from "react";
 import { useParams } from "react-router";
 import image from "../../assets/Rectangle 72.png";
 import person from "../../assets/user.png";
-import { Button } from "bootstrap/dist/js/bootstrap.bundle.min";
 import { loadStripe } from "@stripe/stripe-js";
+import { AuthContext } from "../../contexts/AuthContext";
 export default function CourseDetails() {
+  const { user } = useContext(AuthContext);
+  console.log(user);
   let [course, setCourse] = React.useState({});
   let [loading, setLoading] = React.useState(true);
   let { id } = useParams();
+  const [alreadyPurchased, setAlreadyPurchased] = React.useState(false);
+
+  useEffect(() => {
+    if (user && user.courses && user.courses.includes(id)) {
+      console.log("you already got it");
+      setAlreadyPurchased(true);
+    }
+  }, [user, id]);
   let userName = localStorage.getItem("userName");
   async function getSingleCourse() {
     try {
@@ -17,7 +27,6 @@ export default function CourseDetails() {
         `http://localhost:5024/api/course/${id}`
       );
       setCourse(response.data);
-      // console.log(localStorage)
       setLoading(false);
     } catch (error) {
       console.error("Error fetching course details:", error);
@@ -26,142 +35,179 @@ export default function CourseDetails() {
   useEffect(() => {
     getSingleCourse();
   }, []);
+  const priceAfterDiscount = course.price - course.discount;
+  const [isProcessingPayment, setIsProcessingPayment] = React.useState(false);
 
   const makePayment = async () => {
-    const stripe = await loadStripe(process.env.PUBLISH_KEY);
+    try {
+      setIsProcessingPayment(true);
 
-    const body = {
-      amount: course.priceAfterDiscount || 39.99,
-    };
-    const response = await axios.post(
-      `http://localhost:5024/api/payment/create-checkout-session`,
-      body,
-      { "Content-Type": "application/json" }
-    );
-    const session = response.data;
-    const result = await stripe.redirectToCheckout({
-      sessionId: session.id,
-    });
+      const stripe = await loadStripe(
+        "pk_test_51RBR2iDc21UouuAB3g41OrIvrbvj72VbEl4QNUXzYJwNwUvi6XWWE4RNP7VytWVw1T1fe3K96z1EZqDAfe2uOhhy00UJqUHsHN"
+      );
+
+      const response = await axios.post(
+        "http://localhost:5024/api/payment/create-session",
+        { courseId: course._id },
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+          withCredentials: true,
+        }
+      );
+
+      // Check if response has sessionUrl (direct redirect)
+      if (response.data.sessionUrl) {
+        window.location.href = response.data.sessionUrl;
+        return;
+      }
+
+      // Fallback to redirectToCheckout if no sessionUrl
+      const result = await stripe.redirectToCheckout({
+        sessionId: response.data.sessionId,
+      });
+
+      if (result.error) {
+        console.error(result.error.message);
+        alert("Payment failed: " + result.error.message);
+      }
+    } catch (error) {
+      console.error("Payment failed:", error);
+      alert("Payment processing failed. Please try again later.");
+    } finally {
+      setIsProcessingPayment(false);
+    }
   };
+  const instructorNames = course.instructors
+    ? course.instructors
+        .map((instructor) => instructor.firstName + " " + instructor.lastName)
+        .join(", ")
+    : [];
   return (
     <>
-      <Grid container my={5}>
-        <Grid xs={12} md={7}>
+      <Grid container my={2} spacing={2}>
+        <Grid item xs={12} md={6}>
           <CardMedia
             component="img"
             alt={course.name}
             image={image}
             sx={{
               objectFit: "cover",
-              borderRadius: "30px",
-              width: "90%",
+              borderRadius: "16px",
+              width: "85%",
+              height: "auto",
               margin: "auto",
             }}
           />
         </Grid>
-        <Grid xs={12} md={4} boxShadow={2}>
-          <Box style={{ width: "95%", margin: "auto" }}>
-            <Box
-              variant="body1"
-              sx={{ m: 3 }}
-              display="flex"
-              alignItems="center"
-            >
+        <Grid
+          item
+          xs={12}
+          md={4}
+          sx={{ boxShadow: 1, borderRadius: "12px", py: 1 }}
+        >
+          <Box style={{ width: "90%", margin: "auto" }}>
+            <Box sx={{ m: 1 }} display="flex" alignItems="center">
               <Typography
-                variant="h3"
-                style={{ color: "text.secondary", marginRight: "60px" }}
+                variant="h5"
+                style={{ color: "text.secondary", marginRight: "12px" }}
               >
-                ${course.priceAfterDiscount || "39.99"}
+                ${priceAfterDiscount || "39.99"}
               </Typography>
               <Typography
-                variant="h6"
+                variant="body2"
                 style={{
                   textDecoration: "line-through",
                   color: "gray",
                 }}
               >
-                ${course.priceBeforeDiscount || "50.00"}
+                ${course.price || "50.00"}
               </Typography>
             </Box>
             <button
               style={{
-                background: "#46C98B",
+                background: alreadyPurchased ? "gray" : "#46C98B",
                 width: "100%",
-                paddingBlock: "10px",
+                paddingBlock: "6px",
                 color: "white",
-                borderRadius: "20px",
-                marginTop: "30px",
-                fontSize: "25px",
+                borderRadius: "10px",
+                marginTop: "16px",
+                fontSize: "14px",
                 fontWeight: "bold",
+                border: "none",
+                cursor:
+                  isProcessingPayment || alreadyPurchased
+                    ? "not-allowed"
+                    : "pointer",
+                opacity: isProcessingPayment ? 0.7 : 1,
               }}
               onClick={makePayment}
+              disabled={isProcessingPayment || alreadyPurchased}
             >
-              Buy
+              {isProcessingPayment
+                ? "Processing..."
+                : alreadyPurchased
+                ? "Purchased"
+                : "Buy"}
             </button>
             <button
               style={{
                 width: "100%",
-                paddingBlock: "10px",
+                paddingBlock: "8px",
                 color: "grey",
-                borderRadius: "20px",
+                borderRadius: "15px",
                 marginBlock: "10px",
-                fontSize: "25px",
-                fontWeight: "bolder",
-                border: "3px solid grey",
+                fontSize: "16px",
+                fontWeight: "bold",
+                border: "2px solid grey",
               }}
             >
-              <i className="fa-regular fa-heart fa-lg"></i> Wishlist
+              <i className="fa-regular fa-heart"></i> Wishlist
             </button>
-            <Typography variant="h6" sx={{ m: 1 }}>
+            <Typography variant="subtitle1" sx={{ m: 1 }}>
               <strong>Course Name</strong>: {course.name}
             </Typography>
-            <Typography variant="h6" sx={{ m: 1 }}>
+            <Typography variant="subtitle1" sx={{ m: 1 }}>
               <strong>Course Description</strong>: {course.description}
             </Typography>
-            <Typography variant="h6" sx={{ m: 1 }}>
+            <Typography variant="subtitle1" sx={{ m: 1 }}>
               <strong>Course Status</strong>: {course.status}
             </Typography>
-            <Typography variant="h6" sx={{ m: 1 }}>
+            <Typography variant="subtitle1" sx={{ m: 1 }}>
               <strong>Lessons</strong>: {course?.lessons?.length || 0}
             </Typography>
           </Box>
         </Grid>
-        <Box sx={{ ml: "20px" }}>
-          <Typography variant="h4" sx={{ m: 2 }}>
-            <strong>Lorem ipsum dolor sit amet.</strong>
+        <Box sx={{ ml: "20px", mt: 3 }}>
+          <Typography variant="h5" sx={{ m: 2 }}>
+            <strong>{course.name}</strong>
           </Typography>
-          <Box container my={5} display="flex">
+          <Box display="flex" sx={{ my: 2 }}>
             <CardMedia
               component="img"
               alt={course.name}
               image={person}
               sx={{
-                width: "10%",
+                width: "50px",
+                height: "50px",
                 objectFit: "cover",
-                borderRadius: "30px",
-                marginLeft: "20px",
+                borderRadius: "50%",
+                ml: 2,
               }}
-            ></CardMedia>
-            <Typography variant="h5" sx={{ my: "auto", ml: 2 }}>
-              <strong>{userName}</strong>
+            />
+            <Typography variant="subtitle1" sx={{ my: "auto", ml: 2 }}>
+              <strong>{instructorNames}</strong>
               <br />
               Bim Engineer
             </Typography>
           </Box>
-          <Typography variant="h5" sx={{ m: 2 }}>
+          <Typography variant="h6" sx={{ m: 2 }}>
             <strong>About Course</strong>
           </Typography>
-          <Grid xs={8}>
-            <Typography variant="h6" sx={{ m: 2 }}>
-              Lorem ipsum, dolor sit amet consectetur adipisicing elit.
-              Voluptatum similique itaque deserunt, ducimus dolorum officia,
-              quia ipsum, doloremque mollitia et cumque id accusantium vero
-              quas? Itaque tenetur voluptatem omnis qui odit exercitationem
-              corporis dicta repellendus eum odio maxime aperiam, neque illum et
-              sequi alias nihil deleniti nobis fugiat. Temporibus voluptate quae
-              provident veniam, obcaecati minima sunt beatae ab! Dolore enim nam
-              maxime dolor eius illo mollitia explicabo inventore iste fugiat
-              officiis cumque
+          <Grid item xs={12} md={8}>
+            <Typography variant="body1" sx={{ m: 2 }}>
+              {course.description}
             </Typography>
           </Grid>
         </Box>

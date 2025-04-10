@@ -23,7 +23,7 @@ class CourseController {
         return res.status(400).json({ error: "Invalid course ID" });
       }
 
-      const course = await CourseModel.findById(id);
+      const course = await CourseModel.findById(id).populate("instructors");
       if (!course) {
         return res.status(404).json({ error: "Course not found" });
       }

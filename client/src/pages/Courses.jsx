@@ -37,18 +37,7 @@ function Courses() {
         justifyContent="center"
         alignItems="center"
         sx={{ mb: 3 }}
-      >
-        <ToggleButtonGroup
-          color="primary"
-          value={alignment}
-          exclusive
-          onChange={handleChange}
-          aria-label="Platform"
-        >
-          <ToggleButton value="web">Courses</ToggleButton>
-          <ToggleButton value="android">Pathway</ToggleButton>
-        </ToggleButtonGroup>
-      </Box>
+      ></Box>
       <div className="container">
         <div className="row">
           {courses.map((course) => (

@@ -22,8 +22,8 @@ const Login = () => {
   const navigate = useNavigate();
   const { login, isEnrolled, isLoading } = useContext(AuthContext);
   const initialValues = {
-    email: "moody@example.com",
-    password: "Test@123",
+    email: "example@gmail.com",
+    password: "Ali87654$",
   };
   const handleShowPassword = () => {
     setShowPassword(!showPassword);
@@ -31,7 +31,6 @@ const Login = () => {
   async function sendDataToAPI(values) {
     try {
       const { success, error } = await login(values);
-      if (success) navigate("/student/mypathway");
       if (error) setApiError(error || "Login failed");
     } catch (err) {
       console.log(err);

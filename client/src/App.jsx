@@ -30,7 +30,6 @@ const Layout = ({ children }) => {
   return (
     <div className="app">
       <NavBarNew />
-      {/* <Navbar /> */}
       <main className="content">{children}</main>
       <footer className="footer">
         <p>© 2025 NPathways</p>
@@ -75,14 +74,14 @@ function App() {
               />
 
               {/* Protected routes */}
+              <Route path="/student/mypathway" element={<MyPathway />} />
+              <Route path="/examDetails" element={<ExamPage />} />
+              <Route path="/createExam/:examId?" element={<CreateExam />} />
+              <Route path="/finishExam" element={<FinishedExam />} />
+              <Route path="/exam/:id" element={<Exam />} />
+              <Route path="/user" element={<UserProfile />} />
+              <Route path="/courses" element={<Courses />} />
               <Route element={<ProtectedRoute />}>
-                <Route path="/student/mypathway" element={<MyPathway />} />
-                <Route path="/examDetails" element={<ExamPage />} />
-                <Route path="/createExam/:examId?" element={<CreateExam />} />
-                <Route path="/finishExam" element={<FinishedExam />} />
-                <Route path="/exam/:id" element={<Exam />} />
-                <Route path="/user" element={<UserProfile />} />
-                <Route path="/courses" element={<Courses />} />
                 {/* Add more protected routes here */}
               </Route>
               <Route path="*" element={<NotFound />} />
