@@ -6,6 +6,16 @@
     </div>
   </div>
 
+  <!-- Error Message -->
+  <div class="alert alert-danger" *ngIf="error">
+    {{ error }}
+    <button
+      type="button"
+      class="btn-close float-end"
+      (click)="error = null"
+    ></button>
+  </div>
+
   <div class="card">
     <div class="card-body p-4">
       <div class="d-flex justify-content-between align-items-center mb-4">
@@ -51,12 +61,12 @@
           <li class="nav-item">
             <a
               class="nav-link"
-              [class.active]="activeTab === 'drafts'"
-              (click)="setActiveTab('drafts')"
+              [class.active]="activeTab === 'unpublished'"
+              (click)="setActiveTab('unpublished')"
               href="javascript:void(0)"
             >
-              Drafts
-              <span class="count">{{ getStatusCount("draft") }}</span>
+              Unpublished
+              <span class="count">{{ getStatusCount("unpublished") }}</span>
             </a>
           </li>
           <li class="nav-item">
@@ -75,111 +85,187 @@
 
       <!-- Search and Filters -->
       <div class="row g-3 mb-4">
-        <div class="col-md-4">
+        <div class="col-md-6">
           <div class="input-group">
             <span class="input-group-text border-end-0">
               <i class="bi bi-search"></i>
             </span>
             <input
               type="text"
-              class="form-control border-start-0 ps-0"
+              class="form-control"
               placeholder="Search courses..."
               [(ngModel)]="searchQuery"
               (input)="onSearch($event)"
             />
           </div>
         </div>
-        <div class="col-md-8 text-end">
+        <!--         <div class="col-md-8 text-end">
           <button class="btn btn-outline-secondary">
             <i class="bi bi-funnel"></i>
             Filters
           </button>
+        </div> -->
+      </div>
+
+      <!-- Loading State -->
+      <div *ngIf="isLoading" class="row g-4">
+        <div class="col-md-4" *ngFor="let i of [1, 2, 3]">
+          <div class="card h-100">
+            <div class="placeholder-glow">
+              <div class="placeholder w-100" style="height: 200px"></div>
+            </div>
+            <div class="card-body">
+              <div class="placeholder-glow">
+                <span class="placeholder col-6 mb-2"></span>
+                <h5 class="placeholder col-8"></h5>
+                <p class="placeholder col-12"></p>
+                <div class="d-flex align-items-center mb-3">
+                  <span
+                    class="placeholder rounded-circle me-2"
+                    style="width: 32px; height: 32px"
+                  ></span>
+                  <span class="placeholder col-4"></span>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 
-      <!-- Course Cards -->
-      <div class="row g-4">
+      <!-- No Courses Message -->
+      <div
+        *ngIf="!isLoading && filteredCourses.length === 0"
+        class="text-center py-5"
+      >
+        <i class="bi bi-journal-x" style="font-size: 3rem; color: #6c757d"></i>
+        <h3 class="mt-3">No Courses Found</h3>
+        <p class="text-muted">
+          {{
+            searchQuery
+              ? "No courses match your search criteria."
+              : "Start by creating your first course."
+          }}
+        </p>
+        <button class="btn btn-primary mt-3" (click)="openCreateDialog()">
+          <i class="bi bi-plus-lg"></i> Create Course
+        </button>
+      </div>
+
+      <!-- Course Grid -->
+      <div class="row g-4" *ngIf="!isLoading && filteredCourses.length > 0">
         <div class="col-md-4" *ngFor="let course of filteredCourses">
-          <div class="card h-100">
+          <div class="card h-100 course-card">
             <div class="position-relative">
               <img
                 [src]="course.image || 'assets/images/course.jpg'"
                 class="card-img-top"
-                alt="Course thumbnail"
+                alt="Course Image"
+                (error)="handleImageError($event)"
               />
-              <span
-                class="position-absolute top-0 end-0 m-3 badge"
+<!--               <span
+                class="position-absolute top-0 end-0 m-2 badge"
                 [ngClass]="{
-                  'bg-success': course.status === 'active',
-                  'bg-secondary': course.status === 'draft',
-                  'bg-danger': course.status === 'inactive'
+                  'bg-success': course.status === 'published',
+                  'bg-warning': course.status === 'unpublished'
                 }"
               >
-                {{ course.status | titlecase }}
-              </span>
+                {{ course.status || "Draft" | titlecase }}
+              </span> -->
             </div>
-            <div class="card-body p-4">
-              <div class="category-tag mb-2">
-                {{ course.category || "Development" }}
+
+            <div class="card-body">
+              <!-- Category -->
+              <div class="mb-2">
+                <span class="badge bg-light text-dark">{{
+                  course.category || "Development"
+                }}</span>
               </div>
-              <h5 class="card-title">{{ course.name }}</h5>
-              <p class="card-text mb-4">
+
+              <!-- Course Title -->
+              <h5 class="card-title mb-2">{{ course.name }}</h5>
+
+              <!-- Course Description -->
+              <p class="card-text text-muted small mb-3">
                 {{ course.description | slice : 0 : 100 }}...
               </p>
 
+              <!-- Instructor Info -->
               <div class="d-flex align-items-center mb-3">
                 <img
-                  [src]="'assets/images/avuser.jpg'"
+                  [src]="
+                    course.instructorDetails?.image ||
+                    'assets/images/avuser.jpg'
+                  "
                   class="rounded-circle me-2"
                   width="32"
                   height="32"
-                  alt="Instructor avatar"
+                  alt="Instructor"
+                  (error)="handleAvatarError($event)"
                 />
-                <span class="fw-medium">{{ getInstructorName(course) }}</span>
+                <span class="small">{{ getInstructorName(course) }}</span>
               </div>
 
+              <!-- Course Stats -->
               <div
                 class="d-flex justify-content-between align-items-center text-muted small"
               >
-                <div class="d-flex gap-3">
-                  <div>
-                    <i class="bi bi-people me-1"></i>
-                    {{ getStudentCount(course) }} Students
-                  </div>
-                  <div>
-                    <i class="bi bi-calendar me-1"></i>
-                    {{ formatDate(course._id) }}
-                  </div>
+                <div>
+                  <i class="bi bi-people me-1"></i>
+                  {{ getStudentCount(course) }} Students
                 </div>
-                <div class="price">${{ course.price || "0.00" }}</div>
+                <div>
+                  <i class="bi bi-calendar me-1"></i>
+                  {{ formatDate(course.createdAt) }}
+                </div>
+              </div>
+
+              <!-- Price -->
+              <div class="mt-3">
+                <span class="h5 mb-0">${{ course.price || "0" }}</span>
+                <span
+                  class="text-muted text-decoration-line-through ms-2"
+                  *ngIf="course.price && course.discount"
+                >
+                  ${{
+                    (
+                      course.price +
+                      (course.price * (course.discount || 0)) / 100
+                    ).toFixed(2)
+                  }}
+                </span>
               </div>
             </div>
+
+            <!-- Action Buttons -->
             <div class="card-footer bg-transparent border-top-0 p-3">
               <div class="d-flex gap-2">
                 <button
-                  class="btn btn-outline-secondary flex-grow-1"
-                  type="button"
-                >
-                  <i class="bi bi-eye"></i>
-                  View
-                </button>
-                <button
-                  class="btn btn-outline-secondary flex-grow-1"
-                  type="button"
+                  class="btn btn-outline-primary flex-grow-1"
                   (click)="openEditDialog(course, $event)"
                 >
-                  <i class="bi bi-pencil"></i>
-                  Edit
+                  <i class="bi bi-pencil"></i> Edit
                 </button>
                 <button
                   class="btn btn-outline-danger flex-grow-1"
-                  type="button"
                   (click)="openDeleteConfirm(course, $event)"
                 >
-                  <i class="bi bi-trash"></i>
-                  Delete
+                  <i class="bi bi-trash"></i> Delete
                 </button>
               </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Add New Course Card -->
+        <div class="col-md-4">
+          <div
+            class="card h-100 d-flex align-items-center justify-content-center new-course-card"
+            (click)="openCreateDialog()"
+            style="cursor: pointer"
+          >
+            <div class="text-center p-4">
+              <i class="bi bi-plus-circle" style="font-size: 3rem"></i>
+              <h5 class="mt-3">Add New Course</h5>
             </div>
           </div>
         </div>
@@ -188,28 +274,26 @@
   </div>
 </div>
 
-<!-- Create Course Dialog -->
+<!-- Dialogs -->
 <app-create-course-dialog
   (close)="loadCourses()"
   (courseCreated)="onCourseCreated()"
 >
 </app-create-course-dialog>
 
-<!-- Edit Course Dialog -->
 <app-edit-course-dialog (close)="loadCourses()" (courseUpdated)="loadCourses()">
 </app-edit-course-dialog>
 
-<!-- Delete Confirmation Dialog -->
+<!-- Delete Confirmation Modal -->
 <div
   class="modal"
   [class.show]="showDeleteConfirm"
   tabindex="-1"
-  role="dialog"
   [style.display]="showDeleteConfirm ? 'block' : 'none'"
 >
   <div class="modal-dialog modal-dialog-centered">
     <div class="modal-content">
-      <div class="modal-header border-bottom-0">
+      <div class="modal-header">
         <h5 class="modal-title">Delete Course</h5>
         <button
           type="button"
@@ -218,13 +302,14 @@
         ></button>
       </div>
       <div class="modal-body">
-        <p class="mb-0">
+        <p>
           Are you sure you want to delete
           <strong>{{ courseToDelete?.name }}</strong
-          >? This action cannot be undone.
+          >?
         </p>
+        <p class="text-danger mb-0">This action cannot be undone.</p>
       </div>
-      <div class="modal-footer border-top-0">
+      <div class="modal-footer">
         <button
           type="button"
           class="btn btn-secondary"
@@ -240,5 +325,4 @@
   </div>
 </div>
 
-<!-- Delete Modal Backdrop -->
 <div class="modal-backdrop fade show" *ngIf="showDeleteConfirm"></div>

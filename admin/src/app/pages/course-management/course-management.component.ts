@@ -4,6 +4,13 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { CreateCourseDialogComponent } from './create-course-dialog/create-course-dialog.component';
 import { EditCourseDialogComponent } from './edit-course-dialog/edit-course-dialog.component';
+import { InstructorService, Instructor } from '../../services/instructor.service';
+import { forkJoin, Observable, of } from 'rxjs';
+
+interface CourseWithDetails extends Course {
+  instructorDetails?: Instructor;
+  studentCount?: number;
+}
 
 @Component({
   selector: 'app-course-management',
@@ -16,27 +23,87 @@ export class CourseManagementComponent implements OnInit {
   @ViewChild(CreateCourseDialogComponent) createDialog!: CreateCourseDialogComponent;
   @ViewChild(EditCourseDialogComponent) editDialog!: EditCourseDialogComponent;
   
-  courses: Course[] = [];
-  filteredCourses: Course[] = [];
-  activeTab: 'all' | 'active' | 'drafts' | 'inactive' = 'all';
+  courses: CourseWithDetails[] = [];
+  filteredCourses: CourseWithDetails[] = [];
+  activeTab: 'all' | 'active' | 'unpublished' | 'inactive' = 'all';
   searchQuery: string = '';
   showDeleteConfirm = false;
-  courseToDelete: Course | null = null;
+  courseToDelete: CourseWithDetails | null = null;
+  isLoading = true;
+  error: string | null = null;
 
-  constructor(private coursesService: CoursesService) {}
+  constructor(
+    private coursesService: CoursesService,
+    private instructorService: InstructorService
+  ) {}
 
   ngOnInit(): void {
     this.loadCourses();
   }
 
   loadCourses(): void {
+    this.isLoading = true;
+    this.error = null;
+    console.log('Loading courses...');
+
     this.coursesService.getCourses().subscribe({
       next: (courses) => {
-        this.courses = courses;
-        this.filterCourses();
+        console.log('Received courses:', courses);
+        if (!courses || courses.length === 0) {
+          this.isLoading = false;
+          this.courses = [];
+          this.filteredCourses = [];
+          return;
+        }
+
+        const instructorObservables = courses.map(course => {
+          if (course.instructors && course.instructors.length > 0) {
+            const instructorId = typeof course.instructors[0] === 'string' 
+              ? course.instructors[0] 
+              : course.instructors[0]._id;
+            console.log('Fetching instructor:', instructorId);
+            return this.instructorService.getInstructorById(instructorId);
+          }
+          return of(null);
+        });
+
+        const studentCountObservables = courses.map(course => {
+          if (course._id) {
+            console.log('Fetching student count for course:', course._id);
+            return this.coursesService.getUsersInCourse(course._id);
+          }
+          return of([]);
+        });
+
+        forkJoin({
+          instructors: forkJoin(instructorObservables),
+          studentCounts: forkJoin(studentCountObservables)
+        }).subscribe({
+          next: (results) => {
+            console.log('Received instructor details:', results.instructors);
+            console.log('Received student counts:', results.studentCounts);
+
+            this.courses = courses.map((course, index) => ({
+              ...course,
+              instructorDetails: results.instructors[index] || undefined,
+              studentCount: results.studentCounts[index]?.length || 0
+            }));
+
+            console.log('Processed courses:', this.courses);
+            this.filterCourses();
+            this.isLoading = false;
+          },
+          error: (error) => {
+            console.error('Error loading course details:', error);
+            this.error = 'Failed to load course details. Please try again.';
+            this.isLoading = false;
+          }
+        });
       },
       error: (error) => {
         console.error('Error loading courses:', error);
+        this.error = 'Failed to load courses. Please try again.';
+        this.isLoading = false;
       }
     });
   }
@@ -44,45 +111,54 @@ export class CourseManagementComponent implements OnInit {
   filterCourses(): void {
     let filtered = [...this.courses];
     
-    // Apply status filter
     if (this.activeTab !== 'all') {
       filtered = filtered.filter(course => 
         course.status?.toLowerCase() === this.activeTab
       );
     }
 
-    // Apply search filter
     if (this.searchQuery) {
+      const query = this.searchQuery.toLowerCase();
       filtered = filtered.filter(course =>
-        course.name.toLowerCase().includes(this.searchQuery.toLowerCase())
+        course.name.toLowerCase().includes(query) ||
+        course.instructorDetails?.firstName?.toLowerCase().includes(query) ||
+        course.instructorDetails?.lastName?.toLowerCase().includes(query)
       );
     }
 
+    console.log('Filtered courses:', filtered);
     this.filteredCourses = filtered;
   }
 
-  onSearch(event: Event): void {
-    const target = event.target as HTMLInputElement;
-    this.searchQuery = target.value;
-    this.filterCourses();
+  handleImageError(event: Event): void {
+    const img = event.target as HTMLImageElement;
+    if (img) {
+      img.src = 'assets/images/course.jpg';
+    }
   }
 
-  setActiveTab(tab: 'all' | 'active' | 'drafts' | 'inactive'): void {
-    this.activeTab = tab;
-    this.filterCourses();
+  handleAvatarError(event: Event): void {
+    const img = event.target as HTMLImageElement;
+    if (img) {
+      img.src = 'assets/images/avuser.jpg';
+    }
   }
 
-  getInstructorName(course: Course): string {
-    const instructor = course.instructors[0];
-    return instructor ? `${instructor.firstName} ${instructor.lastName}` : 'No instructor assigned';
+  getInstructorName(course: CourseWithDetails): string {
+    if (course.instructorDetails) {
+      return `${course.instructorDetails.firstName} ${course.instructorDetails.lastName}`;
+    }
+    return 'No instructor assigned';
   }
 
-  getStudentCount(course: Course): number {
-    return 0; // Placeholder
+  getStudentCount(course: CourseWithDetails): number {
+    return course.studentCount || 0;
   }
 
   getStatusCount(status: string): number {
-    return this.courses.filter(course => course.status?.toLowerCase() === status.toLowerCase()).length;
+    return this.courses.filter(course => 
+      course.status?.toLowerCase() === status.toLowerCase()
+    ).length;
   }
 
   formatDate(date: string | undefined): string {
@@ -94,16 +170,28 @@ export class CourseManagementComponent implements OnInit {
     });
   }
 
+  onSearch(event: Event): void {
+    const target = event.target as HTMLInputElement;
+    this.searchQuery = target.value;
+    this.filterCourses();
+  }
+
+  setActiveTab(tab: 'all' | 'active' | 'unpublished' | 'inactive'): void {
+    this.activeTab = tab;
+    this.filterCourses();
+  }
+
   openCreateDialog(): void {
     this.createDialog.openDialog();
   }
 
-  onCourseCreated(): void {
-    this.loadCourses();
+  openEditDialog(course: CourseWithDetails, event: Event): void {
+    event.stopPropagation();
+    this.editDialog.openDialog(course);
   }
 
-  openDeleteConfirm(course: Course, event: Event): void {
-    event.stopPropagation(); // Prevent event bubbling
+  openDeleteConfirm(course: CourseWithDetails, event: Event): void {
+    event.stopPropagation();
     this.courseToDelete = course;
     this.showDeleteConfirm = true;
   }
@@ -113,21 +201,19 @@ export class CourseManagementComponent implements OnInit {
     this.courseToDelete = null;
   }
 
+  onCourseCreated(): void {
+    this.loadCourses();
+  }
+
   async deleteCourse(): Promise<void> {
     if (!this.courseToDelete?._id) return;
 
     try {
       await this.coursesService.deleteCourse(this.courseToDelete._id).toPromise();
-      this.loadCourses(); // Refresh the course list
+      this.loadCourses();
       this.closeDeleteConfirm();
     } catch (error) {
       console.error('Error deleting course:', error);
-      // You might want to show an error message to the user here
     }
-  }
-
-  openEditDialog(course: Course, event: Event): void {
-    event.stopPropagation(); // Prevent event bubbling
-    this.editDialog.openDialog(course);
   }
 }

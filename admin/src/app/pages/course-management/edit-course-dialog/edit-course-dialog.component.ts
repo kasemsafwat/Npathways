@@ -1,7 +1,8 @@
-import { Component, EventEmitter, Output } from '@angular/core';
+import { Component, EventEmitter, OnInit, Output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { CoursesService, Course } from '../../../services/course.service';
+import { InstructorService, Instructor } from '../../../services/instructor.service';
 
 interface Lesson {
   name: string;
@@ -16,7 +17,7 @@ interface Lesson {
   standalone: true,
   imports: [CommonModule, FormsModule],
 })
-export class EditCourseDialogComponent {
+export class EditCourseDialogComponent implements OnInit {
   @Output() close = new EventEmitter<void>();
   @Output() courseUpdated = new EventEmitter<void>();
 
@@ -26,88 +27,157 @@ export class EditCourseDialogComponent {
     requiredExams: [],
     instructors: [],
     lessons: [],
+    status: 'unpublished',
+    price: 0,
+    discount: 0,
+    category: ''
   };
 
   showDialog = false;
   isSubmitting = false;
-  errorMessage = '';
+  error: string | null = null;
+  imagePreview: string | null = null;
+  courseImage: File | null = null;
+  instructors: Instructor[] = [];
+  selectedInstructor: string = '';
 
-  constructor(private coursesService: CoursesService) {}
+  constructor(
+    private coursesService: CoursesService,
+    private instructorService: InstructorService
+  ) {}
 
-  openDialog(course: Course): void {
-    this.course = {
-      ...course,
-      lessons:
-        course.lessons?.map((lesson) => ({
-          name: lesson.name || '',
-          duration: Number(lesson.duration) || 30,
-          _id: lesson._id,
-        })) || [],
-    };
-    this.showDialog = true;
-    this.errorMessage = '';
+  ngOnInit() {
+    this.loadInstructors();
   }
 
-  closeDialog(): void {
-    this.showDialog = false;
-    this.close.emit();
-    this.errorMessage = '';
-  }
-
-  addLesson(): void {
-    this.course.lessons.push({
-      name: '',
-      duration: 30,
+  loadInstructors() {
+    this.instructorService.getAllInstructors().subscribe({
+      next: (instructors) => {
+        this.instructors = instructors;
+      },
+      error: (error) => {
+        console.error('Error loading instructors:', error);
+        this.error = 'Failed to load instructors. Please try again.';
+      }
     });
   }
 
-  removeLesson(index: number): void {
+  onImageSelected(event: Event) {
+    const input = event.target as HTMLInputElement;
+    if (input.files && input.files.length > 0) {
+      this.courseImage = input.files[0];
+      
+      // Create preview URL
+      const reader = new FileReader();
+      reader.onload = () => {
+        this.imagePreview = reader.result as string;
+      };
+      reader.readAsDataURL(this.courseImage);
+    }
+  }
+
+  addLesson() {
+    this.course.lessons.push({
+      name: '',
+      duration: 30
+    });
+  }
+
+  removeLesson(index: number) {
     this.course.lessons.splice(index, 1);
   }
 
-  async updateCourse(): Promise<void> {
+  openDialog(course: Course) {
+    this.course = { ...course };
+    this.imagePreview = course.image || null;
+    this.selectedInstructor = typeof course.instructors[0] === 'string' 
+      ? course.instructors[0] 
+      : course.instructors[0]?._id || '';
+    this.showDialog = true;
+    this.error = null;
+  }
+
+  async updateCourse() {
     if (!this.course._id) {
-      this.errorMessage = 'Course ID is missing';
+      this.error = 'Course ID is missing';
+      return;
+    }
+
+    if (!this.selectedInstructor) {
+      this.error = 'Please select an instructor';
       return;
     }
 
     try {
       this.isSubmitting = true;
-      this.errorMessage = '';
+      this.error = null;
 
-      const courseData: Course = {
-        name: this.course.name.trim(),
-        description: this.course.description.trim(),
-        requiredExams: this.course.requiredExams || [],
-        instructors: this.course.instructors || [],
-        lessons: this.course.lessons.map((lesson) => ({
+      const formData = new FormData();
+      formData.append('name', this.course.name.trim());
+      formData.append('description', this.course.description.trim());
+      formData.append('status', this.course.status || 'unpublished');
+
+      if (this.courseImage) {
+        formData.append('image', this.courseImage);
+      }
+
+      if (this.course.price !== undefined) {
+        formData.append('price', this.course.price.toString());
+      }
+
+      if (this.course.discount !== undefined) {
+        formData.append('discount', this.course.discount.toString());
+      }
+
+      if (this.course.category) {
+        formData.append('category', this.course.category);
+      }
+
+      // Add instructor
+      formData.append('instructors', JSON.stringify([this.selectedInstructor]));
+
+      // Add lessons - only include name and duration
+      const validLessons = this.course.lessons
+        .filter(lesson => lesson.name.trim())
+        .map(lesson => ({
           name: lesson.name.trim(),
-          duration: Number(lesson.duration),
-        })),
-        category: this.course.category,
-        price: this.course.price,
-      };
+          duration: lesson.duration
+        }));
+      formData.append('lessons', JSON.stringify(validLessons));
 
-      // this.coursesService.updateCourse(this.course._id).subscribe({
-      //   next: () => {
-      //     console.log(courseData);
-      //     this.courseUpdated.emit();
-      //     this.closeDialog();
-      //     this.isSubmitting = false;
-      //   },
-      //   error: (error) => {
-      //     console.error('Error updating course:', error);
-      //     this.errorMessage =
-      //       error.error?.message ||
-      //       'Failed to update course. Please try again.';
-      //     this.isSubmitting = false;
-      //   },
-      // });
+      await this.coursesService.updateCourse(this.course._id, formData).toPromise();
+      this.courseUpdated.emit();
+      this.closeDialog();
     } catch (error: any) {
       console.error('Error updating course:', error);
-      this.errorMessage =
-        error.error?.message || 'Failed to update course. Please try again.';
+      this.error = error.error?.message || 'Failed to update course. Please try again.';
+    } finally {
       this.isSubmitting = false;
     }
+  }
+
+  closeDialog() {
+    this.showDialog = false;
+    this.close.emit();
+    this.resetForm();
+  }
+
+  private resetForm() {
+    this.course = {
+      name: '',
+      description: '',
+      requiredExams: [],
+      instructors: [],
+      lessons: [],
+      status: 'unpublished',
+      price: 0,
+      discount: 0,
+      category: ''
+    };
+    this.selectedInstructor = '';
+    this.courseImage = null;
+    this.imagePreview = null;
+    this.error = null;
+    this.isSubmitting = false;
   }
 }
