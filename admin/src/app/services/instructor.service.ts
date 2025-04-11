@@ -4,7 +4,7 @@ import { Observable } from 'rxjs';
 
 // Interface for Instructor data
 export interface Instructor {
-  _id: string;
+  _id?: string;
   firstName: string;
   lastName: string;
   email: string;
@@ -29,22 +29,30 @@ export class InstructorService {
   }
 
   getInstructorById(id: string): Observable<Instructor> {
-    return this.http.get<Instructor>(`${this.BASE_URL}/admin/instructors/${id}`);
+    return this.http.get<Instructor>(
+      `${this.BASE_URL}/admin/instructors/${id}`
+    );
   }
 
   createInstructor(instructor: Instructor): Observable<any> {
-    return this.http.post(`${this.BASE_URL}/instructor/createNewInstructor`, instructor);
+    return this.http.post(
+      `${this.BASE_URL}/admin/createNewInstructor`,
+      instructor
+    );
   }
 
   deleteInstructor(id: string): Observable<any> {
-    return this.http.delete(`${this.BASE_URL}/instructor/${id}`);
+    return this.http.delete(`${this.BASE_URL}/admin/${id}`);
   }
 
   updateInstructor(
     id: string,
     instructor: Partial<Instructor>
   ): Observable<any> {
-    return this.http.put(`${this.BASE_URL}/instructor/instructors/${id}`, instructor);
+    return this.http.put(
+      `${this.BASE_URL}/admin/instructors/${id}`,
+      instructor
+    );
   }
 
   //changInstructorImage()

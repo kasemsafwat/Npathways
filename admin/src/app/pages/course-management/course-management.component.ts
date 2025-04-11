@@ -73,7 +73,7 @@ export class CourseManagementComponent implements OnInit {
                 ? course.instructors[0]
                 : course.instructors[0]._id;
             console.log('Fetching instructor:', instructorId);
-            return this.instructorService.getInstructorById(instructorId);
+            return instructorId ? this.instructorService.getInstructorById(instructorId) : of(null);
           }
           return of(null);
         });

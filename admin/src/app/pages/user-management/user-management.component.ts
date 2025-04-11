@@ -30,6 +30,7 @@ export class UserManagementComponent implements OnInit {
   selectedTab: 'all' | 'students' | 'instructors' | 'admins' = 'all';
   searchQuery: string = '';
   showCreateAdminModal: boolean = false;
+  showCreateInstructorModal: boolean = false;
   showEditModal: boolean = false;
   userToEdit: any = null;
   newAdmin = {
@@ -37,6 +38,13 @@ export class UserManagementComponent implements OnInit {
     lastName: '',
     email: '',
     password: '',
+  };
+    newInstructor = {
+    firstName: '',
+    lastName: '',
+    email: '',
+    password: '',
+    role: 'instructor'
   };
 
   constructor(
@@ -50,7 +58,7 @@ export class UserManagementComponent implements OnInit {
   ngOnInit(): void {
     // Load users data
     this.loadUsers();
-    
+
     // When query params change, we update the page number
     this.route.queryParams.subscribe((params) => {
       const page = +params['page'] || 1;
@@ -89,20 +97,27 @@ export class UserManagementComponent implements OnInit {
 
         // Load admins
         this.authService.getAllAdmins().subscribe((admins) => {
-          const adminUsers: User[] = admins.map((admin: { _id: string; firstName: string; lastName: string; email: string }) => ({
-            id: admin._id || '',
-            name: `${admin.firstName} ${admin.lastName}`,
-            email: admin.email,
-            role: 'Admin',
-            status: 'Active',
-            joinDate: new Date(),
-            courses: 0,
-            showActions: false,
-          }));
+          const adminUsers: User[] = admins.map(
+            (admin: {
+              _id: string;
+              firstName: string;
+              lastName: string;
+              email: string;
+            }) => ({
+              id: admin._id || '',
+              name: `${admin.firstName} ${admin.lastName}`,
+              email: admin.email,
+              role: 'Admin',
+              status: 'Active',
+              joinDate: new Date(),
+              courses: 0,
+              showActions: false,
+            })
+          );
 
           // Combine all lists
           this.users = [...studentUsers, ...instructorUsers, ...adminUsers];
-          
+
           // Update pagination if needed
           if (this.currentPage > this.totalPages) {
             this.currentPage = this.totalPages;
@@ -168,6 +183,8 @@ export class UserManagementComponent implements OnInit {
     user.showActions = !user.showActions;
   }
 
+
+  //create admin user
   createAdmin(form: any): void {
     this.authService.createAdmin(this.newAdmin).subscribe({
       next: () => {
@@ -186,6 +203,28 @@ export class UserManagementComponent implements OnInit {
     });
   }
 
+  //create instructors user
+  createInstructor(form: any): void {
+    this.instructorService.createInstructor(this.newInstructor).subscribe({
+      next: () => {
+        this.showCreateInstructorModal = false;
+        this.newInstructor = {
+          firstName: '',
+          lastName: '',
+          email: '',
+          password: '',
+          role: 'instructor'
+        };
+        this.loadUsers();
+      },
+      error: (error) => {
+        console.error('Error creating instructor:', error);
+      },
+    });
+  }
+
+
+
   editUser(user: User): void {
     // Split the name into first and last name
     const nameParts = user.name.split(' ');
@@ -195,7 +234,7 @@ export class UserManagementComponent implements OnInit {
       lastName: nameParts.slice(1).join(' ') || '',
       email: user.email || '',
       role: user.role,
-      password: '' // For password change
+      password: '', // For password change
     };
     this.showEditModal = true;
   }
@@ -206,7 +245,8 @@ export class UserManagementComponent implements OnInit {
     }
 
     const updateData: any = {};
-    
+    const currentUserRole = this.authService.getUserRole()?.toLowerCase();
+
     // Only add fields that have values
     if (this.userToEdit.firstName) {
       updateData.firstName = this.userToEdit.firstName;
@@ -228,7 +268,8 @@ export class UserManagementComponent implements OnInit {
     }
 
     if (this.userToEdit.role === 'Student') {
-      this.studentService.updateUserByAdmin(this.userToEdit.id, updateData)
+      this.studentService
+        .updateUserByAdmin(this.userToEdit.id, updateData)
         .subscribe({
           next: () => {
             this.loadUsers();
@@ -236,30 +277,44 @@ export class UserManagementComponent implements OnInit {
           },
           error: (error) => {
             console.error('Error updating student:', error);
-          }
+          },
         });
     } else if (this.userToEdit.role === 'Instructor') {
-      this.instructorService.updateInstructor(this.userToEdit.id, updateData)
-        .subscribe({
-          next: () => {
-            this.loadUsers();
-            this.showEditModal = false;
-          },
-          error: (error) => {
-            console.error('Error updating instructor:', error);
-          }
-        });
+      // Check if current user is admin
+      if (currentUserRole === 'admin') {
+        this.instructorService
+          .updateInstructor(this.userToEdit.id, updateData)
+          .subscribe({
+            next: () => {
+              this.loadUsers();
+              this.showEditModal = false;
+            },
+            error: (error) => {
+              console.error('Error updating instructor:', error);
+            },
+          });
+      } else {
+        console.error('Only admins can update instructors');
+        // You might want to show an error message to the user here
+      }
     } else if (this.userToEdit.role === 'Admin') {
-      this.authService.updateAdminById(this.userToEdit.id, updateData)
-        .subscribe({
-          next: () => {
-            this.loadUsers();
-            this.showEditModal = false;
-          },
-          error: (error) => {
-            console.error('Error updating admin:', error);
-          }
-        });
+      // Only admins can update other admins
+      if (currentUserRole === 'admin') {
+        this.authService
+          .updateAdminById(this.userToEdit.id, updateData)
+          .subscribe({
+            next: () => {
+              this.loadUsers();
+              this.showEditModal = false;
+            },
+            error: (error) => {
+              console.error('Error updating admin:', error);
+            },
+          });
+      } else {
+        console.error('Only admins can update other admins');
+        // You might want to show an error message to the user here
+      }
     }
   }
 
@@ -270,16 +325,26 @@ export class UserManagementComponent implements OnInit {
     }
 
     // Password validation
-    if (this.userToEdit.password && (this.userToEdit.password.length < 6 || this.userToEdit.password.length > 50)) {
+    if (
+      this.userToEdit.password &&
+      (this.userToEdit.password.length < 6 ||
+        this.userToEdit.password.length > 50)
+    ) {
       return false;
     }
 
     // Name validation
-    if (this.userToEdit.firstName && !this.isValidName(this.userToEdit.firstName)) {
+    if (
+      this.userToEdit.firstName &&
+      !this.isValidName(this.userToEdit.firstName)
+    ) {
       return false;
     }
 
-    if (this.userToEdit.lastName && !this.isValidName(this.userToEdit.lastName)) {
+    if (
+      this.userToEdit.lastName &&
+      !this.isValidName(this.userToEdit.lastName)
+    ) {
       return false;
     }
 
@@ -313,19 +378,32 @@ export class UserManagementComponent implements OnInit {
     if (!this.userToDelete) return;
 
     const user = this.userToDelete;
+    const currentUserRole = this.authService.getUserRole()?.toLowerCase();
 
     if (user.role === 'Student') {
       this.studentService.deleteStudent(user.id).subscribe(() => {
         this.users = this.users.filter((u) => u.id !== user.id);
       });
     } else if (user.role === 'Instructor') {
-      this.instructorService.deleteInstructor(user.id).subscribe(() => {
-        this.users = this.users.filter((u) => u.id !== user.id);
-      });
+      // Check if current user is admin
+      if (currentUserRole === 'admin') {
+        this.instructorService.deleteInstructor(user.id).subscribe(() => {
+          this.users = this.users.filter((u) => u.id !== user.id);
+        });
+      } else {
+        console.error('Only admins can delete instructors');
+        // You might want to show an error message to the user here
+      }
     } else if (user.role === 'Admin') {
-      this.authService.deleteAdmin(user.id).subscribe(() => {
-        this.users = this.users.filter((u) => u.id !== user.id);
-      });
+      // Only super admins can delete other admins
+      if (currentUserRole === 'admin') {
+        this.authService.deleteAdmin(user.id).subscribe(() => {
+          this.users = this.users.filter((u) => u.id !== user.id);
+        });
+      } else {
+        console.error('Only admins can delete other admins');
+        // You might want to show an error message to the user here
+      }
     }
 
     this.showDeleteConfirmationModal = false;

@@ -56,16 +56,7 @@
         </li>
       </div>
     </div>
-    <!--     <div class="tabs">
-      <button
-        style="width: auto"
-        *ngIf="selectedTab === 'admins'"
-        class="create-admin-btn"
-        (click)="showCreateAdminModal = true"
-      >
-        Create Admin
-      </button>
-    </div> -->
+
 
     <div class="filters-row">
       <div class="search-box">
@@ -83,6 +74,14 @@
         (click)="showCreateAdminModal = true"
       >
         Create Admin
+      </button>
+            <button
+        style="width: auto"
+        *ngIf="selectedTab === 'instructors'"
+        class="create-admin-btn"
+        (click)="showCreateInstructorModal = true"
+      >
+        Create instructor
       </button>
     </div>
     <!--
@@ -289,6 +288,105 @@
   </div>
 </div>
 
+
+<!-- Create Instructors Modal -->
+<div class="modal" *ngIf="showCreateInstructorModal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h2>Create New Instructor</h2>
+      <button class="close-btn" (click)="showCreateInstructorModal = false">
+        &times;
+      </button>
+    </div>
+    <div class="modal-body">
+      <form #instructorForm="ngForm" (ngSubmit)="createInstructor(instructorForm)" novalidate>
+        <div class="form-group">
+          <label for="firstName">First Name</label>
+          <input
+            type="text"
+            id="firstName"
+            [(ngModel)]="newInstructor.firstName"
+            name="firstName"
+            required
+            #firstName="ngModel"
+            class="form-control"
+          />
+          <div *ngIf="firstName.touched && firstName.invalid" class="error-message">
+            <div *ngIf="firstName.errors?.['required']">First Name is required.</div>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="lastName">Last Name</label>
+          <input
+            type="text"
+            id="lastName"
+            [(ngModel)]="newInstructor.lastName"
+            name="lastName"
+            required
+            #lastName="ngModel"
+            class="form-control"
+          />
+          <div *ngIf="lastName.touched && lastName.invalid" class="error-message">
+            <div *ngIf="lastName.errors?.['required']">Last Name is required.</div>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="email">Email</label>
+          <input
+            type="email"
+            id="email"
+            [(ngModel)]="newInstructor.email"
+            name="email"
+            required
+            email
+            #email="ngModel"
+            class="form-control"
+          />
+          <div *ngIf="email.touched && email.invalid" class="error-message">
+            <div *ngIf="email.errors?.['required']">Email is required.</div>
+            <div *ngIf="email.errors?.['email']">Please enter a valid email address.</div>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="password">Password</label>
+          <input
+            type="password"
+            id="password"
+            [(ngModel)]="newInstructor.password"
+            name="password"
+            required
+            minlength="6"
+            #password="ngModel"
+            class="form-control"
+          />
+          <div *ngIf="password.touched && password.invalid" class="error-message">
+            <div *ngIf="password.errors?.['required']">Password is required.</div>
+            <div *ngIf="password.errors?.['minlength']">
+              Password must be at least 6 characters long.
+            </div>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button
+            type="button"
+            class="cancel-btn"
+            (click)="showCreateInstructorModal = false"
+          >
+            Cancel
+          </button>
+          <button type="submit" [disabled]="instructorForm.invalid" class="create-btn">
+            Create Instructor
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
 <!-- Delete Confirmation Modal -->
 <div
   class="modal fade show d-block"
@@ -335,7 +433,6 @@
   </div>
 </div>
 
-<!-- Edit User Modal -->
 <!-- Edit User Modal -->
 <div class="modal fade show d-block" tabindex="-1" role="dialog" style="background-color: rgba(0, 0, 0, 0.5)" *ngIf="showEditModal">
   <div class="modal-dialog modal-dialog-centered" role="document">
