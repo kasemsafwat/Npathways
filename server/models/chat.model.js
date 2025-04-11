@@ -10,6 +10,7 @@ const chatModel = Schema(
       },
     ],
     courseId: { type: Schema.Types.ObjectId, ref: "Course" },
+    courseName: { type: String, trim: true },
     messages: [
       {
         content: { type: String, trim: true },

@@ -27,6 +27,7 @@ import { InstructorAuthProvider } from "./contexts/InstructorAuthContext";
 import InstructorDashboard from "./pages/Instructor/InstructorDashboard";
 import Pathway from "./pages/Pathway";
 import CourseContent from "./pages/CourseContent";
+import Chat from "./chat/Chat";
 
 const Layout = ({ children }) => {
   return (
@@ -85,6 +86,7 @@ function App() {
               <Route path="/courses" element={<Courses />} />
               <Route path="/pathway/:id" element={<Pathway />} />
               <Route path="/courseContent/:id" element={<CourseContent />} />
+              <Route path="/chat" element={<Chat />} />
               <Route element={<ProtectedRoute />}>
                 {/* Add more protected routes here */}
               </Route>

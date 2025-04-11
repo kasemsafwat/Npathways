@@ -69,11 +69,11 @@ io.on("connection", (socket) => {
   } else {
     userName = `User#${userNumber}`;
   }
-  console.log(`${userName} connected:`, socket.id);
+  // console.log(`${userName} connected:`, socket.id);
 
   socket.join("general");
   users.set(userId, socket.id);
-  console.log(`${userName} joined general chat`);
+  // console.log(`${userName} joined general chat`);
 
   socket.on("sendMessageToGeneral", ({ message }) => {
     // console.log(message);
@@ -89,7 +89,7 @@ io.on("connection", (socket) => {
 
   socket.on("joinChat", ({ chatId }) => {
     socket.join(chatId);
-    console.log(`${userName} joined chat ${chatId}`);
+    // console.log(`${userName} joined chat ${chatId}`);
   });
 
   socket.on("sendMessage", async ({ chatId, message }) => {
@@ -104,7 +104,7 @@ io.on("connection", (socket) => {
   });
 
   socket.on("disconnect", () => {
-    console.log(`${userName} disconnected:`, socket.id);
+    // console.log(`${userName} disconnected:`, socket.id);
     users.forEach((value, key) => {
       if (value === socket.id) users.delete(key);
     });

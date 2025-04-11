@@ -36,6 +36,7 @@ class ChatController {
       const { id } = req.params;
       const userId = req.user._id;
       const userName = req.user.firstName + " " + req.user.lastName;
+      const courseName = req.course.name;
 
       if (!id.match(/^[0-9a-fA-F]{24}$/)) {
         return res.status(400).json({ error: "Invalid course ID" });
@@ -44,6 +45,7 @@ class ChatController {
       const newChat = await ChatModel.create({
         users: [{ userId, userName }],
         courseId: id,
+        courseName,
       });
 
       res.status(201).json(newChat);
@@ -77,6 +79,7 @@ class ChatController {
 
         res.status(200).json(chat);
       } else if (course) {
+        req.course = course;
         const chat = await ChatModel.findOne({
           courseId: id,
         });
