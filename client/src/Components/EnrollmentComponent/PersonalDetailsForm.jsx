@@ -21,7 +21,8 @@ export default function PersonalDetailsForm() {
   const { setPersonalDetails } = useContext(EnrollmentContext);
   const navigate = useNavigate();
   const [activeStep] = useState(0);
-  const steps = ["Personal Info", "Exam", "Review"];
+  // const steps = ["Personal Info", "Exam", "Review"]
+  const steps = ["User Info", "Exam", "Result"];
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
