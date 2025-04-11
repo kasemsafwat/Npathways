@@ -49,7 +49,7 @@
               (change)="course._id && toggleCourseSelection(course._id)"
               class="course-checkbox"
             />
-            <span class="course-name">{{ course.name }}</span>
+            <span class="course-name text-black">{{ course.name }}</span>
           </div>
         </div>
       </div>
@@ -68,47 +68,46 @@
       </div>
 
       <div class="card-content">
-        <p class="description">
-          {{ pathway.description || "No description available" }}
-        </p>
-
-        <div class="courses-section">
-          <h4>Courses ({{ pathway.courses?.length || 0 }})</h4>
-          <div class="courses-list">
-            <div class="chips-container">
-              <span class="chip" *ngFor="let course of pathway.courses">
-                {{ getCourseName(typeof course === 'string' ? course : course._id) }}
-                <button
-                  class="chip-remove"
-                  (click)="removeCourse(pathway._id, typeof course === 'string' ? course : (course._id || ''))"
-                >
-                  ×
-                </button>
-              </span>
-            </div>
+        <div class="metrics-grid text-dark">
+          <div class="metric">
+            <span class="metric-label">- <strong>Description</strong>: </span>
+            <span class="metric-value">{{ pathway.description || "No description" }}</span>
+          </div>
+          <div class="metric">
+            <span class="metric-label">- <strong>No. Of Courses</strong>: </span>
+            <span class="metric-value">{{ pathway.courses?.length || 0 }}</span>
+          </div>
+          <div class="metric">
+            <span class="metric-label">- <strong>No. Of Students</strong>: </span>
+            <span class="metric-value">{{ pathway.studentCount ?? 0 }}</span>
           </div>
         </div>
       </div>
 
-      <div class="card-actions">
-        <button class="btn btn-icon" (click)="editPathway(pathway)">
-          <i class="fas fa-edit"></i>
-          Edit
-        </button>
-        <button class="btn btn-icon btn-danger" (click)="deletePathway(pathway._id)">
-          <i class="fas fa-trash"></i>
-          Delete
-        </button>
+      <div class="card-footer">
+        <div class="card-actions">
+          <button class="btn btn-icon" (click)="viewPathwayDetails(pathway)">
+            <i class="fas fa-eye"></i>
+            View Details
+          </button>
+          <button class="btn btn-icon btn-danger" (click)="deletePathway(pathway._id)">
+            <i class="fas fa-trash"></i>
+            Delete
+          </button>
+        </div>
       </div>
     </div>
   </div>
 
-  <!-- Edit Dialog -->
-  <app-edit-pathway-dialog
-    *ngIf="showEditDialog && selectedPathway"
+  <!-- View Details Dialog -->
+  <app-pathway-details-dialog
+    *ngIf="showDetailsDialog && selectedPathway"
     [pathway]="selectedPathway"
     [courses]="courses"
-    (close)="closeEditDialog()"
+    [allStudents]="allStudents"
+    (close)="closeDetailsDialog()"
     (save)="onSavePathway($event)"
-  ></app-edit-pathway-dialog>
+    (enrollStudent)="onEnrollStudent($event)"
+    (unenrollStudent)="onUnenrollStudent($event)"
+  ></app-pathway-details-dialog>
 </div>

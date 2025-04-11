@@ -1,21 +1,23 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import PathwayService, { Pathway } from '../../services/pathway.service';
+import {
+  PathwayService,
+  Pathway,
+  Student,
+} from '../../services/pathway.service';
 import { CoursesService, Course } from '../../services/course.service';
-import { EditPathwayDialogComponent } from './edit-pathway-dialog/edit-pathway-dialog.component';
+import { StudentService } from '../../services/student.service';
+import { PathwayDetailsDialogComponent } from './pathway-details-dialog/pathway-details-dialog.component';
 import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
-import { MatDialogModule, MatDialog } from '@angular/material/dialog';
+import { MatDialogModule } from '@angular/material/dialog';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatBadgeModule } from '@angular/material/badge';
-
-interface ApiResponse<T> {
-  message: string;
-  data: T[];
-}
+import { switchMap, map, forkJoin, of, Observable } from 'rxjs';
+import { catchError } from 'rxjs/operators';
 
 @Component({
   selector: 'app-pathways',
@@ -30,14 +32,18 @@ interface ApiResponse<T> {
     MatSnackBarModule,
     MatChipsModule,
     MatBadgeModule,
-    EditPathwayDialogComponent
+    PathwayDetailsDialogComponent,
   ],
   templateUrl: './pathways.component.html',
-  styleUrl: './pathways.component.css',
+  styleUrls: ['./pathways.component.css'],
 })
 export class PathwaysComponent implements OnInit {
-  pathways: any;
+  @ViewChild(PathwayDetailsDialogComponent)
+  pathwayDetailsDialog?: PathwayDetailsDialogComponent;
+
+  pathways: Pathway[] = [];
   courses: Course[] = [];
+  allStudents: Student[] = [];
   formModel = {
     name: '',
     description: '',
@@ -47,25 +53,35 @@ export class PathwaysComponent implements OnInit {
   notification = {
     message: '',
     type: '',
-    show: false
+    show: false,
   };
-  showEditDialog = false;
+  showDetailsDialog = false;
   selectedPathway: Pathway | null = null;
 
   constructor(
     private pathwayService: PathwayService,
-    private courseService: CoursesService
+    private courseService: CoursesService,
+    private studentService: StudentService,
+    private snackBar: MatSnackBar
   ) {}
 
   ngOnInit(): void {
     this.loadPathways();
     this.loadCourses();
+    this.loadAllStudents();
   }
 
   loadCourses(): void {
     this.courseService.getCourses().subscribe({
       next: (courses) => {
-        this.courses = courses;
+        this.courses = courses.map((course) => ({
+          _id: course._id || '',
+          name: course.name,
+          description: course.description || '',
+          requiredExams: course.requiredExams || [],
+          instructors: course.instructors || [],
+          lessons: course.lessons || [],
+        }));
       },
       error: (error) => {
         this.showNotification('Error loading courses', 'error');
@@ -74,16 +90,66 @@ export class PathwaysComponent implements OnInit {
     });
   }
 
-  loadPathways(): void {
-    this.pathwayService.getAllPathways().subscribe({
-      next: (response) => {
-        this.pathways = response.data;
+  loadAllStudents(): void {
+    this.studentService.getAllStudents().subscribe({
+      next: (students) => {
+        this.allStudents = students;
       },
       error: (error) => {
-        this.showNotification('Error loading pathways', 'error');
-        console.error('Error loading pathways:', error);
+        this.showNotification('Error loading students', 'error');
+        console.error('Error loading students:', error);
       },
     });
+  }
+
+  loadPathways(): void {
+    this.pathwayService
+      .getAllPathways()
+      .pipe(
+        switchMap((response: any) => {
+          const pathwaysData = Array.isArray(response)
+            ? response
+            : response.data || [];
+          if (pathwaysData.length === 0) {
+            return of([]);
+          }
+          const pathwayObservables: Observable<Pathway>[] = pathwaysData.map(
+            (pathway: Pathway) =>
+              this.pathwayService.getStudentsInPathway(pathway._id).pipe(
+                map((studentResponse: any) => {
+                  const students = Array.isArray(studentResponse)
+                    ? studentResponse
+                    : studentResponse.data &&
+                      Array.isArray(studentResponse.data)
+                    ? studentResponse.data
+                    : [];
+                  return {
+                    ...pathway,
+                    studentCount: students.length,
+                  } as Pathway;
+                }),
+                catchError(() => {
+                  console.error(
+                    `Error fetching students for pathway ${pathway._id}`
+                  );
+                  return of({ ...pathway, studentCount: 0 } as Pathway);
+                })
+              )
+          );
+          return forkJoin<Pathway[]>(pathwayObservables);
+        }),
+        catchError((error) => {
+          this.showNotification('Error loading pathways', 'error');
+          console.error('Error loading pathways:', error);
+          return of([]);
+        })
+      )
+      .subscribe({
+        next: (pathwaysWithCounts) => {
+          this.pathways = pathwaysWithCounts;
+          console.log('Loaded Pathways with Student Counts:', this.pathways);
+        },
+      });
   }
 
   createPathway(): void {
@@ -105,38 +171,22 @@ export class PathwaysComponent implements OnInit {
         this.resetForm();
       },
       error: (error) => {
-        this.showNotification(error.error?.message || 'Error creating pathway', 'error');
+        this.showNotification(
+          error.error?.message || 'Error creating pathway',
+          'error'
+        );
         console.error('Error creating pathway:', error);
       },
     });
   }
 
-  editPathway(pathway: Pathway): void {
+  viewPathwayDetails(pathway: Pathway): void {
     this.selectedPathway = { ...pathway };
-    this.showEditDialog = true;
+    this.showDetailsDialog = true;
   }
 
-  onSavePathway(updatedPathway: Pathway): void {
-    if (!updatedPathway._id) {
-      this.showNotification('Invalid pathway data', 'error');
-      return;
-    }
-
-    this.pathwayService.updatePathway(updatedPathway._id, updatedPathway).subscribe({
-      next: () => {
-        this.showNotification('Pathway updated successfully', 'success');
-        this.loadPathways();
-        this.closeEditDialog();
-      },
-      error: (error) => {
-        this.showNotification(error.error?.message || 'Error updating pathway', 'error');
-        console.error('Error updating pathway:', error);
-      },
-    });
-  }
-
-  closeEditDialog(): void {
-    this.showEditDialog = false;
+  closeDetailsDialog(): void {
+    this.showDetailsDialog = false;
     this.selectedPathway = null;
   }
 
@@ -148,45 +198,72 @@ export class PathwaysComponent implements OnInit {
           this.loadPathways();
         },
         error: (error) => {
-          this.showNotification(error.error?.message || 'Error deleting pathway', 'error');
+          this.showNotification(
+            error.error?.message || 'Error deleting pathway',
+            'error'
+          );
           console.error('Error deleting pathway:', error);
         },
       });
     }
   }
 
-  addCourse(pathwayId: string): void {
-    if (this.selectedCourseIds.length === 0) {
-      this.showNotification('Please select at least one course', 'error');
-      return;
-    }
-
+  onEnrollStudent(event: { pathwayId: string; userId: string }) {
     this.pathwayService
-      .addCourse(pathwayId, this.selectedCourseIds)
+      .enrollUserByAdmin(event.pathwayId, event.userId)
       .subscribe({
         next: () => {
-          this.showNotification('Courses added successfully', 'success');
-          this.loadPathways();
-          this.selectedCourseIds = [];
+          this.snackBar.open('Student enrolled successfully', 'Close', {
+            duration: 3000,
+            panelClass: ['success-snackbar'],
+          });
+          // Notify the dialog to refresh its data
+          if (this.pathwayDetailsDialog) {
+            this.pathwayDetailsDialog.onEnrollmentSuccess();
+          }
+          this.loadPathways(); // Update pathway student counts
         },
         error: (error) => {
-          this.showNotification(error.error?.message || 'Error adding courses', 'error');
-          console.error('Error adding courses:', error);
+          this.snackBar.open(
+            error.error?.message || 'Error enrolling student',
+            'Close',
+            {
+              duration: 3000,
+              panelClass: ['error-snackbar'],
+            }
+          );
+          console.error('Error enrolling student:', error);
         },
       });
   }
 
-  removeCourse(pathwayId: string, courseId: string): void {
-    this.pathwayService.removeCourse(pathwayId, courseId).subscribe({
-      next: () => {
-        this.showNotification('Course removed successfully', 'success');
-        this.loadPathways();
-      },
-      error: (error) => {
-        this.showNotification(error.error?.message || 'Error removing course', 'error');
-        console.error('Error removing course:', error);
-      },
-    });
+  onUnenrollStudent(event: { pathwayId: string; userId: string }) {
+    this.pathwayService
+      .unenrollUserByAdmin(event.pathwayId, event.userId)
+      .subscribe({
+        next: () => {
+          this.snackBar.open('Student unenrolled successfully', 'Close', {
+            duration: 3000,
+            panelClass: ['success-snackbar'],
+          });
+          // Notify the dialog to refresh its data
+          if (this.pathwayDetailsDialog) {
+            this.pathwayDetailsDialog.onUnenrollmentSuccess();
+          }
+          this.loadPathways(); // Update pathway student counts
+        },
+        error: (error) => {
+          this.snackBar.open(
+            error.error?.message || 'Error unenrolling student',
+            'Close',
+            {
+              duration: 3000,
+              panelClass: ['error-snackbar'],
+            }
+          );
+          console.error('Error unenrolling student:', error);
+        },
+      });
   }
 
   toggleCourseSelection(courseId: string): void {
@@ -215,7 +292,7 @@ export class PathwaysComponent implements OnInit {
     this.notification = {
       message,
       type,
-      show: true
+      show: true,
     };
     setTimeout(() => {
       this.notification.show = false;
@@ -223,7 +300,26 @@ export class PathwaysComponent implements OnInit {
   }
 
   getCourseName(courseId: string): string {
-    const course = this.courses.find(c => c._id === courseId);
+    const course = this.courses.find((c) => c._id === courseId);
     return course ? course.name : 'Unknown Course';
+  }
+
+  onSavePathway(updatedPathway: Pathway): void {
+    if (!updatedPathway._id) return;
+
+    this.pathwayService.updatePathway(updatedPathway._id, updatedPathway).subscribe({
+      next: () => {
+        this.showNotification('Pathway updated successfully', 'success');
+        this.loadPathways();
+        this.closeDetailsDialog();
+      },
+      error: (error) => {
+        this.showNotification(
+          error.error?.message || 'Error updating pathway',
+          'error'
+        );
+        console.error('Error updating pathway:', error);
+      },
+    });
   }
 }
