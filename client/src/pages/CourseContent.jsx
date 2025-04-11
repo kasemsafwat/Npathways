@@ -67,9 +67,10 @@ export default function CourseContent() {
         (course) => course._id === courseId || course.id === courseId
       );
 
-      // Check in user.pathway.courses array of strings
-      const enrolledInPathway = user.pathway?.courses?.includes(courseId);
-
+      // Check if any pathway in user.pathways array has this course
+      const enrolledInPathway = user.pathways?.some((pathway) => {
+        return pathway.courses?.includes(courseId);
+      });
       return enrolledInCourses || enrolledInPathway;
     };
 
@@ -104,32 +105,6 @@ export default function CourseContent() {
     }
   }, [courseId, navigate, user]);
 
-  useEffect(() => {
-    // Check if user is enrolled in this course
-    const checkCourseAccess = () => {
-      if (!user) return false;
-
-      // Check in user.courses array of objects
-      const enrolledInCourses = user.courses?.some(
-        (course) => course._id === courseId || course.id === courseId
-      );
-
-      // Check in user.pathway.courses array of strings
-      const enrolledInPathway = user.pathway?.courses?.includes(courseId);
-
-      return enrolledInCourses || enrolledInPathway;
-    };
-
-    if (courseId && user && !checkCourseAccess()) {
-      // User doesn't have access to this course
-      setTimeout(() => {
-        navigate(`/coursedetails/${courseId}`);
-      }, 1500);
-    }
-  }, [courseId, user, navigate]);
-
-  // Rest of your existing useEffect for fetching course data...
-
   if (
     !user ||
     (user &&
@@ -137,7 +112,9 @@ export default function CourseContent() {
       !user.courses?.some(
         (course) => course._id === courseId || course.id === courseId
       ) &&
-      !user.pathway?.courses?.includes(courseId))
+      !user.pathways?.some((pathway) => {
+        return pathway.courses?.includes(courseId);
+      }))
   ) {
     return (
       <Container sx={{ py: 4, textAlign: "center" }}>
