@@ -28,15 +28,19 @@ import InstructorDashboard from "./pages/Instructor/InstructorDashboard";
 import Pathway from "./pages/Pathway";
 import CourseContent from "./pages/CourseContent";
 import Chat from "./chat/Chat";
- 
+import Footer from "./Components/Footer";
+
 const Layout = ({ children }) => {
   return (
-    <div className="app">
+    <div
+      className="app"
+      style={{ display: "flex", flexDirection: "column", minHeight: "100vh" }}
+    >
       <NavBarNew />
-      <main className="content">{children}</main>
-      <footer className="footer">
-        <p>© 2025 NPathways</p>
-      </footer>
+      <main className="content" style={{ flexGrow: 1 }}>
+        {children}
+      </main>
+      <Footer />
     </div>
   );
 };
@@ -51,45 +55,47 @@ function App() {
               {/* Public routes */}
               <Route path="/login" element={<Login />} />
               <Route path="/InstructorLogin" element={<InstructorLogin />} />
-
               <Route path="/" element={<Home />} />
               <Route path="register" element={<Register />} />
-
-              {/*Enrollement Router  */}
               <Route path="/enrollment/Welcome" element={<WelcomePage />} />
-              <Route
-                path="/enrollment/personal-details"
-                element={<PersonalDetails />}
-              />
-              <Route path="/enrollment/entryExam" element={<EntryExam />} />
-              <Route path="/enrollment/review" element={<Review />} />
-              <Route path="/coursedetails/:id" element={<CourseDetails />} />
-
               <Route
                 path="/terms-and-conditions"
                 element={<TermsAndConditions />}
               />
-              {/* End Enrollement Router */}
-              {/* ADD YOUR ELEMENT */}
-              <Route
-                path="/instructor/dashboard"
-                element={<InstructorDashboard />}
-              />
 
-              {/* Protected routes */}
-              <Route path="/student/mypathway" element={<MyPathway />} />
-              <Route path="/examDetails" element={<ExamPage />} />
-              <Route path="/createExam/:examId?" element={<CreateExam />} />
-              <Route path="/finishExam" element={<FinishedExam />} />
-              <Route path="/exam/:id" element={<Exam />} />
-              <Route path="/user" element={<UserProfile />} />
-              <Route path="/courses" element={<Courses />} />
-               <Route path="/pathway/:id" element={<Pathway />} />
-              <Route path="/courseContent/:id" element={<CourseContent />} />
-              <Route path="/chat" element={<Chat />} />
+              {/* Common authenticated routes (both roles can access) */}
               <Route element={<ProtectedRoute />}>
-                {/* Add more protected routes here */}
+                <Route path="/user" element={<UserProfile />} />
+                <Route path="/courses" element={<Courses />} />
+                <Route path="/coursedetails/:id" element={<CourseDetails />} />
               </Route>
+
+              {/* Student-only routes */}
+              <Route element={<ProtectedRoute allowedRoles={["student"]} />}>
+                <Route path="/student/mypathway" element={<MyPathway />} />
+                <Route
+                  path="/enrollment/personal-details"
+                  element={<PersonalDetails />}
+                />
+                <Route path="/enrollment/entryExam" element={<EntryExam />} />
+                <Route path="/enrollment/review" element={<Review />} />
+                <Route path="/examDetails" element={<ExamPage />} />
+                <Route path="/exam/:id" element={<Exam />} />
+                <Route path="/finishExam" element={<FinishedExam />} />
+                <Route path="/pathway/:id" element={<Pathway />} />
+                <Route path="/courseContent/:id" element={<CourseContent />} />
+                <Route path="/chat" element={<Chat />} />
+              </Route>
+
+              {/* Instructor-only routes */}
+              <Route element={<ProtectedRoute allowedRoles={["instructor"]} />}>
+                <Route
+                  path="/instructor/dashboard"
+                  element={<InstructorDashboard />}
+                />
+                <Route path="/createExam/:examId?" element={<CreateExam />} />
+              </Route>
+
               <Route path="*" element={<NotFound />} />
             </Routes>
           </Layout>
