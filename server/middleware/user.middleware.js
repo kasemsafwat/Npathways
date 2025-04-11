@@ -2,8 +2,9 @@ import {
   newUserSchema,
   loginSchema,
   CompletStudentSchema,
-  resetPaswwordUserSchema
-} from '../services/userValidation.service.js';
+  updatePasswordUserSchema,
+  resetPaswwordUserSchema,
+} from "../services/userValidation.service.js";
 
 export function newUserValidation(req, res, next) {
   try {
@@ -16,7 +17,7 @@ export function newUserValidation(req, res, next) {
     }
     next();
   } catch (error) {
-    console.error('Validate new user Error: ', error);
+    console.error("Validate new user Error: ", error);
     return res.status(500).send({
       message: error.message,
     });
@@ -33,17 +34,18 @@ export function loginValidation(req, res, next) {
     }
     next();
   } catch (error) {
-    console.error('Validate login Error: ', error);
+    console.error("Validate login Error: ", error);
     return res.status(500).send({
       message: error.message,
     });
   }
 }
 
-
 export const CompletStudentValidation = (req, res, next) => {
   try {
-    const { error } = CompletStudentSchema.validate(req.body, { abortEarly: false }); 
+    const { error } = CompletStudentSchema.validate(req.body, {
+      abortEarly: false,
+    });
     if (error) {
       let errMsg = error.details[0].message;
       return res.status(403).send({
@@ -52,10 +54,29 @@ export const CompletStudentValidation = (req, res, next) => {
     }
     next();
   } catch (error) {
-    console.error('Validate new user Error: ', error);
-    res.status(500).send({ message: 'Internal server error' });
+    console.error("Validate new user Error: ", error);
+    res.status(500).send({ message: "Internal server error" });
   }
 };
+
+export const UpdateUserPasswordValidation = (req, res, next) => {
+  try {
+    const { error } = updatePasswordUserSchema.validate(req.body, {
+      abortEarly: false,
+    });
+    if (error) {
+      let errMsg = error.details[0].message;
+      return res.status(403).send({
+        message: errMsg,
+      });
+    }
+    next();
+  } catch (error) {
+    console.error("Validate new user Error: ", error);
+    res.status(500).send({ message: "Internal server error" });
+  }
+};
+
 export function ResetPasswordUserValidation(req, res, next) {
   try {
     let { error } = resetPaswwordUserSchema.validate(req.body);

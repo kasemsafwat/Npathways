@@ -140,7 +140,38 @@ export let CompletStudentSchema = Joi.object({
       "string.pattern.base": "Each course ID must be a valid MongoDB ObjectId.",
     }),
 });
-
+export const updatePasswordUserSchema = Joi.object({
+  oldPassword: Joi.string()
+    .pattern(
+      new RegExp(
+        "^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%^&*])[a-zA-Z0-9!@#$%^&*]{8,30}$"
+      )
+    )
+    .trim()
+    .required()
+    .messages({
+      "string.pattern.base":
+        "Password must contain letters, numbers, and special characters (8-30 characters).",
+      "string.base": "Old password must be a string.",
+      "string.empty": "Old password cannot be empty.",
+      "any.required": "Old password is required.",
+    }),
+  newPassword: Joi.string()
+    .pattern(
+      new RegExp(
+        "^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%^&*])[a-zA-Z0-9!@#$%^&*]{8,30}$"
+      )
+    )
+    .trim()
+    .required()
+    .messages({
+      "string.pattern.base":
+        "Password must contain letters, numbers, and special characters (8-30 characters).",
+      "string.base": "New password must be a string.",
+      "string.empty": "New password cannot be empty.",
+      "any.required": "New password is required.",
+    }),
+});
 export let resetPaswwordUserSchema = Joi.object({
   email: Joi.string()
     .email({ minDomainSegments: 2 })
