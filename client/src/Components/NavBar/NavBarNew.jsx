@@ -34,14 +34,14 @@ const NavBarNew = () => {
     navigationItems = [
       { label: "My Pathway", path: "/student/mypathway" },
       { label: "Courses", path: "/courses" },
-      { label: "Chat", path: "/chat" },
+      // { label: "Chat", path: "/chat" },
     ];
   }
   if (isInstructor) {
     navigationItems = [
       { label: "Instructor Dashboard", path: "/instructor/dashboard" },
-      { label: "Courses", path: "/courses" },
-      { label: "Chat", path: "/chat" },
+      // { label: "Courses", path: "/courses" },
+      // { label: "Chat", path: "/chat" },
     ];
   }
 

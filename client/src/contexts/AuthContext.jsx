@@ -97,10 +97,11 @@ export const AuthProvider = ({ children }) => {
           `http://localhost:5024/api/user/${userId}`,
           { withCredentials: true }
         );
-        const enrolledCourses = response.data.courses;
+        const enrolledCourses = response.data.pathways;
         setIsEnrolled(enrolledCourses.length > 0);
         setIsStudent(true);
         setIsAuthenticated(true);
+        console.log(response.data);
         setUser(response.data);
       }
       const instructorId = localStorage.getItem("instructorID");
