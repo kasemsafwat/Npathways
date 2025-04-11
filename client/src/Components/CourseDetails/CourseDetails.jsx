@@ -8,7 +8,7 @@ import { loadStripe } from "@stripe/stripe-js";
 import { AuthContext } from "../../contexts/AuthContext";
 export default function CourseDetails() {
   const { user } = useContext(AuthContext);
-  console.log(user);
+  // console.log(user);
   let [course, setCourse] = React.useState({});
   let [loading, setLoading] = React.useState(true);
   let { id } = useParams();
@@ -91,7 +91,7 @@ export default function CourseDetails() {
           <CardMedia
             component="img"
             alt={course.name}
-            image={image}
+            image={course.image || image}
             sx={{
               objectFit: "cover",
               borderRadius: "16px",
@@ -151,7 +151,7 @@ export default function CourseDetails() {
                 ? "Purchased"
                 : "Buy"}
             </button>
-            <button
+            {/* <button
               style={{
                 width: "100%",
                 paddingBlock: "8px",
@@ -164,7 +164,7 @@ export default function CourseDetails() {
               }}
             >
               <i className="fa-regular fa-heart"></i> Wishlist
-            </button>
+            </button> */}
             <Typography variant="subtitle1" sx={{ m: 1 }}>
               <strong>Course Name</strong>: {course.name}
             </Typography>

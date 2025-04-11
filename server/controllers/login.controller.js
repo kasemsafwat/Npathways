@@ -9,7 +9,9 @@ import userController from "./user.controller.js";
 const LoginContoller = {
   universalLogin: async (req, res) => {
     try {
-      const { email, password } = req.body;
+      const { password } = req.body;
+      const email = req.body.email.toLowerCase();
+
       if (!email || !password) {
         return res
           .status(400)
