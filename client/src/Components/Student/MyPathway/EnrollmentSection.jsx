@@ -19,7 +19,7 @@ export default function EnrollmentSection() {
   //   const pathway = user.pathways.length;
   // }
   // const studentPathway = getStudentPathway();
-  console.log(user.pathways.length);
+  // console.log(user.pathways.length);
 
   return (
     <Stack flexDirection={"column"} gap={2} justifyContent={"space-between"}>

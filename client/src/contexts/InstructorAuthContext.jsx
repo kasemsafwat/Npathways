@@ -20,7 +20,7 @@ export const InstructorAuthProvider = ({ children }) => {
     try {
       setIsLoading(true);
       const response = await axios.post(
-        "http://localhost:5024/api/instructor/login",
+        "http://localhost:5024/api/login",
         credentials
       );
 

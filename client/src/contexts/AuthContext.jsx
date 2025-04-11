@@ -106,7 +106,7 @@ export const AuthProvider = ({ children }) => {
       const instructorId = localStorage.getItem("instructorID");
       if (instructorId) {
         const response = await axios.get(
-          `http://localhost:5024/api/instructor/${instructorId}`,
+          `http://localhost:5024/api/instructor/`,
           { withCredentials: true }
         );
         setIsInstructor(true);

@@ -28,7 +28,10 @@ export default function PathwaySection() {
 
     fetchPathways();
   }, []);
-  const courses = pathways.map((pathway) => pathway.courses).flat();
+  const courses =
+    pathways && pathways.length > 0
+      ? pathways.map((pathway) => pathway.courses).flat()
+      : [];
 
   if (loading) {
     return (
@@ -38,7 +41,7 @@ export default function PathwaySection() {
     );
   }
 
-  if (pathways.length === 0) {
+  if (!pathways || pathways.length === 0) {
     return (
       <Typography align="center" my={2}>
         No pathways found
@@ -52,15 +55,21 @@ export default function PathwaySection() {
         {pathways[0].name}: In Progress
       </Typography>
       <Stack flexWrap="wrap" flexDirection={"row"} gap={2}>
-        {courses.map((course) => (
-          <CourseCard
-            key={course._id}
-            title={course.name}
-            image={bimManagerImage}
-            status={"In Progress"}
-            time={course.time}
-          />
-        ))}
+        {courses && courses.length <= 0 ? (
+          <Typography align="center" my={2}>
+            No courses found
+          </Typography>
+        ) : (
+          courses.map((course) => (
+            <CourseCard
+              key={course._id}
+              title={course.name}
+              image={bimManagerImage}
+              status={"In Progress"}
+              time={course.time}
+            />
+          ))
+        )}
       </Stack>
     </>
   );
