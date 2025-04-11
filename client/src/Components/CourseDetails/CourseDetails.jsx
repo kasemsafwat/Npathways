@@ -8,7 +8,6 @@ import { loadStripe } from "@stripe/stripe-js";
 import { AuthContext } from "../../contexts/AuthContext";
 export default function CourseDetails() {
   const { user } = useContext(AuthContext);
-  // console.log(user);
   let [course, setCourse] = React.useState({});
   let [loading, setLoading] = React.useState(true);
   let { id } = useParams();
@@ -16,7 +15,6 @@ export default function CourseDetails() {
 
   useEffect(() => {
     if (user && user.courses && user.courses.includes(id)) {
-      console.log("you already got it");
       setAlreadyPurchased(true);
     }
   }, [user, id]);
@@ -26,6 +24,21 @@ export default function CourseDetails() {
       const response = await axios.get(
         `http://localhost:5024/api/course/${id}`
       );
+
+      // Check if the image URL exists
+      if (response.data.image) {
+        try {
+          // Try to fetch the image to check if it's valid
+          await axios.get(response.data.image);
+          // If successful, keep the original image URL
+        } catch (error) {
+          // If there's an error fetching the image, use the default image
+          response.data.image = image;
+        }
+      } else {
+        // If no image URL is provided, use the default image
+        response.data.image = image;
+      }
       setCourse(response.data);
       setLoading(false);
     } catch (error) {
@@ -70,11 +83,11 @@ export default function CourseDetails() {
 
       if (result.error) {
         console.error(result.error.message);
-        alert("Payment failed: " + result.error.message);
+        // alert("Payment failed: " + result.error.message);
       }
     } catch (error) {
       console.error("Payment failed:", error);
-      alert("Payment processing failed. Please try again later.");
+      // alert("Payment processing failed. Please try again later.");
     } finally {
       setIsProcessingPayment(false);
     }
@@ -84,6 +97,7 @@ export default function CourseDetails() {
         .map((instructor) => instructor.firstName + " " + instructor.lastName)
         .join(", ")
     : [];
+
   return (
     <>
       <Grid container my={2} spacing={2}>
@@ -91,7 +105,7 @@ export default function CourseDetails() {
           <CardMedia
             component="img"
             alt={course.name}
-            image={course.image || image}
+            image={course.image}
             sx={{
               objectFit: "cover",
               borderRadius: "16px",

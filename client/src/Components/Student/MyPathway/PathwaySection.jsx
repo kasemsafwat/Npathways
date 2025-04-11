@@ -3,10 +3,12 @@ import React from "react";
 import bimManagerImage from "../../../assets/bim-manager.jpeg";
 import CourseCard from "./CourseCard";
 import axios from "axios";
+import { useNavigate } from "react-router";
 
 export default function PathwaySection() {
   const [pathways, setPathways] = React.useState([]);
   const [loading, setLoading] = React.useState(true);
+  const navigate = useNavigate();
 
   React.useEffect(() => {
     const fetchPathways = async () => {
@@ -67,6 +69,9 @@ export default function PathwaySection() {
               image={bimManagerImage}
               status={"In Progress"}
               time={course.time}
+              onClick={() => {
+                navigate(`/pathway/${course._id}`);
+              }}
             />
           ))
         )}
