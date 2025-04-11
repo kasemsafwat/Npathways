@@ -30,6 +30,21 @@ const AdminControlller = {
       }
 
       const { password, ...updateData } = req.body;
+      updateData.email = req.body.email.toLowerCase();
+
+      if (updateData.email && updateData.email !== req.admin.email) {
+        const isDuplicateEmail = await Promise.all([
+          User.findOne({ email: updateData.email }),
+          Instructor.findOne({ email: updateData.email }),
+          Admin.findOne({ email: updateData.email }),
+        ]).then((results) => results.some((result) => result));
+        if (isDuplicateEmail) {
+          return res.status(403).json({
+            message:
+              "This email is already registered. Please use a different email.",
+          });
+        }
+      }
 
       let admin = await Admin.findByIdAndUpdate(
         req.admin._id,
@@ -240,10 +255,12 @@ const AdminControlller = {
       }
 
       if (updateData.email && updateData.email !== admin.email) {
-        const duplicatedEmail = await Admin.findOne({
-          email: updateData.email,
-        });
-        if (duplicatedEmail) {
+        const isDuplicateEmail = await Promise.all([
+          User.findOne({ email: updateData.email }),
+          Instructor.findOne({ email: updateData.email }),
+          Admin.findOne({ email: updateData.email }),
+        ]).then((results) => results.some((result) => result));
+        if (isDuplicateEmail) {
           return res.status(403).json({
             message:
               "This email is already registered. Please use a different email.",
@@ -308,9 +325,9 @@ const AdminControlller = {
 
       if (updateData.email && updateData.email !== instructor.email) {
         const isDuplicateEmail = await Promise.all([
-          User.findOne({ email: data.email }),
-          Instructor.findOne({ email: data.email }),
-          Admin.findOne({ email: data.email }),
+          User.findOne({ email: updateData.email }),
+          Instructor.findOne({ email: updateData.email }),
+          Admin.findOne({ email: updateData.email }),
         ]).then((results) => results.some((result) => result));
         if (isDuplicateEmail) {
           return res.status(403).json({

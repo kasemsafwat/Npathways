@@ -117,6 +117,22 @@ const instructorContoller = {
     try {
       const updateData = { ...req.body, email: req.body.email.toLowerCase() };
       delete updateData.password;
+
+      // Check if the email is already in use by another instructor
+      if (updateData.email && updateData.email !== req.instructor.email) {
+        const isDuplicateEmail = await Promise.all([
+          User.findOne({ email: updateData.email }),
+          Instructor.findOne({ email: updateData.email }),
+          Admin.findOne({ email: updateData.email }),
+        ]).then((results) => results.some((result) => result));
+        if (isDuplicateEmail) {
+          return res.status(403).json({
+            message:
+              "This email is already registered. Please use a different email.",
+          });
+        }
+      }
+
       let instructor = await Instructor.findByIdAndUpdate(
         req.instructor._id,
         updateData,
