@@ -15,6 +15,6 @@ export class EnrollmentService {
     return this.http.get(`${this.BASE_URL}/${id}`);
   }
   deleteEnrollment(id: string): Observable<any> {
-    return this.http.delete(`${this.BASE_URL}/${id}`);
+    return this.http.delete(`${this.BASE_URL}/deleteEnrollment/${id}`);
   }
 }
