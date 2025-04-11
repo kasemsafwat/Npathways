@@ -74,7 +74,7 @@ export default function MyPathway() {
         <Box pl={6} pr={4} mt={2}>
           {tap === "enrollment" && <EnrollmentSection />}
           {tap === "pathway" &&
-            (!isEnrolled ? (
+            (isEnrolled ? (
               <PathwaySection />
             ) : (
               <>

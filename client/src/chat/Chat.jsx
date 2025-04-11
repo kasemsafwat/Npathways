@@ -1,22 +1,34 @@
 // Chat.jsx
-import { Grid2 } from "@mui/material";
+import { Box, Grid } from "@mui/material";
 import { ChatProvider } from "../contexts/ChatContext";
 import ChatContainer from "./ChatContainer";
 import ChatHeader from "./ChatHeader";
 import MessageList from "./MessageList";
 import MessageInput from "./MessageInput";
-import UserListSection from "./UserListSection";
+import ChatSidebar from "./ChatSidebar";
 
 const Chat = () => (
   <ChatProvider>
-    <ChatContainer>
-      <Grid2 size={8} sx={{ backgroundColor: "#f9fbfc", borderRadius: "15px" }}>
+    <Box sx={{ display: "flex", height: "100vh", backgroundColor: "#f9f9f9" }}>
+      {/* Chat Content Area (75%) */}
+      <Box
+        sx={{
+          flex: 3,
+          display: "flex",
+          flexDirection: "column",
+          height: "100%",
+        }}
+      >
         <ChatHeader />
-        <MessageList />
-        <MessageInput />
-      </Grid2>
-      <UserListSection />
-    </ChatContainer>
+        <ChatContainer>
+          <MessageList />
+          <MessageInput />
+        </ChatContainer>
+      </Box>
+
+      {/* Right Sidebar (25%) */}
+      <ChatSidebar />
+    </Box>
   </ChatProvider>
 );
 

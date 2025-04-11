@@ -1,12 +1,15 @@
 import { Divider, Stack, Typography, CircularProgress } from "@mui/material";
-import React from "react";
+import React, { useContext } from "react";
 import bimManagerImage from "../../../assets/bim-manager.jpeg";
 import CourseCard from "./CourseCard";
 import axios from "axios";
+import { useNavigate } from "react-router";
+import { AuthContext } from "../../../contexts/AuthContext";
 
 export default function PathwaySection() {
   const [pathways, setPathways] = React.useState([]);
   const [loading, setLoading] = React.useState(true);
+  const navigate = useNavigate();
 
   React.useEffect(() => {
     const fetchPathways = async () => {
@@ -60,13 +63,15 @@ export default function PathwaySection() {
             No courses found
           </Typography>
         ) : (
-          courses.map((course) => (
+          pathways.map((pathways) => (
             <CourseCard
-              key={course._id}
-              title={course.name}
+              key={pathways._id}
+              title={pathways.name}
               image={bimManagerImage}
-              status={"In Progress"}
-              time={course.time}
+              // status={"In Progress"}
+              onClick={() => {
+                navigate(`/pathway/${pathways._id}`);
+              }}
             />
           ))
         )}

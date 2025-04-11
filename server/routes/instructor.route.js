@@ -60,6 +60,11 @@ router.patch(
   ResetPasswordInstructorValidation,
   instructorContoller.resetPassword
 );
+router.delete(
+  "/deleteInstructor/:id",
+  authenticationInstructor,
+  instructorContoller.deleteInstructor
+);
 
 //Instructor Permissions
 //   1) Create Course()   ==>  updateMyCourse  ==> getMyCourse(T)  ==>  getCourseStudents (T)

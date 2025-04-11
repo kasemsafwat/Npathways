@@ -38,7 +38,7 @@ const PaymentController = {
               product_data: {
                 name: course.name,
                 description: course.description,
-                images: course.image ? [course.image] : [],
+                // images: course.image ? [course.image] : [],
               },
               unit_amount: Math.round(course.price * 100),
             },

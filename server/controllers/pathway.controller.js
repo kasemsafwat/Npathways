@@ -153,8 +153,8 @@ const PathwayController = {
         pathway.courses = [];
       }
 
-      console.log("Courses from request:", courses);
-      console.log("Existing pathway courses:", pathway.courses);
+      // console.log("Courses from request:", courses);
+      // console.log("Existing pathway courses:", pathway.courses);
 
       const existingCourses = new Set(pathway.courses.map((c) => c.toString()));
       const newCourses = courses.filter(
@@ -369,10 +369,14 @@ const PathwayController = {
       if (!id.match(/^[0-9a-fA-F]{24}$/)) {
         return res.status(400).send({ error: "Invalid Pathway ID" });
       }
-      const Pathay = await PathwayModel.findById(id).populate(
-        "courses",
-        "name description requiredExams instructors lessons"
-      );
+      const Pathay = await PathwayModel.findById(id).populate({
+        path: "courses",
+        select: "name description requiredExams instructors lessons",
+        populate: {
+          path: "requiredExams",
+          select: "name description questions totalTime",
+        },
+      });
 
       if (!Pathay) {
         return res.status(404).send({ error: "PathWay not found" });

@@ -311,6 +311,11 @@ tr td:last-child {
   color: #FF5454;
 }
 
+.action-buttons {
+  display: flex;
+  gap: 0.5rem;
+}
+
 .action-btn {
   background: transparent;
   border: none;
@@ -318,10 +323,27 @@ tr td:last-child {
   cursor: pointer;
   padding: 0.5rem;
   border-radius: 8px;
+  transition: all 0.2s;
 }
 
 .action-btn:hover {
   background: #E9EDF7;
+}
+
+.action-btn.view {
+  color: #4318FF;
+}
+
+.action-btn.delete {
+  color: #FF5454;
+}
+
+.action-btn.view:hover {
+  background: rgba(67, 24, 255, 0.1);
+}
+
+.action-btn.delete:hover {
+  background: rgba(255, 84, 84, 0.1);
 }
 
 @media (max-width: 1200px) {

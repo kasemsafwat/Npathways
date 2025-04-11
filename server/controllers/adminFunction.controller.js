@@ -30,6 +30,21 @@ const AdminControlller = {
       }
 
       const { password, ...updateData } = req.body;
+      updateData.email = req.body.email.toLowerCase();
+
+      if (updateData.email && updateData.email !== req.admin.email) {
+        const isDuplicateEmail = await Promise.all([
+          User.findOne({ email: updateData.email }),
+          Instructor.findOne({ email: updateData.email }),
+          Admin.findOne({ email: updateData.email }),
+        ]).then((results) => results.some((result) => result));
+        if (isDuplicateEmail) {
+          return res.status(403).json({
+            message:
+              "This email is already registered. Please use a different email.",
+          });
+        }
+      }
 
       let admin = await Admin.findByIdAndUpdate(
         req.admin._id,
@@ -240,10 +255,12 @@ const AdminControlller = {
       }
 
       if (updateData.email && updateData.email !== admin.email) {
-        const duplicatedEmail = await Admin.findOne({
-          email: updateData.email,
-        });
-        if (duplicatedEmail) {
+        const isDuplicateEmail = await Promise.all([
+          User.findOne({ email: updateData.email }),
+          Instructor.findOne({ email: updateData.email }),
+          Admin.findOne({ email: updateData.email }),
+        ]).then((results) => results.some((result) => result));
+        if (isDuplicateEmail) {
           return res.status(403).json({
             message:
               "This email is already registered. Please use a different email.",
@@ -290,6 +307,50 @@ const AdminControlller = {
       return res.status(500).json({
         message: error.message,
       });
+    }
+  },
+  updateInstructor: async (req, res) => {
+    try {
+      const { id } = req.params;
+      const updateData = { ...req.body, email: req.body.email.toLowerCase() };
+
+      if (!id.match(/^[0-9a-fA-F]{24}$/))
+        return res.status(400).json({ message: "Invalid instructor ID" });
+
+      const instructor = await Instructor.findById(id);
+
+      if (!instructor) {
+        return res.status(404).json({ message: "Instructor not found" });
+      }
+
+      if (updateData.email && updateData.email !== instructor.email) {
+        const isDuplicateEmail = await Promise.all([
+          User.findOne({ email: updateData.email }),
+          Instructor.findOne({ email: updateData.email }),
+          Admin.findOne({ email: updateData.email }),
+        ]).then((results) => results.some((result) => result));
+        if (isDuplicateEmail) {
+          return res.status(403).json({
+            message:
+              "This email is already registered. Please use a different email.",
+          });
+        }
+      }
+
+      const updatedInstructor = await Instructor.findByIdAndUpdate(
+        id,
+        { $set: updateData },
+        { new: true, runValidators: true }
+      );
+      const updatedInstructorObject = updatedInstructor.toObject();
+      delete updatedInstructorObject.password;
+      res.status(200).json({
+        message: "Instructor updated successfully",
+        instructor: updatedInstructorObject,
+      });
+    } catch (error) {
+      console.error("Error updating instructor: ", error);
+      res.status(500).json({ message: error.message });
     }
   },
 };

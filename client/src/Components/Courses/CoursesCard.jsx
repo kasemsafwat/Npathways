@@ -7,20 +7,22 @@ import {
   CardActions,
   CardContent,
   CardMedia,
-  Grid,
-  List,
-  ListItem,
-  ListItemAvatar,
-  ListItemText,
-  Rating,
   Typography,
+  Skeleton,
+  Box,
+  Grid,
+  useTheme,
 } from "@mui/material";
+
 import { useNavigate } from "react-router-dom";
 import image from "../../assets/Rectangle 72.png";
 
 function CoursesCard({ course }) {
   const [isEnrolled, setIsEnrolled] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [enrollLoading, setEnrollLoading] = useState(false);
   const navigate = useNavigate();
+  const theme = useTheme();
 
   useEffect(() => {
     const checkEnrollment = async () => {
@@ -28,9 +30,7 @@ function CoursesCard({ course }) {
         const userId = localStorage.getItem("userId");
         const response = await axios.get(
           `http://localhost:5024/api/user/${userId}`,
-          {
-            withCredentials: true,
-          }
+          { withCredentials: true }
         );
         const enrolledCourses = response.data.courses;
         setIsEnrolled(enrolledCourses.includes(course._id));
@@ -43,127 +43,220 @@ function CoursesCard({ course }) {
   }, [course._id]);
 
   const handleEnroll = async () => {
+    setEnrollLoading(true);
     try {
       const response = await axios.post(
         "http://localhost:5024/api/course/enrollInCourse",
-        {
-          courseId: course._id,
-        },
+        { courseId: course._id },
         { withCredentials: true }
       );
       console.log("Enrolled successfully:", response.data);
       setIsEnrolled(true);
     } catch (error) {
-      if (
-        error.response &&
-        error.response.data &&
-        error.response.data.examsNeeded
-      ) {
+      if (error.response?.data?.examsNeeded) {
         const examsNeeded = error.response.data.examsNeeded;
-        console.error("User has not passed all required exams:", examsNeeded);
         navigate(`/exam/${examsNeeded[0]}`);
       } else {
         console.error("Error enrolling in course:", error);
       }
+    } finally {
+      setEnrollLoading(false);
     }
   };
 
   return (
-    <Grid item xs={12} sm={6} md={3} key={course._id}>
+    <Grid item xs={12} sm={4} md={3}>
       <Card
         sx={{
-          height: "", // You can set a fixed height here if needed
           display: "flex",
           flexDirection: "column",
-          backgroundColor: "transparent",
-          boxShadow: "none",
+          bgcolor: "background.paper",
+          borderRadius: 4,
+          boxShadow: 3,
+          transition: "transform 0.3s",
+          "&:hover": { transform: "scale(1.02)" },
+          height: "100%",
+          marginTop: "15px",
         }}
       >
-        <CardMedia
-          component="img"
-          alt={course.name}
-          image={course.image}
-          sx={{ objectFit: "cover", borderRadius: "30px" }}
-        />
-
-        <CardContent>
-          <Typography
-            gutterBottom
-            variant="h5"
-            component="div"
-            sx={{ fontWeight: "bold", my: 0 }}
+        {loading ? (
+          <Skeleton
+            variant="rectangular"
+            height={200}
+            sx={{ borderRadius: 4 }}
+          />
+        ) : (
+          <Box
+            sx={{
+              position: "relative",
+              height: 200,
+              width: "100%",
+              overflow: "hidden",
+              borderTopLeftRadius: 2,
+              borderTopRightRadius: 2,
+            }}
           >
-            {course.name}
-          </Typography>
+            <CardMedia
+              component="img"
+              image={course.image || image}
+              alt={course.name}
+              sx={{
+                height: "100%",
+                width: "100%",
+                objectFit: "cover",
+              }}
+              onError={(e) => {
+                e.target.onerror = null;
+                e.target.src = image;
+              }}
+            />
+            <Box
+              sx={{
+                position: "absolute",
+                top: 0,
+                left: 0,
+                height: "100%",
+                width: "100%",
+                bgcolor: "rgba(0, 0, 0, 0.5)",
+                color: "#fff",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                opacity: 0,
+                transition: "opacity 0.3s ease",
+                cursor: "pointer",
+                "&:hover": {
+                  opacity: 0.8,
+                },
+              }}
+              onClick={() => navigate(`/coursedetails/${course._id}`)}
+            >
+              <Typography variant="h6" sx={{ fontWeight: "bold" }}>
+                View Details
+              </Typography>
+            </Box>
+          </Box>
+        )}
 
-          <Typography variant="body2" sx={{ color: "text.secondary" }}>
-            {course.description}
-          </Typography>
-
-          <Typography variant="subtitle2" sx={{ fontWeight: "bold", mt: 1 }}>
-            Instructors:
-          </Typography>
-          {course.instructors && course.instructors.length > 0 ? (
-            <List dense>
-              {course.instructors.map((instructor, index) => (
-                <ListItem key={index} sx={{ px: 0 }}>
-                  <ListItemAvatar>
-                    <Avatar sx={{ width: 24, height: 24 }}>
-                      {instructor && instructor.name
-                        ? instructor.name.charAt(0)
-                        : "?"}
-                    </Avatar>
-                  </ListItemAvatar>
-                  <ListItemText
-                    primary={
-                      instructor && instructor.name
-                        ? instructor.name
-                        : "Unknown Instructor"
-                    }
-                  />
-                </ListItem>
-              ))}
-            </List>
+        <CardContent sx={{ flexGrow: 1 }}>
+          {loading ? (
+            <>
+              <Skeleton variant="text" height={40} width="80%" />
+              <Skeleton variant="text" height={20} width="100%" />
+            </>
           ) : (
-            <Typography variant="body2" color="text.secondary">
-              No instructors assigned.
+            <Typography
+              variant="h6"
+              fontWeight="bold"
+              gutterBottom
+              sx={{
+                display: "block",
+                overflow: "hidden",
+                textOverflow: "ellipsis",
+                whiteSpace: "nowrap",
+                height: "40px",
+                width: "100%",
+                transition: "all 0.5s ease",
+                transitionDelay: "0.2s",
+                "&:hover": {
+                  whiteSpace: "normal",
+                  overflow: "visible",
+                  textOverflow: "clip",
+                },
+              }}
+            >
+              {course.name}
             </Typography>
           )}
 
-          {/* Pricing Section */}
-          <Typography variant="body1" sx={{ mt: 1 }}>
-            <span
-              style={{
-                textDecoration: "line-through",
-                color: "text.secondary",
-                marginRight: "8px",
-              }}
-            >
-              ${course.priceBeforeDiscount || "50.00"}
-            </span>
-            <span style={{ fontWeight: "bold", color: "primary.main" }}>
-              ${course.priceAfterDiscount || "39.99"}
-            </span>
-          </Typography>
-        </CardContent>
+          <Box sx={{ mt: 2 }}>
+            <Typography variant="subtitle2" fontWeight="bold" gutterBottom>
+              Instructors:
+            </Typography>
 
-        <Rating name="read-only" value={4} readOnly sx={{ my: 0 }} />
-        <CardActions sx={{ marginBlock: 1 }}>
-          {/* <Button
-            variant="contained"
-            color="primary"
-            size="small"
-            onClick={handleEnroll}
-            disabled={isEnrolled}
+            {loading ? (
+              <Skeleton variant="text" width="70%" />
+            ) : course.instructors?.length > 0 ? (
+              <Box
+                sx={{
+                  display: "flex",
+                  flexWrap: "wrap",
+                  gap: 1,
+                  mt: 1,
+                }}
+              >
+                {course.instructors.map((instructor, idx) => (
+                  <Box
+                    key={idx}
+                    sx={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 1,
+                      bgcolor: "rgba(0,0,0,0.04)",
+                      px: 1.5,
+                      py: 0.5,
+                      borderRadius: 2,
+                    }}
+                  >
+                    <Avatar sx={{ width: 24, height: 24, fontSize: 14 }}>
+                      {instructor.firstName?.charAt(0) || "?"}
+                    </Avatar>
+                    <Typography variant="body2">
+                      {`${instructor.firstName || ""} ${
+                        instructor.lastName || ""
+                      }`}
+                    </Typography>
+                  </Box>
+                ))}
+              </Box>
+            ) : (
+              <Typography variant="body2" color="text.secondary">
+                No instructors assigned.
+              </Typography>
+            )}
+          </Box>
+
+          <Box
+            sx={{
+              display: "flex",
+              alignItems: "center",
+              mt: 2,
+              justifyContent: "space-between",
+            }}
           >
-            {isEnrolled ? "Enrolled" : "Enroll In"}
-          </Button> */}
+            {loading ? (
+              <Skeleton width="50%" height={30} />
+            ) : (
+              <>
+                <Typography
+                  variant="body1"
+                  sx={{
+                    color: "text.secondary",
+                    textDecoration: "line-through",
+                  }}
+                >
+                  ${course.priceBeforeDiscount || "50.00"}
+                </Typography>
+                <Typography
+                  variant="h6"
+                  sx={{
+                    color: "primary.main",
+                    fontWeight: "bold",
+                  }}
+                >
+                  ${course.priceAfterDiscount || "39.99"}
+                </Typography>
+              </>
+            )}
+          </Box>
+        </CardContent>
+        <CardActions sx={{ justifyContent: "space-between", px: 2, pb: 2 }}>
           <Button
-            size="small"
+            variant="outlined"
             onClick={() => navigate(`/coursedetails/${course._id}`)}
-            sx={{ color: "primary.main" }}
+            disabled={loading}
           >
-            View Details
+            Details
           </Button>
         </CardActions>
       </Card>

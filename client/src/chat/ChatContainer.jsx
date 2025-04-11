@@ -1,11 +1,22 @@
 // components/ChatContainer.jsx
-import { Grid2, Box } from "@mui/material";
+import { Box } from "@mui/material";
 
 const ChatContainer = ({ children }) => (
-  <Box p={10} backgroundColor="#212023" height="750px" overflow="auto">
-    <Grid2 container spacing={2} sx={{ height: "100%" }} position="relative">
-      {children}
-    </Grid2>
+  <Box
+    sx={{
+      flex: 1,
+      display: "flex",
+      flexDirection: "column",
+      height: "calc(100% - 80px)",
+      position: "relative",
+      backgroundColor: "#ffffff",
+      borderRadius: "10px",
+      margin: 2,
+      boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.05)",
+      overflow: "hidden",
+    }}
+  >
+    {children}
   </Box>
 );
 

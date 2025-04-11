@@ -3,7 +3,14 @@ import EnrollmentModel from "../models/enrollment.model.js";
 class EnrollmentController {
   static async getAllEnrollments(req, res) {
     try {
-      const enrollments = await EnrollmentModel.find();
+      const enrollments = await EnrollmentModel.find().populate({
+        path: "userId",
+        select: "  pathways",
+        populate: {
+          path: "pathways",
+          select: "name",
+        },
+      });
       res.status(200).json(enrollments);
     } catch (error) {
       console.error(`Error in enrollment controller: ${error}`);
@@ -34,7 +41,14 @@ class EnrollmentController {
         return res.status(400).json({ error: "Invalid enrollment ID" });
       }
 
-      const enrollment = await EnrollmentModel.findById(id);
+      const enrollment = await EnrollmentModel.findById(id).populate({
+        path: "userId",
+        select: "  pathways",
+        populate: {
+          path: "pathways",
+          select: "name",
+        },
+      });
       if (!enrollment) {
         return res.status(404).json({ error: "Enrollment not found" });
       }
