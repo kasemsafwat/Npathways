@@ -62,14 +62,24 @@ const FeaturesSection = () => {
           </Typography>
         </Box>
         <Typography
-          variant="h4"
+          variant="h3"
           component="h2"
           align="center"
           sx={{ mb: 4, fontWeight: "bold" }}
         >
-          Why us?
+          Why Choose NPathways?
         </Typography>
-        <Grid container spacing={4}>
+        <Typography
+          variant="h6"
+          component="p"
+          align="center"
+          sx={{ mb: 4, color: "#5B5B5B" }}
+        >
+          At NPathways, we don't just offer courses — we design your entire
+          learning journey, guiding you from self-discovery to industry-ready
+          expertise in digital construction.
+        </Typography>
+        <Grid container spacing={20}>
           {features.map((feature, index) => (
             <Grid item xs={12} sm={4} key={index}>
               <Card
@@ -82,6 +92,8 @@ const FeaturesSection = () => {
                   alignItems: "center",
                   backgroundColor: feature.backgroundColor,
                   borderRadius: "20px", // Make the card rounded
+                  mx: 4, // Add horizontal margin
+                  boxShadow: 3, // Add subtle shadow for better separation
                 }}
               >
                 <CardMedia
