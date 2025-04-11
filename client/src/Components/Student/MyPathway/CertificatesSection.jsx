@@ -51,14 +51,25 @@ export default function CertificatesSection() {
         Certificates
       </Typography>
       <Stack flexWrap="wrap" flexDirection={"row"} gap={2}>
-        {certificates.map((certificate) => (
-          <CourseCard
-            key={certificate._id}
-            title={certificate.name}
-            image={certificateImage}
-            time={certificate.acquiredAt}
-          />
-        ))}
+        {certificates.map((certificate) => {
+          // Format the date to a more readable format
+          const formattedDate = new Date(
+            certificate.acquiredAt
+          ).toLocaleDateString("en-US", {
+            year: "numeric",
+            month: "long",
+            day: "numeric",
+          });
+
+          return (
+            <CourseCard
+              key={certificate._id}
+              title={certificate.name}
+              image={certificateImage}
+              time={formattedDate}
+            />
+          );
+        })}
       </Stack>
     </>
   );

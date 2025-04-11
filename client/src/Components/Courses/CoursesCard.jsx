@@ -22,36 +22,10 @@ import image from "../../assets/Rectangle 72.png";
 
 function CoursesCard({ course }) {
   const [isEnrolled, setIsEnrolled] = useState(false);
-  const [courseImage, setCourseImage] = useState(course.image);
-  const [loading, setLoading] = useState(true);
+  // const [courseImage, setCourseImage] = useState(course.image);
+  const [loading, setLoading] = useState(false);
   const [enrollLoading, setEnrollLoading] = useState(false);
   const navigate = useNavigate();
-
-  useEffect(() => {
-    // Check if the image URL exists
-    setLoading(true);
-    if (course.image) {
-      try {
-        // Try to fetch the image to check if it's valid
-        axios
-          .get(course.image)
-          .then(() => setLoading(false))
-          .catch(() => {
-            // If there's an error fetching the image, use the default image
-            setCourseImage(image);
-            setLoading(false);
-          });
-      } catch (error) {
-        // If there's an error fetching the image, use the default image
-        setCourseImage(image);
-        setLoading(false);
-      }
-    } else {
-      // If no image URL is provided, use the default image
-      setCourseImage(image);
-      setLoading(false);
-    }
-  }, [course.image]);
 
   useEffect(() => {
     const checkEnrollment = async () => {
@@ -124,8 +98,12 @@ function CoursesCard({ course }) {
           <CardMedia
             component="img"
             alt={course.name}
-            image={courseImage}
-            sx={{ objectFit: "cover", borderRadius: "30px" }}
+            image={course.image || image}
+            sx={{ objectFit: "cover", borderRadius: "30px", height: 200 }}
+            onError={(e) => {
+              e.target.onerror = null;
+              e.target.src = image;
+            }}
           />
         )}
 
@@ -173,15 +151,15 @@ function CoursesCard({ course }) {
                 <ListItem key={index} sx={{ px: 0 }}>
                   <ListItemAvatar>
                     <Avatar sx={{ width: 24, height: 24 }}>
-                      {instructor && instructor.name
-                        ? instructor.name.charAt(0)
+                      {instructor && instructor.firstName
+                        ? instructor.firstName.charAt(0)
                         : "?"}
                     </Avatar>
                   </ListItemAvatar>
                   <ListItemText
                     primary={
-                      instructor && instructor.name
-                        ? instructor.name
+                      instructor && instructor.firstName
+                        ? instructor.firstName + " " + instructor.lastName
                         : "Unknown Instructor"
                     }
                   />

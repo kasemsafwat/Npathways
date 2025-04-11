@@ -26,6 +26,7 @@ import InstructorLogin from "./pages/InstructorLogin";
 import { InstructorAuthProvider } from "./contexts/InstructorAuthContext";
 import InstructorDashboard from "./pages/Instructor/InstructorDashboard";
 import Pathway from "./pages/Pathway";
+import CourseContent from "./pages/CourseContent";
 
 const Layout = ({ children }) => {
   return (
@@ -83,6 +84,7 @@ function App() {
               <Route path="/user" element={<UserProfile />} />
               <Route path="/courses" element={<Courses />} />
               <Route path="/pathway/:id" element={<Pathway />} />
+              <Route path="/courseContent/:id" element={<CourseContent />} />
               <Route element={<ProtectedRoute />}>
                 {/* Add more protected routes here */}
               </Route>
