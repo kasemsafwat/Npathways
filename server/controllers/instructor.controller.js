@@ -441,5 +441,20 @@ const instructorContoller = {
       });
     }
   },
+  deleteInstructor: async (req, res) => {
+    try {
+      const instructorId = req.params.id;
+      const instructor = await Instructor.findByIdAndDelete(instructorId);
+      if (!instructor) {
+        return res.status(404).send({ message: "Instructor not found" });
+      }
+      res.status(200).send({ message: "Instructor deleted successfully" });
+    } catch (error) {
+      console.error("Delete Instructor Error:", error);
+      return res.status(500).send({
+        message: error.message,
+      });
+    }
+  },
 };
 export default instructorContoller;

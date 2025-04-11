@@ -48,7 +48,9 @@ const userController = {
     try {
       let { email, password } = req.body;
       email = email.toLowerCase();
-      let user = await User.findOne({ email });
+      let user = await User.findOne({ email })
+        .populate("pathways")
+        .populate("courses");
       if (!user) {
         return res.status(404).send({
           message: "Invalid Email Or Password",
@@ -82,6 +84,8 @@ const userController = {
         firstName: user.firstName,
         lastName: user.lastName,
         email: user.email,
+        pathways: user.pathways,
+        courses: user.courses,
       });
     } catch (error) {
       console.error("Login Error:", error);
@@ -144,7 +148,9 @@ const userController = {
         return res.status(400).json({ error: "Invalid User ID" });
       }
 
-      let user = await User.findById(id);
+      let user = await User.findById(id)
+        .populate("pathways")
+        .populate("courses");
       let userObject = user.toObject();
       delete userObject.password;
       delete userObject.tokens;
@@ -324,6 +330,7 @@ const userController = {
         firstName: req.user.firstName,
         lastName: req.user.lastName,
         email: req.user.email,
+        user: req.user,
       });
     } catch (error) {
       console.error("Verify User Error:", error);
