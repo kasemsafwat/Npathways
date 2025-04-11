@@ -5,17 +5,17 @@ import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 
 const AdminControlller = {
-  deleteInstructor: async (req, res) => {
+  deleteAdmin: async (req, res) => {
     try {
       let { id } = req.params;
-      let instructor = await Instructor.findByIdAndDelete(id);
-      if (!instructor) {
+      let admin = await Admin.findByIdAndDelete(id);
+      if (!admin) {
         return res.status(404).send({
-          message: "Instructor Not Found",
+          message: "Admin Not Found",
         });
       }
       res.send({
-        message: "Instructor deleted successfully",
+        message: "Admin deleted successfully",
       });
     } catch (error) {
       return res.status(500).send({

@@ -42,9 +42,12 @@ router.get(
   allowTo("admin"),
   AdminControlller.getAdminById
 );
-router
-  .route("/:id")
-  .delete(protectRoutes, allowTo("admin"), AdminControlller.deleteInstructor);
+router.delete(
+  "/:id",
+  protectRoutes,
+  allowTo("admin"),
+  AdminControlller.deleteAdmin
+);
 
 router
   .route("/")
@@ -164,7 +167,7 @@ router.put(
   UpdateInstructorValidation,
   protectRoutes,
   allowTo("admin"),
-  AdminControlller.updateStudentByAdmin
+  AdminControlller.updateInstructor
 );
 
 export default router;
