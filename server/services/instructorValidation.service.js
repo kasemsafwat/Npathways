@@ -106,6 +106,18 @@ export let updateInstructorSchema = Joi.object({
     .messages({
       "string.email": "Please enter a valid email address.",
     }),
+  phone: Joi.string()
+    .pattern(/^[0-9]+$/)
+    .min(10)
+    .max(15)
+    .trim()
+    .optional()
+    .messages({
+      "string.pattern.base": "Phone number must contain only numbers.",
+      "string.min": "Phone number must be at least 10 digits long.",
+      "string.max": "Phone number must not exceed 15 digits.",
+    }),
+  image: Joi.string().optional(),
 });
 export const updatePasswordSchema = Joi.object({
   oldPassword: Joi.string()

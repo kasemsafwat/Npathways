@@ -13,6 +13,7 @@ import { CompletStudentValidation } from "../middleware/user.middleware.js";
 import StudentControlller from "../controllers/student.controller.js";
 import { userUpload } from "../middleware/userImage.middleware.js";
 import userController from "../controllers/user.controller.js";
+import { UpdateInstructorValidation } from "../middleware/instructor.middleware.js";
 
 // The prefix is /api/admin
 const router = express.Router();
@@ -157,5 +158,13 @@ router.get(
   userController.getUsersInPathway
 );
 //? /////////////////////////
+
+router.put(
+  "/instructors/:id",
+  UpdateInstructorValidation,
+  protectRoutes,
+  allowTo("admin"),
+  AdminControlller.updateStudentByAdmin
+);
 
 export default router;
