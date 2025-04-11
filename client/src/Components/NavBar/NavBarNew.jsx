@@ -34,7 +34,7 @@ const NavBarNew = () => {
     navigationItems = [
       { label: "My Pathway", path: "/student/mypathway" },
       { label: "Courses", path: "/courses" },
-      // { label: "Chat", path: "/chat" },
+      { label: "Chat", path: "/chat" },
     ];
   }
   if (isInstructor) {
@@ -49,7 +49,13 @@ const NavBarNew = () => {
     <AppBar position="static" sx={{ bgcolor: "#0B162C", height: 100 }}>
       <Toolbar sx={{ height: 80, mt: "5px" }}>
         {/* Logo and Brand Name */}
-        <Box display="flex" alignItems="center">
+        <Box
+          display="flex"
+          alignItems="center"
+          component={Link}
+          to="/"
+          sx={{ textDecoration: "none" }}
+        >
           <Box
             component="img"
             src="/pathways_chiropractic-removebg-preview.png"

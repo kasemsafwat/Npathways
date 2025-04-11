@@ -110,15 +110,6 @@ const ChatHeader = () => {
           </Typography>
         </Box>
       </Box>
-
-      <Box>
-        <IconButton aria-label="search">
-          <Search />
-        </IconButton>
-        <IconButton aria-label="more options">
-          <MoreVert />
-        </IconButton>
-      </Box>
     </Box>
   );
 };
