@@ -28,7 +28,7 @@ import InstructorDashboard from "./pages/Instructor/InstructorDashboard";
 import Pathway from "./pages/Pathway";
 import CourseContent from "./pages/CourseContent";
 import Chat from "./chat/Chat";
-
+ 
 const Layout = ({ children }) => {
   return (
     <div className="app">
@@ -84,7 +84,7 @@ function App() {
               <Route path="/exam/:id" element={<Exam />} />
               <Route path="/user" element={<UserProfile />} />
               <Route path="/courses" element={<Courses />} />
-              <Route path="/pathway/:id" element={<Pathway />} />
+               <Route path="/pathway/:id" element={<Pathway />} />
               <Route path="/courseContent/:id" element={<CourseContent />} />
               <Route path="/chat" element={<Chat />} />
               <Route element={<ProtectedRoute />}>

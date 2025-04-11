@@ -1,13 +1,7 @@
 import React, { useEffect, useState } from "react";
-import {
-  Box,
-  ToggleButtonGroup,
-  ToggleButton,
-  Grid2 as Grid,
-} from "@mui/material";
+import { Box, Grid2 as Grid } from "@mui/material";
 import axios from "axios";
 import CoursesCard from "../Components/Courses/CoursesCard";
-
 function Courses() {
   const [alignment, setAlignment] = React.useState("web");
   const [courses, setCourses] = useState([]);
