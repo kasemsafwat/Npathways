@@ -22,8 +22,8 @@ const Login = () => {
   const navigate = useNavigate();
   const { login, isEnrolled, isLoading } = useContext(AuthContext);
   const initialValues = {
-    email: "example@gmail.com",
-    password: "Ali87654$",
+    email: "emily.brown@example.com",
+    password: "Test@123",
   };
   const handleShowPassword = () => {
     setShowPassword(!showPassword);

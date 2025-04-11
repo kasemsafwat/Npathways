@@ -153,8 +153,8 @@ const PathwayController = {
         pathway.courses = [];
       }
 
-      console.log("Courses from request:", courses);
-      console.log("Existing pathway courses:", pathway.courses);
+      // console.log("Courses from request:", courses);
+      // console.log("Existing pathway courses:", pathway.courses);
 
       const existingCourses = new Set(pathway.courses.map((c) => c.toString()));
       const newCourses = courses.filter(

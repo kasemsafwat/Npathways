@@ -241,13 +241,13 @@ const instructorContoller = {
         });
       }
       const resetToken = instructor.createResetPasswordToken();
-      console.log(resetToken);
+      // console.log(resetToken);
       await instructor.save({ validateeforeSave: false });
 
       const reseUrl = `${req.protocol}://${req.headers.host}/api/instructor/resetPassword/${resetToken}`;
       const message = `We have received a password reset request. please use the below link to reset password : 
       \n\n ${reseUrl} \n\n This reset Password Link will be valid only for 15 minutes `;
-      console.log(reseUrl);
+      // console.log(reseUrl);
 
       try {
         await sendEmail({
