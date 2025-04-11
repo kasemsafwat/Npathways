@@ -17,12 +17,18 @@ interface CourseWithDetails extends Course {
   templateUrl: './course-management.component.html',
   styleUrls: ['./course-management.component.css'],
   standalone: true,
-  imports: [CommonModule, FormsModule, CreateCourseDialogComponent, EditCourseDialogComponent]
+  imports: [
+    CommonModule,
+    FormsModule,
+    CreateCourseDialogComponent,
+    EditCourseDialogComponent,
+  ],
 })
 export class CourseManagementComponent implements OnInit {
-  @ViewChild(CreateCourseDialogComponent) createDialog!: CreateCourseDialogComponent;
+  @ViewChild(CreateCourseDialogComponent)
+  createDialog!: CreateCourseDialogComponent;
   @ViewChild(EditCourseDialogComponent) editDialog!: EditCourseDialogComponent;
-  
+
   courses: CourseWithDetails[] = [];
   filteredCourses: CourseWithDetails[] = [];
   activeTab: 'all' | 'active' | 'unpublished' | 'inactive' = 'all';
@@ -31,6 +37,10 @@ export class CourseManagementComponent implements OnInit {
   courseToDelete: CourseWithDetails | null = null;
   isLoading = true;
   error: string | null = null;
+
+  // Pagination properties
+  currentPage: number = 1;
+  itemsPerPage: number = 9; // 3 courses per row * 3 rows
 
   constructor(
     private coursesService: CoursesService,
@@ -56,18 +66,19 @@ export class CourseManagementComponent implements OnInit {
           return;
         }
 
-        const instructorObservables = courses.map(course => {
+        const instructorObservables = courses.map((course) => {
           if (course.instructors && course.instructors.length > 0) {
-            const instructorId = typeof course.instructors[0] === 'string' 
-              ? course.instructors[0] 
-              : course.instructors[0]._id;
+            const instructorId =
+              typeof course.instructors[0] === 'string'
+                ? course.instructors[0]
+                : course.instructors[0]._id;
             console.log('Fetching instructor:', instructorId);
             return this.instructorService.getInstructorById(instructorId);
           }
           return of(null);
         });
 
-        const studentCountObservables = courses.map(course => {
+        const studentCountObservables = courses.map((course) => {
           if (course._id) {
             console.log('Fetching student count for course:', course._id);
             return this.coursesService.getUsersInCourse(course._id);
@@ -77,7 +88,7 @@ export class CourseManagementComponent implements OnInit {
 
         forkJoin({
           instructors: forkJoin(instructorObservables),
-          studentCounts: forkJoin(studentCountObservables)
+          studentCounts: forkJoin(studentCountObservables),
         }).subscribe({
           next: (results) => {
             console.log('Received instructor details:', results.instructors);
@@ -86,7 +97,7 @@ export class CourseManagementComponent implements OnInit {
             this.courses = courses.map((course, index) => ({
               ...course,
               instructorDetails: results.instructors[index] || undefined,
-              studentCount: results.studentCounts[index]?.length || 0
+              studentCount: results.studentCounts[index]?.length || 0,
             }));
 
             console.log('Processed courses:', this.courses);
@@ -97,37 +108,58 @@ export class CourseManagementComponent implements OnInit {
             console.error('Error loading course details:', error);
             this.error = 'Failed to load course details. Please try again.';
             this.isLoading = false;
-          }
+          },
         });
       },
       error: (error) => {
         console.error('Error loading courses:', error);
         this.error = 'Failed to load courses. Please try again.';
         this.isLoading = false;
-      }
+      },
     });
+  }
+
+  get totalPages(): number {
+    return Math.ceil(this.filteredCourses.length / this.itemsPerPage);
+  }
+
+  get paginatedCourses(): CourseWithDetails[] {
+    const startIndex = (this.currentPage - 1) * this.itemsPerPage;
+    const endIndex = startIndex + this.itemsPerPage;
+    return this.filteredCourses.slice(startIndex, endIndex);
+  }
+
+  goToPage(page: number, event?: Event): void {
+    if (event) {
+      event.preventDefault();
+    }
+    if (page < 1 || page > this.totalPages) return;
+    this.currentPage = page;
   }
 
   filterCourses(): void {
     let filtered = [...this.courses];
-    
+
     if (this.activeTab !== 'all') {
-      filtered = filtered.filter(course => 
-        course.status?.toLowerCase() === this.activeTab
+      filtered = filtered.filter(
+        (course) => course.status?.toLowerCase() === this.activeTab
       );
     }
 
     if (this.searchQuery) {
       const query = this.searchQuery.toLowerCase();
-      filtered = filtered.filter(course =>
-        course.name.toLowerCase().includes(query) ||
-        course.instructorDetails?.firstName?.toLowerCase().includes(query) ||
-        course.instructorDetails?.lastName?.toLowerCase().includes(query)
+      filtered = filtered.filter(
+        (course) =>
+          course.name.toLowerCase().includes(query) ||
+          course.instructorDetails?.firstName?.toLowerCase().includes(query) ||
+          course.instructorDetails?.lastName?.toLowerCase().includes(query)
       );
     }
 
     console.log('Filtered courses:', filtered);
     this.filteredCourses = filtered;
+    // Reset to first page when filtering
+    this.currentPage = 1;
   }
 
   handleImageError(event: Event): void {
@@ -156,8 +188,8 @@ export class CourseManagementComponent implements OnInit {
   }
 
   getStatusCount(status: string): number {
-    return this.courses.filter(course => 
-      course.status?.toLowerCase() === status.toLowerCase()
+    return this.courses.filter(
+      (course) => course.status?.toLowerCase() === status.toLowerCase()
     ).length;
   }
 
@@ -166,7 +198,7 @@ export class CourseManagementComponent implements OnInit {
     return new Date(date).toLocaleDateString('en-US', {
       year: 'numeric',
       month: 'short',
-      day: 'numeric'
+      day: 'numeric',
     });
   }
 
@@ -209,7 +241,9 @@ export class CourseManagementComponent implements OnInit {
     if (!this.courseToDelete?._id) return;
 
     try {
-      await this.coursesService.deleteCourse(this.courseToDelete._id).toPromise();
+      await this.coursesService
+        .deleteCourse(this.courseToDelete._id)
+        .toPromise();
       this.loadCourses();
       this.closeDeleteConfirm();
     } catch (error) {
@@ -217,3 +251,4 @@ export class CourseManagementComponent implements OnInit {
     }
   }
 }
+
