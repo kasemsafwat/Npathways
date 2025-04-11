@@ -20,6 +20,9 @@ export interface Course {
   status?: string;
   category?: string;
   price?: number;
+  discount?: number;
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 @Injectable({

@@ -25,12 +25,13 @@ import CourseDetails from "./Components/CourseDetails/CourseDetails";
 import InstructorLogin from "./pages/InstructorLogin";
 import { InstructorAuthProvider } from "./contexts/InstructorAuthContext";
 import InstructorDashboard from "./pages/Instructor/InstructorDashboard";
+import Pathway from "./pages/Pathway";
+import CourseContent from "./pages/CourseContent";
 
 const Layout = ({ children }) => {
   return (
     <div className="app">
       <NavBarNew />
-      {/* <Navbar /> */}
       <main className="content">{children}</main>
       <footer className="footer">
         <p>© 2025 NPathways</p>
@@ -75,14 +76,16 @@ function App() {
               />
 
               {/* Protected routes */}
+              <Route path="/student/mypathway" element={<MyPathway />} />
+              <Route path="/examDetails" element={<ExamPage />} />
+              <Route path="/createExam/:examId?" element={<CreateExam />} />
+              <Route path="/finishExam" element={<FinishedExam />} />
+              <Route path="/exam/:id" element={<Exam />} />
+              <Route path="/user" element={<UserProfile />} />
+              <Route path="/courses" element={<Courses />} />
+              <Route path="/pathway/:id" element={<Pathway />} />
+              <Route path="/courseContent/:id" element={<CourseContent />} />
               <Route element={<ProtectedRoute />}>
-                <Route path="/student/mypathway" element={<MyPathway />} />
-                <Route path="/examDetails" element={<ExamPage />} />
-                <Route path="/createExam/:examId?" element={<CreateExam />} />
-                <Route path="/finishExam" element={<FinishedExam />} />
-                <Route path="/exam/:id" element={<Exam />} />
-                <Route path="/user" element={<UserProfile />} />
-                <Route path="/courses" element={<Courses />} />
                 {/* Add more protected routes here */}
               </Route>
               <Route path="*" element={<NotFound />} />

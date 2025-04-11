@@ -175,6 +175,21 @@
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
 }
 
+.transactions-card {
+  height: 400px;
+  display: flex;
+  flex-direction: column;
+}
+
+.transactions-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  overflow-y: auto;
+  flex: 1;
+  padding-right: 10px;
+}
+
 h2 {
   color: #2B3674;
   font-size: 1.25rem;
@@ -186,12 +201,6 @@ h2 {
   color: #A3AED0;
   font-size: 0.875rem;
   margin-bottom: 1.5rem;
-}
-
-.transactions-list {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
 }
 
 .transaction-item {

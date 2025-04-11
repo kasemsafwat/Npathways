@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { BaseChartDirective } from 'ng2-charts';
 import { ChartConfiguration, ChartOptions } from 'chart.js';
 import { DashboardService } from '../../services/dashboard.service';
+import { PaymentService } from '../../services/payment.service';
 
 @Component({
   selector: 'app-admin-dashboard',
@@ -24,13 +25,7 @@ export class AdminDashboardComponent implements OnInit {
   monthlyRevenue = 0;
 
   // Recent Transactions
-  recentTransactions = [
-    { name: 'John Doe', course: 'Advanced Web Development', amount: 350, date: 'Jan 15, 2023' },
-    { name: 'Sarah Johnson', course: 'UX Design Fundamentals', amount: 195, date: 'Jan 14, 2023' },
-    { name: 'Michael Brown', course: 'Data Science Bootcamp', amount: 250, date: 'Jan 14, 2023' },
-    { name: 'Emily Wilson', course: 'Mobile App Development', amount: 175, date: 'Jan 13, 2023' },
-    { name: 'David Lee', course: 'AI & Machine Learning', amount: 220, date: 'Jan 13, 2023' }
-  ];
+  recentTransactions: any[] = [];
 
   // Top Performing Courses
   topCourses = [
@@ -103,10 +98,14 @@ export class AdminDashboardComponent implements OnInit {
     }
   };
 
-  constructor(private dashboardService: DashboardService) {}
+  constructor(
+    private dashboardService: DashboardService,
+    private paymentService: PaymentService
+  ) {}
 
   ngOnInit(): void {
     this.loadDashboardData();
+    this.loadTransactions();
   }
 
   loadDashboardData(): void {
@@ -122,6 +121,22 @@ export class AdminDashboardComponent implements OnInit {
       },
       error: (error) => {
         console.error('Error loading dashboard data:', error);
+      }
+    });
+  }
+
+  loadTransactions(): void {
+    this.paymentService.getAllPayments().subscribe({
+      next: (response) => {
+        this.recentTransactions = response.map((transaction: any) => ({
+          name: `${transaction.user.firstName} ${transaction.user.lastName}`,
+          course: transaction.course ? transaction.course.name : 'N/A',
+          amount: transaction.amount,
+          date: new Date(transaction.paidAt).toLocaleDateString()
+        }));
+      },
+      error: (error) => {
+        console.error('Error loading transactions:', error);
       }
     });
   }

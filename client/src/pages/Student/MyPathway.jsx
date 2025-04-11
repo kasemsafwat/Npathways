@@ -72,9 +72,9 @@ export default function MyPathway() {
           sx={{ border: 1, mx: 4, my: 1, borderColor: "text.primary" }}
         ></Divider>
         <Box pl={6} pr={4} mt={2}>
-          {tap === "enrollment" && !isEnrolled && <EnrollmentSection />}
+          {tap === "enrollment" && <EnrollmentSection />}
           {tap === "pathway" &&
-            (!isEnrolled ? (
+            (isEnrolled ? (
               <PathwaySection />
             ) : (
               <>

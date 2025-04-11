@@ -10,7 +10,13 @@ import {
 import React from "react";
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 
-export default function CourseCard({ image, title, status, time = null }) {
+export default function CourseCard({
+  image,
+  title,
+  status,
+  time = null,
+  onClick,
+}) {
   const colors = [
     { color: "#FFE100", op: 0.35 },
     { color: "#DBDBDB", op: 0.75 },
@@ -47,10 +53,10 @@ export default function CourseCard({ image, title, status, time = null }) {
       </CardContent>
       {!(status === "Not Started") && (
         <CardActions sx={{ pt: 0, px: 2, justifyContent: "space-between" }}>
-          <Button size="small" color="text.primary">
+          <Button size="small" color="text.primary" onClick={onClick}>
             {time ? time : "Continue"}
           </Button>
-          <IconButton size="small" color="text.primary">
+          <IconButton size="small" color="text.primary" onClick={onClick}>
             <ArrowForwardIcon />
           </IconButton>
         </CardActions>

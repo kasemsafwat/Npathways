@@ -3,165 +3,151 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { jsPDF } from 'jspdf';
 import 'jspdf-autotable';
+import { EnrollmentService } from '../../services/enrollment.service';
+import { EnrollmentDetailsComponent } from './enrollment-details/enrollment-details.component';
 
 interface Enrollment {
-  student: {
-    name: string;
-    email: string;
-    avatar?: string;
+  _id: string;
+  userId: {
+    _id: string;
+    pathways: Array<{
+      _id: string;
+      name: string;
+    }>;
   };
-  course: string;
-  date: string;
-  status: 'Active' | 'Pending' | 'Rejected';
-  testScore: number;
-  motivation: boolean;
-  pathway: 'approved' | 'pending' | 'rejected';
+  firstName: string;
+  lastName: string;
+  email: string;
+  phone: string;
+  nationality: string;
+  facultyName: string;
+  GPA: number;
+  motivationLetter: string;
+  exam: Array<{
+    question: string;
+    answer: string;
+  }>;
+  createdAt: string;
+  updatedAt: string;
+  address: {
+    country: string;
+    city: string;
+    street: string;
+  };
 }
 
 @Component({
   selector: 'app-enrollment-management',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, EnrollmentDetailsComponent],
   templateUrl: './enrollment-management.component.html',
   styleUrl: './enrollment-management.component.css'
 })
 export class EnrollmentManagementComponent implements OnInit {
   searchTerm: string = '';
   currentTab: 'all' | 'pending' | 'approved' | 'rejected' = 'all';
+  enrollments: Enrollment[] = [];
+  selectedEnrollment: Enrollment | null = null;
+  showDetailsModal: boolean = false;
 
-  enrollments: Enrollment[] = [
-    {
-      student: {
-        name: 'John Doe',
-        email: 'john.doe@example.com'
+  constructor(private enrollmentService: EnrollmentService) {}
+
+  ngOnInit(): void {
+    this.loadEnrollments();
+  }
+
+  loadEnrollments(): void {
+    this.enrollmentService.getAllEnrollments().subscribe({
+      next: (data) => {
+        this.enrollments = data;
       },
-      course: 'Advanced Web Development',
-      date: 'May 10, 2023',
-      status: 'Active',
-      testScore: 85,
-      motivation: true,
-      pathway: 'approved'
-    },
-    {
-      student: {
-        name: 'Sarah Johnson',
-        email: 'sarah.j@example.com'
-      },
-      course: 'UX Design Fundamentals',
-      date: 'May 12, 2023',
-      status: 'Active',
-      testScore: 92,
-      motivation: true,
-      pathway: 'approved'
-    },
-    {
-      student: {
-        name: 'Michael Brown',
-        email: 'm.brown@example.com'
-      },
-      course: 'Data Science Bootcamp',
-      date: 'May 15, 2023',
-      status: 'Pending',
-      testScore: 78,
-      motivation: true,
-      pathway: 'pending'
-    },
-    {
-      student: {
-        name: 'Emily Wilson',
-        email: 'emily.w@example.com'
-      },
-      course: 'Mobile App Development',
-      date: 'May 18, 2023',
-      status: 'Active',
-      testScore: 88,
-      motivation: true,
-      pathway: 'approved'
-    },
-    {
-      student: {
-        name: 'David Lee',
-        email: 'david.lee@example.com'
-      },
-      course: 'AI & Machine Learning',
-      date: 'May 20, 2023',
-      status: 'Pending',
-      testScore: 65,
-      motivation: false,
-      pathway: 'pending'
-    },
-    {
-      student: {
-        name: 'Jennifer Taylor',
-        email: 'jen.taylor@example.com'
-      },
-      course: 'Graphic Design Masterclass',
-      date: 'May 22, 2023',
-      status: 'Rejected',
-      testScore: 45,
-      motivation: true,
-      pathway: 'rejected'
-    }
-  ];
+      error: (error) => {
+        console.error('Error loading enrollments:', error);
+      }
+    });
+  }
+
+  getPendingCount(): number {
+    return this.enrollments.filter(e => e.userId.pathways.length === 0).length;
+  }
 
   get filteredEnrollments(): Enrollment[] {
     return this.enrollments.filter(enrollment => {
-      // First apply tab filter
-      if (this.currentTab !== 'all' && enrollment.pathway !== this.currentTab) {
-        return false;
+      if (this.currentTab !== 'all') {
+        const hasPathways = enrollment.userId.pathways.length > 0;
+        if (this.currentTab === 'pending' && hasPathways) return false;
+        if (this.currentTab === 'approved' && !hasPathways) return false;
       }
 
-      // Then apply search filter
       if (this.searchTerm) {
         const searchLower = this.searchTerm.toLowerCase();
-        return enrollment.student.name.toLowerCase().includes(searchLower) ||
-               enrollment.student.email.toLowerCase().includes(searchLower) ||
-               enrollment.course.toLowerCase().includes(searchLower);
+        return enrollment.firstName.toLowerCase().includes(searchLower) ||
+               enrollment.lastName.toLowerCase().includes(searchLower) ||
+               enrollment.email.toLowerCase().includes(searchLower);
       }
 
       return true;
     });
   }
 
-  constructor() {}
-
-  ngOnInit(): void {}
-
   setTab(tab: 'all' | 'pending' | 'approved' | 'rejected'): void {
     this.currentTab = tab;
   }
 
-  getStatusClass(status: string): string {
-    switch (status.toLowerCase()) {
-      case 'active':
-        return 'status-active';
-      case 'pending':
-        return 'status-pending';
-      case 'rejected':
-        return 'status-rejected';
-      default:
-        return '';
+  getPathwayStatus(enrollment: Enrollment): string {
+    return enrollment.userId.pathways.length > 0 ? 'approved' : 'pending';
+  }
+
+  getPathwayName(enrollment: Enrollment): string {
+    if (enrollment.userId.pathways.length === 0) {
+      return 'Pending';
+    }
+    return enrollment.userId.pathways[enrollment.userId.pathways.length - 1].name;
+  }
+
+  viewEnrollmentDetails(enrollment: Enrollment): void {
+    this.enrollmentService.getEnrollmentById(enrollment._id).subscribe({
+      next: (data) => {
+        this.selectedEnrollment = data;
+        this.showDetailsModal = true;
+      },
+      error: (error) => {
+        console.error('Error loading enrollment details:', error);
+      }
+    });
+  }
+
+  deleteEnrollment(enrollment: Enrollment): void {
+    if (confirm('Are you sure you want to delete this enrollment?')) {
+      this.enrollmentService.deleteEnrollment(enrollment._id).subscribe({
+        next: () => {
+          this.loadEnrollments();
+        },
+        error: (error) => {
+          console.error('Error deleting enrollment:', error);
+        }
+      });
     }
   }
 
-  getPathwayClass(pathway: string): string {
-    return `pathway-${pathway}`;
+  closeDetailsModal(): void {
+    this.showDetailsModal = false;
+    this.selectedEnrollment = null;
   }
 
   exportToPDF(): void {
     const doc = new jsPDF();
 
-    const tableColumn = ["Student", "Course", "Date", "Status", "Test Score", "Pathway"];
+    const tableColumn = ["Student", "Email", "Faculty", "GPA", "Pathway"];
     const tableRows: any[] = [];
 
     this.filteredEnrollments.forEach(enrollment => {
       const enrollmentData = [
-        enrollment.student.name,
-        enrollment.course,
-        enrollment.date,
-        enrollment.status,
-        `${enrollment.testScore}%`,
-        enrollment.pathway
+        `${enrollment.firstName} ${enrollment.lastName}`,
+        enrollment.email,
+        enrollment.facultyName,
+        enrollment.GPA,
+        this.getPathwayName(enrollment)
       ];
       tableRows.push(enrollmentData);
     });

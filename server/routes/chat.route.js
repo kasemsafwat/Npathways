@@ -18,4 +18,6 @@ router.post(
 );
 router.get("/messages/:id", authentication, ChatController.getMessages);
 
+router.get("/getAllChats", authentication, ChatController.getAllChats);
+
 export default router;

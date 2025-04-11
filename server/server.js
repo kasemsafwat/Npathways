@@ -76,7 +76,7 @@ io.on("connection", (socket) => {
   console.log(`${userName} joined general chat`);
 
   socket.on("sendMessageToGeneral", ({ message }) => {
-    console.log(message);
+    // console.log(message);
     const newMessage = {
       senderId: userId,
       userName,

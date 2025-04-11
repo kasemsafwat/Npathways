@@ -20,6 +20,7 @@ function Courses() {
     const fetchCourses = async () => {
       try {
         const response = await axios.get("http://localhost:5024/api/course/");
+
         setCourses(response.data);
       } catch (error) {
         console.error("Error fetching courses:", error);
@@ -37,18 +38,7 @@ function Courses() {
         justifyContent="center"
         alignItems="center"
         sx={{ mb: 3 }}
-      >
-        <ToggleButtonGroup
-          color="primary"
-          value={alignment}
-          exclusive
-          onChange={handleChange}
-          aria-label="Platform"
-        >
-          <ToggleButton value="web">Courses</ToggleButton>
-          <ToggleButton value="android">Pathway</ToggleButton>
-        </ToggleButtonGroup>
-      </Box>
+      ></Box>
       <div className="container">
         <div className="row">
           {courses.map((course) => (

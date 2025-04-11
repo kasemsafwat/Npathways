@@ -241,13 +241,13 @@ const instructorContoller = {
         });
       }
       const resetToken = instructor.createResetPasswordToken();
-      console.log(resetToken);
+      // console.log(resetToken);
       await instructor.save({ validateeforeSave: false });
 
       const reseUrl = `${req.protocol}://${req.headers.host}/api/instructor/resetPassword/${resetToken}`;
       const message = `We have received a password reset request. please use the below link to reset password : 
       \n\n ${reseUrl} \n\n This reset Password Link will be valid only for 15 minutes `;
-      console.log(reseUrl);
+      // console.log(reseUrl);
 
       try {
         await sendEmail({
@@ -436,6 +436,21 @@ const instructorContoller = {
       res.status(200).send(instructors);
     } catch (error) {
       console.error("Get All Instructors Error:", error);
+      return res.status(500).send({
+        message: error.message,
+      });
+    }
+  },
+  deleteInstructor: async (req, res) => {
+    try {
+      const instructorId = req.params.id;
+      const instructor = await Instructor.findByIdAndDelete(instructorId);
+      if (!instructor) {
+        return res.status(404).send({ message: "Instructor not found" });
+      }
+      res.status(200).send({ message: "Instructor deleted successfully" });
+    } catch (error) {
+      console.error("Delete Instructor Error:", error);
       return res.status(500).send({
         message: error.message,
       });

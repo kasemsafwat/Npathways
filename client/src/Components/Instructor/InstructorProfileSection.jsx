@@ -11,9 +11,11 @@ import {
 import axios from "axios";
 import React, { useContext, useEffect, useRef, useState } from "react";
 import { InstructorAuthContext } from "../../contexts/InstructorAuthContext";
+import { AuthContext } from "../../contexts/AuthContext";
 
 export default function InstructorProfileSection() {
-  const { isAuthenticated } = useContext(InstructorAuthContext);
+  // const { isAuthenticated } = useContext(InstructorAuthContext);
+  const { isAuthenticated } = useContext(AuthContext);
   const instructorID = localStorage.getItem("instructorID");
   const [instructorData, setInstructorData] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -138,6 +140,8 @@ export default function InstructorProfileSection() {
     });
     setIsEditing(false);
   };
+
+  console.log(isAuthenticated);
 
   if (!isAuthenticated) {
     return (

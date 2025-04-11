@@ -213,13 +213,13 @@ const authAdminController = {
         });
       }
       const resetToken = user.createResetPasswordToken();
-      console.log(resetToken);
+      // console.log(resetToken);
       await user.save({ validateeforeSave: false });
 
       const reseUrl = `${req.protocol}://${req.headers.host}/api/admin/resetPassword/${resetToken}`;
       const message = `We have received a password reset request. please use the below link to reset password : 
     \n\n ${reseUrl} \n\n This reset Password Link will be valid only for 15 minutes `;
-      console.log(reseUrl);
+      // console.log(reseUrl);
 
       try {
         await sendEmail({
