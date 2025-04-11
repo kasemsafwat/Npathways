@@ -115,14 +115,14 @@ const instructorContoller = {
   //   Function Of Instructor
   updateInstructor: async (req, res) => {
     try {
-      const updateData = { ...req.body };
+      const id = req.instructor ? req.instructor._id : req.admin._id;
+
+      const updateData = { ...req.body, email: req.body.email.toLowerCase() };
       delete updateData.password;
-      let instructor = await Instructor.findByIdAndUpdate(
-        req.instructor._id,
-        updateData,
-        { new: true }
-      ).select("-password");
-      res.send(instructor);
+      let instructor = await Instructor.findByIdAndUpdate(id, updateData, {
+        new: true,
+      }).select("-password");
+      return res.send(instructor);
     } catch (error) {
       return res.status(500).send({
         message: "Instructor Controller: " + error.message,
