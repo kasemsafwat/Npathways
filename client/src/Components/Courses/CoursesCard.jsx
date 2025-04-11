@@ -228,15 +228,17 @@ function CoursesCard({ course }) {
               <Skeleton width="50%" height={30} />
             ) : (
               <>
-                <Typography
-                  variant="body1"
-                  sx={{
-                    color: "text.secondary",
-                    textDecoration: "line-through",
-                  }}
-                >
-                  ${course.priceBeforeDiscount || "50.00"}
-                </Typography>
+                {course.discount > 0 && (
+                  <Typography
+                    variant="body1"
+                    sx={{
+                      color: "text.secondary",
+                      textDecoration: "line-through",
+                    }}
+                  >
+                    ${course.price}
+                  </Typography>
+                )}
                 <Typography
                   variant="h6"
                   sx={{
@@ -244,7 +246,7 @@ function CoursesCard({ course }) {
                     fontWeight: "bold",
                   }}
                 >
-                  ${course.priceAfterDiscount || "39.99"}
+                  ${course.price - course.discount}
                 </Typography>
               </>
             )}
