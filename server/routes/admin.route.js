@@ -6,6 +6,7 @@ import {
   loginValidation,
   ResetValidation,
   updateUserByAdminValidation,
+  updateAdminValidation,
 } from "../middleware/admin.middleware.js";
 
 import { protectRoutes, allowTo } from "../middleware/AuthAdmin.middleware.js";
@@ -116,7 +117,7 @@ router.put(
   "/updateData/:adminId",
   protectRoutes,
   allowTo("admin"),
-  newAdminValidation,
+  updateAdminValidation,
   AdminControlller.updateAdminData
 );
 
