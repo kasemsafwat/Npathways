@@ -39,7 +39,19 @@ export const AuthProvider = ({ children }) => {
         localStorage.setItem("firstName", response.data.firstName);
         localStorage.setItem("lastName", response.data.lastName);
         localStorage.setItem("email", response.data.email);
-        setIsEnrolled(response.data.pathways.length > 0);
+        if (response.data.pathways.length <= 0) {
+          await axios
+            .get(`http://localhost:5024/api/enrollment/userEnrollments`, {
+              withCredentials: true,
+            })
+            .then((res) => {
+              console.log(res.data);
+              setIsEnrolled(res.data.length > 0);
+            })
+            .catch((err) => {
+              setIsEnrolled(false);
+            });
+        } else setIsEnrolled(true);
         navigate("/student/mypathway");
 
         return { success: true, data: response.data };
@@ -99,10 +111,22 @@ export const AuthProvider = ({ children }) => {
           { withCredentials: true }
         );
         const enrolledCourses = response.data.pathways;
-        setIsEnrolled(enrolledCourses.length > 0);
+        if (enrolledCourses.length <= 0) {
+          await axios
+            .get(`http://localhost:5024/api/enrollment/userEnrollments`, {
+              withCredentials: true,
+            })
+            .then((res) => {
+              console.log(res.data);
+              setIsEnrolled(res.data.length > 0);
+            })
+            .catch((err) => {
+              setIsEnrolled(false);
+            });
+        } else setIsEnrolled(true);
         setIsStudent(true);
         setIsAuthenticated(true);
-        console.log(response.data);
+        // console.log(response.data);
         setUser(response.data);
       }
       const instructorId = localStorage.getItem("instructorID");
