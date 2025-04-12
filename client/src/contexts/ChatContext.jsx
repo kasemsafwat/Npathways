@@ -6,7 +6,7 @@ import {
   useState,
 } from "react";
 import axios from "axios";
-import socket from "../helpers/socket";
+import { io } from "socket.io-client";
 
 const ChatContext = createContext();
 
@@ -41,6 +41,31 @@ export const ChatProvider = ({ children }) => {
   const [state, dispatch] = useReducer(reducer, initialState);
   const [chats, setChats] = useState([]);
   const [courses, setCourses] = useState([]);
+  const [socket, setSocket] = useState(null);
+
+  const userId = localStorage.getItem("userId");
+  const userName =
+    localStorage.getItem("firstName") && localStorage.getItem("lastName")
+      ? localStorage.getItem("firstName") +
+        " " +
+        localStorage.getItem("lastName")
+      : "no user found";
+
+  useEffect(() => {
+    const newSocket = io("http://localhost:5024", {
+      query: { userId, userName },
+    });
+
+    newSocket.on("connect", () => {
+      console.log("Socket connected:", newSocket.id);
+    });
+
+    setSocket(newSocket);
+
+    return () => {
+      newSocket.disconnect();
+    };
+  }, [userId, userName]);
 
   const switchToGeneralChat = () => {
     dispatch({ type: "SELECT_CHAT", payload: null });
@@ -91,7 +116,7 @@ export const ChatProvider = ({ children }) => {
   };
 
   const sendMessage = async (message) => {
-    if (!message.trim()) return;
+    if (!message.trim() || !socket) return;
 
     if (state.selectedChatId) {
       try {
@@ -99,11 +124,8 @@ export const ChatProvider = ({ children }) => {
         const tempMessage = {
           _id: Date.now().toString(),
           content: message,
-          senderId: localStorage.getItem("userId"),
-          userName:
-            localStorage.getItem("firstName") +
-            " " +
-            localStorage.getItem("lastName"),
+          senderId: userId,
+          userName,
           time: new Date().toISOString(),
         };
         dispatch({ type: "ADD_MESSAGE", payload: tempMessage });
@@ -123,11 +145,8 @@ export const ChatProvider = ({ children }) => {
       const tempMessage = {
         _id: Date.now().toString(),
         content: message,
-        senderId: localStorage.getItem("userId"),
-        userName:
-          localStorage.getItem("firstName") +
-          " " +
-          localStorage.getItem("lastName"),
+        senderId: userId,
+        userName,
         time: new Date().toISOString(),
       };
       dispatch({ type: "ADD_MESSAGE", payload: tempMessage });
@@ -156,9 +175,12 @@ export const ChatProvider = ({ children }) => {
   }, []);
 
   useEffect(() => {
+    if (!socket) return;
+
     socket.on("receiveMessageFromGeneral", (message) => {
       if (!state.selectedChatId) {
         const currentUserId = localStorage.getItem("userId");
+        // console.log(message.senderId, currentUserId);
         if (message.senderId !== currentUserId)
           dispatch({ type: "ADD_MESSAGE", payload: message });
       }
@@ -167,10 +189,10 @@ export const ChatProvider = ({ children }) => {
     return () => {
       socket.off("receiveMessageFromGeneral");
     };
-  }, [state.selectedChatId]);
+  }, [state.selectedChatId, socket]);
 
   useEffect(() => {
-    if (!state.selectedChatId) return;
+    if (!state.selectedChatId || !socket) return;
 
     socket.emit("joinChat", { chatId: state.selectedChatId });
     socket.on("receiveMessage", (message) => {
@@ -182,7 +204,7 @@ export const ChatProvider = ({ children }) => {
     return () => {
       socket.off("receiveMessage");
     };
-  }, [state.selectedChatId]);
+  }, [state.selectedChatId, socket]);
 
   return (
     <ChatContext.Provider

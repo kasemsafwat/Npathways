@@ -2,8 +2,10 @@ import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 import { Box, Button, Container, Typography } from "@mui/material";
 import React from "react";
 import bimManager from "../../assets/landing.jpg";
+import { useNavigate } from "react-router";
 
 const NewHeroSection = () => {
+  const navigate = useNavigate();
   return (
     <Box
       sx={{
@@ -72,6 +74,7 @@ const NewHeroSection = () => {
                   bgcolor: "#3AB07A",
                 },
               }}
+              onClick={() => navigate("/enrollment/welcome")}
             >
               Enroll Now
             </Button>

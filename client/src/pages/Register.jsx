@@ -7,12 +7,12 @@ import {
   Typography,
   Box,
   Checkbox,
-  Link,
+  Link as MuiLink,
 } from "@mui/material";
 import { useFormik } from "formik";
 import * as Yup from "yup";
 import axios from "axios";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 
 const validationSchema = Yup.object().shape({
   firstName: Yup.string().required("First Name is required"),
@@ -229,13 +229,12 @@ const Register = () => {
                   }}
                 >
                   By creating an account, I agree to our{" "}
-                  <Link
-                    onClick={() => navigate("/terms-and-conditions")}
-                    sx={{ color: "seagreen", cursor: "pointer" }}
+                  <a
+                    target="_blank"
+                    href="http://localhost:5173/terms-and-conditions"
                   >
                     Terms of use
-                  </Link>{" "}
-                  and <a href="/privacy">Privacy Policy</a>
+                  </a>
                 </Typography>
               </Box>
             </Grid>
@@ -300,7 +299,7 @@ const Register = () => {
                 alignItems: "center",
               }}
             >
-              <Button
+              {/* <Button
                 fullWidth
                 variant="outlined"
                 startIcon={
@@ -325,7 +324,25 @@ const Register = () => {
                 }}
               >
                 Continue with Google
-              </Button>
+              </Button> */}
+              <Typography variant="body2" color="text.secondary">
+                Have an account?{" "}
+                <MuiLink
+                  component={Link}
+                  to="/login"
+                  underline="hover"
+                  sx={{
+                    color: "#46c98b",
+                    fontFamily: "Poppins-Medium",
+                    transition: "all 0.2s ease",
+                    "&:hover": {
+                      color: "#3ab77a",
+                    },
+                  }}
+                >
+                  Log in
+                </MuiLink>
+              </Typography>
             </Grid>
           </Grid>
         </form>

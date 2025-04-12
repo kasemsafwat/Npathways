@@ -1,4 +1,3 @@
-import axios from "axios";
 import { io } from "socket.io-client";
 
 let userId = localStorage.getItem("userId");

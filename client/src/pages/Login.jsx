@@ -348,7 +348,7 @@ const Login = () => {
                   />
                 </Grid>
 
-                <Grid item xs={12} sx={{ textAlign: "right" }}>
+                {/* <Grid item xs={12} sx={{ textAlign: "right" }}>
                   <MuiLink
                     component={Link}
                     to="/forgot-password"
@@ -366,7 +366,7 @@ const Login = () => {
                   >
                     Forgot your password?
                   </MuiLink>
-                </Grid>
+                </Grid> */}
 
                 <Grid item xs={12}>
                   <Button
@@ -410,7 +410,7 @@ const Login = () => {
 
                 <Grid item xs={12} sx={{ textAlign: "center" }}>
                   <Typography variant="body2" color="text.secondary">
-                    Don't have an account?{" "}
+                    Don&apos;t have an account?{" "}
                     <MuiLink
                       component={Link}
                       to="/register"

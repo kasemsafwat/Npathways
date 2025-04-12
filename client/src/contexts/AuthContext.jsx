@@ -39,6 +39,7 @@ export const AuthProvider = ({ children }) => {
         localStorage.setItem("firstName", response.data.firstName);
         localStorage.setItem("lastName", response.data.lastName);
         localStorage.setItem("email", response.data.email);
+        setIsEnrolled(response.data.pathways.length > 0);
         navigate("/student/mypathway");
 
         return { success: true, data: response.data };
