@@ -903,7 +903,17 @@ const NavBarNew = () => {
                 )}
                 {isInstructor || isStudent ? (
                   <Box sx={{ display: "flex", alignItems: "center" }}>
-                    <Tooltip title={user?.name || "User Profile"}>
+                    <Tooltip
+                      title={user?.name || "User Profile"}
+                      onClick={() => {
+                        if (isInstructor) {
+                          navigate("/instructor/dashboard");
+                        }
+                        if (isStudent) {
+                          navigate("/student/mypathway");
+                        }
+                      }}
+                    >
                       <Avatar
                         sx={{
                           bgcolor: "#46c98b",
@@ -1028,7 +1038,17 @@ const NavBarNew = () => {
 
             {/* User Avatar for Mobile (when logged in) */}
             {(isInstructor || isStudent) && !isLoading && (
-              <Tooltip title={user?.name || "User Profile"}>
+              <Tooltip
+                title={user?.name || "User Profile"}
+                onClick={() => {
+                  if (isInstructor) {
+                    navigate("/instructor/dashboard");
+                  }
+                  if (isStudent) {
+                    navigate("/student/mypathway");
+                  }
+                }}
+              >
                 <Avatar
                   sx={{
                     bgcolor: "#46c98b",

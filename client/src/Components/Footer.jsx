@@ -172,16 +172,16 @@ const Footer = () => {
   ];
 
   const companyLinks = [
-    { title: "About Us", path: "/about-us" },
-    { title: "Contact Us", path: "/contact" },
-    { title: "Blog", path: "/blog" },
-    { title: "Careers", path: "/careers" },
+    { title: "About Us", path: "#" },
+    { title: "Contact Us", path: "#" },
+    { title: "Blog", path: "#" },
+    { title: "Careers", path: "#" },
   ];
 
   const legalLinks = [
-    { title: "Privacy Policy", path: "/privacy-policy" },
+    { title: "Privacy Policy", path: "#" },
     { title: "Terms of Use", path: "/terms-and-conditions" },
-    { title: "Cookie Policy", path: "/cookie-policy" },
+    { title: "Cookie Policy", path: "#" },
   ];
 
   return (
@@ -444,7 +444,7 @@ const Footer = () => {
           >
             <Link
               component={RouterLink}
-              to="/sitemap"
+              to="#"
               color="inherit"
               underline="hover"
               variant="body2"
@@ -454,7 +454,7 @@ const Footer = () => {
             </Link>
             <Link
               component={RouterLink}
-              to="/accessibility"
+              to="#"
               color="inherit"
               underline="hover"
               variant="body2"
@@ -463,7 +463,7 @@ const Footer = () => {
               Accessibility
             </Link>
             <Typography variant="body2" sx={{ opacity: 0.7 }}>
-              Made with ♥ by HazemMahhmoudSohilaKasemAboSaeed
+              Made with ♥ by Hazem Mahmoud Sohila Kasem AboSaeed
             </Typography>
           </Box>
         </Box>

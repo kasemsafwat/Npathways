@@ -42,7 +42,7 @@ const ChatHeader = () => {
       );
 
       if (otherUser) {
-        console.log("otherUser", currentChat.users, currentUserId);
+        // console.log("otherUser", currentChat.users, currentUserId);
         const [firstName, lastName] = otherUser.userName.split(" ");
         setHeaderInfo({
           title: otherUser.userName,
