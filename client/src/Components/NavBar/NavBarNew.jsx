@@ -30,10 +30,22 @@ import {
   ListItem,
   ListItemText,
   Badge,
+  Paper,
+  Snackbar,
+  Alert,
 } from "@mui/material";
-import React, { useContext, useState, useEffect } from "react";
-import { Link, useLocation } from "react-router-dom";
+import React, {
+  useContext,
+  useState,
+  useEffect,
+  useMemo,
+  useCallback,
+} from "react";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { AuthContext } from "../../contexts/AuthContext";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import axios from "axios";
+import { debounce } from "lodash";
 
 // Add "How It Works" to the navigation items
 let navigationItems = [
@@ -50,6 +62,33 @@ let navigationItems = [
   },
 ];
 
+// Function to fetch courses for search
+const fetchCourses = async () => {
+  try {
+    const response = await axios.get("http://localhost:5024/api/course/");
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching courses for search:", error);
+    throw new Error("Failed to load courses");
+  }
+};
+
+// Function to search courses with a query parameter and limit to 4 results
+const searchCourses = async (query) => {
+  if (!query || query.trim().length < 2) return [];
+
+  try {
+    const response = await axios.get(
+      `http://localhost:5024/api/course/search?q=${encodeURIComponent(query)}`
+    );
+    // Limit to 4 results
+    return response.data.slice(0, 4);
+  } catch (error) {
+    console.error("Error searching courses:", error);
+    throw new Error("Search failed");
+  }
+};
+
 const NavBarNew = () => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
@@ -57,7 +96,14 @@ const NavBarNew = () => {
   const isTablet = useMediaQuery(theme.breakpoints.between("sm", "md"));
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const [searchValue, setSearchValue] = useState("");
+  const [searchOpen, setSearchOpen] = useState(false);
+  const [searchResults, setSearchResults] = useState([]);
+  const [errorMessage, setErrorMessage] = useState("");
+  const [showError, setShowError] = useState(false);
   const location = useLocation();
+  const navigate = useNavigate();
+  const queryClient = useQueryClient();
 
   const {
     isAuthenticated,
@@ -69,6 +115,73 @@ const NavBarNew = () => {
     user,
   } = useContext(AuthContext);
 
+  // Fetch all courses for initial autocomplete options
+  const {
+    data: courses,
+    isLoading: coursesLoading,
+    error: coursesError,
+  } = useQuery({
+    queryKey: ["courses"],
+    queryFn: fetchCourses,
+    staleTime: 5 * 60 * 1000, // 5 minutes
+    refetchOnWindowFocus: false,
+    onError: (error) => {
+      setErrorMessage("Failed to load courses: " + error.message);
+      setShowError(true);
+    },
+  });
+
+  // Effect to update search results based on courses data
+  useEffect(() => {
+    if (courses && !searchValue) {
+      setSearchResults(courses.slice(0, 4));
+    }
+  }, [courses]);
+
+  // Handle search debounced function
+  const debouncedSearch = useCallback(
+    debounce(async (query) => {
+      if (!query || query.length < 2) {
+        // When no search query, show only first 4 courses
+        setSearchResults(courses?.slice(0, 4) || []);
+        return;
+      }
+
+      try {
+        // First try to use the specific search endpoint
+        const results = await searchCourses(query);
+        setSearchResults(results);
+      } catch (error) {
+        // Fallback to client-side filtering if API search fails
+        if (courses) {
+          const filtered = courses
+            .filter(
+              (course) =>
+                course.name?.toLowerCase().includes(query.toLowerCase()) ||
+                course.description
+                  ?.toLowerCase()
+                  .includes(query.toLowerCase()) ||
+                course.category?.toLowerCase().includes(query.toLowerCase())
+            )
+            .slice(0, 4); // Limit to 4 results
+          setSearchResults(filtered);
+        }
+      }
+    }, 300),
+    [courses]
+  );
+
+  // Effect to trigger search when value changes
+  useEffect(() => {
+    debouncedSearch(searchValue);
+
+    // Cleanup debounce on unmount
+    return () => {
+      debouncedSearch.cancel();
+    };
+  }, [searchValue, debouncedSearch]);
+
+  // Handle scroll effects
   useEffect(() => {
     const handleScroll = () => {
       setScrolled(window.scrollY > 10);
@@ -105,11 +218,6 @@ const NavBarNew = () => {
           path: "/instructor/dashboard",
           icon: <DashboardIcon fontSize="small" />,
         },
-        {
-          label: "How It Works",
-          path: "/how-it-works",
-          icon: <HelpOutlineIcon fontSize="small" />,
-        },
       ];
     } else {
       // For non-authenticated users or default case
@@ -137,6 +245,83 @@ const NavBarNew = () => {
   const isActive = (path) => {
     return location.pathname === path;
   };
+
+  // Handle search submission
+  const handleSearchSubmit = (value) => {
+    if (!value) return;
+
+    // Navigate to courses page with search query
+    navigate(`/courses?search=${encodeURIComponent(value)}`);
+    setSearchValue("");
+
+    if (isMobile) {
+      setSearchOpen(false);
+    }
+  };
+
+  // Handle course selection
+  const handleCourseSelect = (course) => {
+    if (course && course._id) {
+      navigate(`/courseDetails/${course._id}`);
+      setSearchValue("");
+    }
+  };
+
+  // Mobile search handling
+  const handleMobileSearchToggle = () => {
+    setSearchOpen(!searchOpen);
+  };
+
+  // Handle error snackbar close
+  const handleCloseError = (event, reason) => {
+    if (reason === "clickaway") {
+      return;
+    }
+    setShowError(false);
+  };
+
+  // Option rendering for Autocomplete
+  const renderOption = (props, option) => (
+    <Box
+      component="li"
+      {...props}
+      onClick={() => handleCourseSelect(option)}
+      sx={{
+        cursor: "pointer",
+        borderRadius: 1,
+        "&:hover": {
+          backgroundColor: "rgba(70, 201, 139, 0.1)",
+        },
+      }}
+    >
+      <Box sx={{ display: "flex", alignItems: "center" }}>
+        <Box
+          component="img"
+          src={option.image || "/course-placeholder.jpg"}
+          alt={option.name}
+          sx={{
+            width: 40,
+            height: 40,
+            borderRadius: 1,
+            mr: 1,
+            objectFit: "cover",
+          }}
+          onError={(e) => {
+            e.target.onerror = null;
+            e.target.src = "/course-placeholder.jpg";
+          }}
+        />
+        <Box>
+          <Typography variant="body2" noWrap>
+            {option.name}
+          </Typography>
+          <Typography variant="caption" color="text.secondary" noWrap>
+            {option.category || "BIM Course"}
+          </Typography>
+        </Box>
+      </Box>
+    </Box>
+  );
 
   const mobileMenu = (
     <Drawer
@@ -197,7 +382,82 @@ const NavBarNew = () => {
         </IconButton>
       </Box>
       <Divider sx={{ bgcolor: "white", opacity: 0.2 }} />
-      <List sx={{ pt: 2 }}>
+
+      {/* Mobile search bar within drawer */}
+      <Box sx={{ px: 2, pt: 2, pb: 1 }}>
+        <Autocomplete
+          freeSolo
+          options={searchResults || []}
+          getOptionLabel={(option) =>
+            typeof option === "string" ? option : option.name
+          }
+          loading={coursesLoading}
+          onChange={(event, newValue) => {
+            if (typeof newValue === "object" && newValue !== null) {
+              handleCourseSelect(newValue);
+              handleMobileMenuToggle();
+            }
+          }}
+          onInputChange={(event, newInputValue) => {
+            setSearchValue(newInputValue);
+          }}
+          inputValue={searchValue}
+          renderInput={(params) => (
+            <TextField
+              {...params}
+              placeholder="Search courses..."
+              variant="outlined"
+              fullWidth
+              InputProps={{
+                ...params.InputProps,
+                endAdornment: (
+                  <>
+                    {coursesLoading ? (
+                      <CircularProgress color="inherit" size={20} />
+                    ) : null}
+                    {params.InputProps.endAdornment}
+                  </>
+                ),
+                startAdornment: (
+                  <SearchIcon sx={{ color: "rgba(0, 0, 0, 0.54)", mr: 1 }} />
+                ),
+                style: { color: "white" },
+              }}
+              sx={{
+                "& .MuiOutlinedInput-root": {
+                  backgroundColor: "rgba(255, 255, 255, 0.1)",
+                  color: "white",
+                  borderRadius: "30px",
+                  "& fieldset": {
+                    borderColor: "rgba(255, 255, 255, 0.2)",
+                  },
+                  "&:hover fieldset": {
+                    borderColor: "rgba(255, 255, 255, 0.3)",
+                  },
+                  "&.Mui-focused fieldset": {
+                    borderColor: "#46c98b",
+                  },
+                },
+                "& .MuiAutocomplete-endAdornment": {
+                  color: "white",
+                },
+                mb: 2,
+              }}
+              onKeyPress={(e) => {
+                if (e.key === "Enter") {
+                  handleSearchSubmit(e.target.value);
+                  handleMobileMenuToggle();
+                }
+              }}
+            />
+          )}
+          renderOption={renderOption}
+          noOptionsText="No courses found"
+          loadingText="Searching..."
+        />
+      </Box>
+
+      <List sx={{ pt: 1 }}>
         {navigationItems.map((item) => (
           <ListItem
             key={item.label}
@@ -370,7 +630,7 @@ const NavBarNew = () => {
       position="sticky"
       sx={{
         bgcolor: scrolled ? "rgba(11, 22, 44, 0.95)" : "#0B162C",
-        height: { xs: 70, sm: 80 },
+        height: { xs: searchOpen ? 120 : 70, sm: 80 },
         boxShadow: scrolled ? "0 4px 20px rgba(0,0,0,0.15)" : "none",
         backdropFilter: scrolled ? "blur(8px)" : "none",
         transition: "all 0.3s ease",
@@ -515,6 +775,7 @@ const NavBarNew = () => {
               borderRadius: "100px",
               border: "1px solid rgba(255, 255, 255, 0.1)",
               transition: "all 0.2s ease",
+              position: "relative",
               "&:hover": {
                 backgroundColor: "rgba(255, 255, 255, 0.1)",
                 borderColor: "rgba(255, 255, 255, 0.2)",
@@ -529,7 +790,20 @@ const NavBarNew = () => {
             <SearchIcon sx={{ color: "rgba(255, 255, 255, 0.7)", mr: 1 }} />
             <Autocomplete
               freeSolo
-              options={[]}
+              options={searchResults || []}
+              getOptionLabel={(option) =>
+                typeof option === "string" ? option : option.name
+              }
+              loading={coursesLoading}
+              onChange={(event, newValue) => {
+                if (typeof newValue === "object" && newValue !== null) {
+                  handleCourseSelect(newValue);
+                }
+              }}
+              onInputChange={(event, newInputValue) => {
+                setSearchValue(newInputValue);
+              }}
+              inputValue={searchValue}
               sx={{ width: "100%" }}
               renderInput={(params) => (
                 <TextField
@@ -540,6 +814,14 @@ const NavBarNew = () => {
                   InputProps={{
                     ...params.InputProps,
                     disableUnderline: true,
+                    endAdornment: (
+                      <>
+                        {coursesLoading ? (
+                          <CircularProgress color="inherit" size={20} />
+                        ) : null}
+                        {params.InputProps.endAdornment}
+                      </>
+                    ),
                     style: {
                       fontFamily: "Poppins-Medium, Helvetica",
                       fontWeight: 500,
@@ -547,7 +829,29 @@ const NavBarNew = () => {
                       fontSize: "0.875rem",
                     },
                   }}
+                  onKeyPress={(e) => {
+                    if (e.key === "Enter") {
+                      handleSearchSubmit(e.target.value);
+                    }
+                  }}
                 />
+              )}
+              renderOption={renderOption}
+              noOptionsText="No courses found"
+              loadingText="Searching..."
+              PaperComponent={({ children, ...props }) => (
+                <Paper
+                  {...props}
+                  sx={{
+                    borderRadius: 2,
+                    mt: 1,
+                    boxShadow: "0 8px 20px rgba(0,0,0,0.15)",
+                    maxHeight: 300,
+                    overflowY: "auto",
+                  }}
+                >
+                  {children}
+                </Paper>
               )}
             />
           </Box>
@@ -709,19 +1013,18 @@ const NavBarNew = () => {
         {isMobile && (
           <Box sx={{ ml: "auto", display: "flex", alignItems: "center" }}>
             {/* Mobile Search Button */}
-            {!isSmallScreen && (
-              <Tooltip title="Search">
-                <IconButton
-                  sx={{
-                    color: "white",
-                    mr: 1,
-                  }}
-                  aria-label="search courses"
-                >
-                  <SearchIcon />
-                </IconButton>
-              </Tooltip>
-            )}
+            <Tooltip title="Search">
+              <IconButton
+                sx={{
+                  color: "white",
+                  mr: 1,
+                }}
+                aria-label="search courses"
+                onClick={handleMobileSearchToggle}
+              >
+                <SearchIcon />
+              </IconButton>
+            </Tooltip>
 
             {/* User Avatar for Mobile (when logged in) */}
             {(isInstructor || isStudent) && !isLoading && (
@@ -774,6 +1077,107 @@ const NavBarNew = () => {
             </IconButton>
           </Box>
         )}
+
+        {/* Mobile Search Bar */}
+        {isMobile && searchOpen && (
+          <Box
+            sx={{
+              position: "absolute",
+              top: 70,
+              left: 0,
+              right: 0,
+              px: 2,
+              py: 1,
+              backgroundColor: "#0B162C",
+              zIndex: 1200,
+              display: "flex",
+              alignItems: "center",
+              borderBottom: "1px solid rgba(255, 255, 255, 0.1)",
+            }}
+          >
+            <Autocomplete
+              freeSolo
+              options={searchResults || []}
+              getOptionLabel={(option) =>
+                typeof option === "string" ? option : option.name
+              }
+              loading={coursesLoading}
+              onChange={(event, newValue) => {
+                if (typeof newValue === "object" && newValue !== null) {
+                  handleCourseSelect(newValue);
+                }
+              }}
+              onInputChange={(event, newInputValue) => {
+                setSearchValue(newInputValue);
+              }}
+              inputValue={searchValue}
+              renderInput={(params) => (
+                <TextField
+                  {...params}
+                  placeholder="Search courses..."
+                  variant="outlined"
+                  fullWidth
+                  InputProps={{
+                    ...params.InputProps,
+                    endAdornment: (
+                      <>
+                        {coursesLoading ? (
+                          <CircularProgress color="inherit" size={20} />
+                        ) : null}
+                        {params.InputProps.endAdornment}
+                      </>
+                    ),
+                    startAdornment: (
+                      <SearchIcon
+                        sx={{ color: "rgba(255, 255, 255, 0.7)", mr: 1 }}
+                      />
+                    ),
+                    style: { color: "white" },
+                  }}
+                  sx={{
+                    "& .MuiOutlinedInput-root": {
+                      backgroundColor: "rgba(255, 255, 255, 0.1)",
+                      color: "white",
+                      borderRadius: "30px",
+                      "& fieldset": {
+                        borderColor: "rgba(255, 255, 255, 0.2)",
+                      },
+                      "&:hover fieldset": {
+                        borderColor: "rgba(255, 255, 255, 0.3)",
+                      },
+                      "&.Mui-focused fieldset": {
+                        borderColor: "#46c98b",
+                      },
+                    },
+                    "& .MuiAutocomplete-endAdornment": {
+                      color: "white",
+                    },
+                  }}
+                  onKeyPress={(e) => {
+                    if (e.key === "Enter") {
+                      handleSearchSubmit(e.target.value);
+                    }
+                  }}
+                />
+              )}
+              renderOption={renderOption}
+              noOptionsText="No courses found"
+              loadingText="Searching..."
+            />
+          </Box>
+        )}
+
+        {/* Error Snackbar */}
+        <Snackbar
+          open={showError}
+          autoHideDuration={6000}
+          onClose={handleCloseError}
+          anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
+        >
+          <Alert onClose={handleCloseError} severity="error" variant="filled">
+            {errorMessage}
+          </Alert>
+        </Snackbar>
 
         {/* Mobile Menu Drawer */}
         {mobileMenu}
