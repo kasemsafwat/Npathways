@@ -13,19 +13,16 @@ import CourseModel from "../models/course.model.js";
 import PathwayModel from "../models/pathway.model.js";
 import Instructor from "../models/instructor.model.js";
 import Admin from "../models/admin.model.js";
+import isDuplicatedEmail from "../services/helper.js";
 
 const userController = {
   newUser: async (req, res) => {
     try {
       const data = { ...req.body, email: req.body.email.toLowerCase() };
 
-      const isDuplicateEmail = await Promise.all([
-        User.findOne({ email: data.email }),
-        Instructor.findOne({ email: data.email }),
-        Admin.findOne({ email: data.email }),
-      ]).then((results) => results.some((result) => result));
+      const isDuplicate = await isDuplicatedEmail(data.email, null);
 
-      if (isDuplicateEmail) {
+      if (isDuplicate) {
         return res.status(403).send({
           message:
             "This email is already registered. Please use a different email.",

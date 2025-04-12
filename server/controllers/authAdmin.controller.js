@@ -13,19 +13,19 @@ const __dirname = path.dirname(__filename);
 
 import crypto from "crypto";
 import sendEmail from "../services/email.js";
+import isDuplicatedEmail from "../services/helper.js";
 
 const authAdminController = {
   register: async (req, res) => {
     try {
       let data = { ...req.body, email: req.body.email.toLowerCase() };
 
-      const isDuplicateEmail = await Promise.all([
-        User.findOne({ email: data.email }),
-        Instructor.findOne({ email: data.email }),
-        Admin.findOne({ email: data.email }),
-      ]).then((results) => results.some((result) => result));
+      const isDuplicate = await isDuplicatedEmail(
+        data.email,
+        null
+      );
 
-      if (isDuplicateEmail) {
+      if (isDuplicate) {
         return res.status(403).send({
           message:
             "This email is already registered. Please use a different email.",

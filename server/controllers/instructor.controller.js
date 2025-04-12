@@ -9,6 +9,7 @@ import { fileURLToPath } from "url";
 import sendEmail from "../services/email.js";
 import User from "../models/user.model.js";
 import Admin from "../models/admin.model.js";
+import isDuplicatedEmail from "../services/helper.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -18,13 +19,9 @@ const instructorContoller = {
     try {
       let data = { ...req.body, email: req.body.email.toLowerCase() };
 
-      const isDuplicateEmail = await Promise.all([
-        User.findOne({ email: data.email }),
-        Instructor.findOne({ email: data.email }),
-        Admin.findOne({ email: data.email }),
-      ]).then((results) => results.some((result) => result));
+      const isDuplicate = await isDuplicatedEmail(data.email, null);
 
-      if (isDuplicateEmail) {
+      if (isDuplicate) {
         return res.status(403).send({
           message:
             "This email is already registered. Please use a different email.",
@@ -115,17 +112,19 @@ const instructorContoller = {
   //   Function Of Instructor
   updateInstructor: async (req, res) => {
     try {
-      const updateData = { ...req.body, email: req.body.email.toLowerCase() };
+      const updateData = { ...req.body };
       delete updateData.password;
+
+      if (req.body.email) updateData.email = req.body.email.toLowerCase();
 
       // Check if the email is already in use by another instructor
       if (updateData.email && updateData.email !== req.instructor.email) {
-        const isDuplicateEmail = await Promise.all([
-          User.findOne({ email: updateData.email }),
-          Instructor.findOne({ email: updateData.email }),
-          Admin.findOne({ email: updateData.email }),
-        ]).then((results) => results.some((result) => result));
-        if (isDuplicateEmail) {
+        const isDuplicate = await isDuplicatedEmail(
+          updateData.email,
+          req.instructor.email
+        );
+
+        if (isDuplicate) {
           return res.status(403).json({
             message:
               "This email is already registered. Please use a different email.",

@@ -2,7 +2,7 @@ import Admin from "../models/admin.model.js";
 import Instructor from "../models/instructor.model.js";
 import User from "../models/user.model.js";
 import bcrypt from "bcrypt";
-import jwt from "jsonwebtoken";
+import isDuplicatedEmail from "../services/helper.js";
 
 const AdminControlller = {
   deleteAdmin: async (req, res) => {
@@ -30,15 +30,15 @@ const AdminControlller = {
       }
 
       const { password, ...updateData } = req.body;
-      updateData.email = req.body.email.toLowerCase();
+
+      if (req.body.email) updateData.email = req.body.email.toLowerCase();
 
       if (updateData.email && updateData.email !== req.admin.email) {
-        const isDuplicateEmail = await Promise.all([
-          User.findOne({ email: updateData.email }),
-          Instructor.findOne({ email: updateData.email }),
-          Admin.findOne({ email: updateData.email }),
-        ]).then((results) => results.some((result) => result));
-        if (isDuplicateEmail) {
+        const isDuplicate = await isDuplicatedEmail(
+          updateData.email,
+          req.admin.email
+        );
+        if (isDuplicate) {
           return res.status(403).json({
             message:
               "This email is already registered. Please use a different email.",
@@ -170,13 +170,10 @@ const AdminControlller = {
   createInstructor: async (req, res) => {
     try {
       const data = { ...req.body, email: req.body.email.toLowerCase() };
-      const isDuplicateEmail = await Promise.all([
-        User.findOne({ email: data.email }),
-        Instructor.findOne({ email: data.email }),
-        Admin.findOne({ email: data.email }),
-      ]).then((results) => results.some((result) => result));
 
-      if (isDuplicateEmail) {
+      const isDuplicate = await isDuplicatedEmail(data.email, null);
+
+      if (isDuplicate) {
         return res.status(403).send({
           message:
             "This email is already registered. Please use a different email.",
@@ -205,13 +202,9 @@ const AdminControlller = {
     try {
       const data = { ...req.body, email: req.body.email.toLowerCase() };
 
-      const isDuplicateEmail = await Promise.all([
-        User.findOne({ email: data.email }),
-        Instructor.findOne({ email: data.email }),
-        Admin.findOne({ email: data.email }),
-      ]).then((results) => results.some((result) => result));
+      const isDuplicate = await isDuplicatedEmail(data.email, null);
 
-      if (isDuplicateEmail) {
+      if (isDuplicate) {
         return res.status(403).send({
           message:
             "This email is already registered. Please use a different email.",
@@ -243,7 +236,9 @@ const AdminControlller = {
   updateAdminData: async (req, res) => {
     try {
       const { adminId } = req.params;
-      const updateData = { ...req.body, email: req.body.email.toLowerCase() };
+      const updateData = { ...req.body };
+
+      if (req.body.email) updateData.email = req.body.email.toLowerCase();
 
       if (!adminId.match(/^[0-9a-fA-F]{24}$/))
         return res.status(400).json({ message: "Invalid admin ID" });
@@ -254,13 +249,12 @@ const AdminControlller = {
         return res.status(404).json({ message: "Admin not found" });
       }
 
-      if (updateData.email && updateData.email !== admin.email) {
-        const isDuplicateEmail = await Promise.all([
-          User.findOne({ email: updateData.email }),
-          Instructor.findOne({ email: updateData.email }),
-          Admin.findOne({ email: updateData.email }),
-        ]).then((results) => results.some((result) => result));
-        if (isDuplicateEmail) {
+      if (updateData.email && updateData.email !== req.admin.email) {
+        const isDuplicate = await isDuplicatedEmail(
+          updateData.email,
+          admin.email
+        );
+        if (isDuplicate) {
           return res.status(403).json({
             message:
               "This email is already registered. Please use a different email.",
@@ -312,7 +306,9 @@ const AdminControlller = {
   updateInstructor: async (req, res) => {
     try {
       const { id } = req.params;
-      const updateData = { ...req.body, email: req.body.email.toLowerCase() };
+      const updateData = { ...req.body };
+
+      if (req.body.email) updateData.email = req.body.email.toLowerCase();
 
       if (!id.match(/^[0-9a-fA-F]{24}$/))
         return res.status(400).json({ message: "Invalid instructor ID" });
@@ -324,12 +320,11 @@ const AdminControlller = {
       }
 
       if (updateData.email && updateData.email !== instructor.email) {
-        const isDuplicateEmail = await Promise.all([
-          User.findOne({ email: updateData.email }),
-          Instructor.findOne({ email: updateData.email }),
-          Admin.findOne({ email: updateData.email }),
-        ]).then((results) => results.some((result) => result));
-        if (isDuplicateEmail) {
+        const isDuplicate = await isDuplicatedEmail(
+          updateData.email,
+          instructor.email
+        );
+        if (isDuplicate) {
           return res.status(403).json({
             message:
               "This email is already registered. Please use a different email.",
