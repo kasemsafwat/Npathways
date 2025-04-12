@@ -129,7 +129,9 @@ export default function Exam() {
   async function getQuestion() {
     try {
       setLoading(true);
-      const { data } = await axios.get(`http://localhost:5024/api/exam/${id}`);
+      const { data } = await axios.get(
+        `http://localhost:5024/api/exam/getStudent/${id}`
+      );
 
       setExam(data);
       console.log(data);
@@ -155,7 +157,8 @@ export default function Exam() {
         withCredentials: true,
       })
       .then((response) => {
-        navigate("/finishExam");
+        console.log("Exam submitted successfully:", response.data);
+        navigate(`/finishExam/${response.data._id}`);
       })
       .catch((error) => {
         console.error("There was an error submitting the exam!", error);
@@ -277,7 +280,7 @@ export default function Exam() {
           No exam data found
         </Typography>
         <Typography variant="body1" sx={{ mb: 4 }}>
-          We couldn't load the exam. Please try again or contact support.
+          We couldn&apos;t load the exam. Please try again or contact support.
         </Typography>
         <Button variant="contained" onClick={() => navigate(-1)}>
           Go Back

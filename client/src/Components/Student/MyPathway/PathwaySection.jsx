@@ -47,7 +47,7 @@ export default function PathwaySection() {
   if (!pathways || pathways.length === 0) {
     return (
       <Typography align="center" my={2}>
-        No pathways found
+        No pathways found, stay tuned for updates!
       </Typography>
     );
   }
