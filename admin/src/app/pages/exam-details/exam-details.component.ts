@@ -204,10 +204,6 @@ export class ExamDetailsComponent implements OnInit {
     }
   }
 
-  goBack(): void {
-    this.router.navigate(['/exam-management']);
-  }
-
   onFileSelected(event: Event): void {
     const file = (event.target as HTMLInputElement).files?.[0];
     if (file && this.examId) {

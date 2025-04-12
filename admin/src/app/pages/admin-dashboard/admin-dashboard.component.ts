@@ -134,10 +134,41 @@ export class AdminDashboardComponent implements OnInit {
           amount: transaction.amount,
           date: new Date(transaction.paidAt).toLocaleDateString()
         }));
+
+        // Calculate and update revenue data
+        this.calculateMonthlyRevenue(response);
       },
       error: (error) => {
         console.error('Error loading transactions:', error);
       }
     });
+  }
+
+  calculateMonthlyRevenue(transactions: any[]): void {
+    // Initialize monthly revenue data
+    const monthlyData = new Array(12).fill(0);
+    const currentYear = new Date().getFullYear();
+
+    // Calculate revenue for each month
+    transactions.forEach(transaction => {
+      const transactionDate = new Date(transaction.paidAt);
+      if (transactionDate.getFullYear() === currentYear) {
+        const month = transactionDate.getMonth();
+        monthlyData[month] += transaction.amount;
+      }
+    });
+
+    // Update the chart data
+    this.revenueChartData = {
+      labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+      datasets: [{
+        data: monthlyData,
+        label: 'Revenue',
+        backgroundColor: '#4318FF'
+      }]
+    };
+
+    // Calculate total monthly revenue
+    this.monthlyRevenue = monthlyData[new Date().getMonth()];
   }
 }
