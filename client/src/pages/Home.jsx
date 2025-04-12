@@ -12,6 +12,7 @@ function Home() {
     <Box sx={{ overflowX: "hidden" }}>
       <NewHeroSection />
       <StatsSection />
+      <BenefitsSection />
       <FeaturesSection />
       <TestimonialsSection />
       <CTASection />
