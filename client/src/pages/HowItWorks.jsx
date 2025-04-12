@@ -622,9 +622,9 @@ const HowItWorks = () => {
                   fontSize: { xs: "1rem", md: "1.125rem" },
                 }}
               >
-                We've developed a proven methodology to guide you from wherever
-                you are now to becoming a qualified BIM professional through
-                personalized learning experiences.
+                We&apos;ve developed a proven methodology to guide you from
+                wherever you are now to becoming a qualified BIM professional
+                through personalized learning experiences.
               </Typography>
             </Box>
 
@@ -1131,11 +1131,11 @@ const HowItWorks = () => {
                   </Typography>
 
                   <Typography sx={{ mb: 3, opacity: 0.9 }}>
-                    "Before NPathways, I had no BIM experience and struggled to
-                    break into the industry. The personalized learning approach
-                    identified my strengths in spatial reasoning and previous
-                    CAD experience, creating a pathway that built on these
-                    skills while filling knowledge gaps.
+                    &quot;Before NPathways, I had no BIM experience and
+                    struggled to break into the industry. The personalized
+                    learning approach identified my strengths in spatial
+                    reasoning and previous CAD experience, creating a pathway
+                    that built on these skills while filling knowledge gaps.
                   </Typography>
 
                   <Typography sx={{ mb: 3, opacity: 0.9 }}>
@@ -1143,7 +1143,7 @@ const HowItWorks = () => {
                     could immediately show potential employers. Six months after
                     starting, I secured a position as a BIM Coordinator at a
                     leading architectural firm, with a salary 35% higher than my
-                    previous role."
+                    previous role.&quot;
                   </Typography>
 
                   <Box sx={{ display: "flex", alignItems: "center", mt: 4 }}>
@@ -1169,7 +1169,7 @@ const HowItWorks = () => {
                       variant="h6"
                       sx={{ fontWeight: 600, mb: 2, color: "text.white" }}
                     >
-                      Michael's Learning Stats:
+                      Michael&apos;s Learning Stats:
                     </Typography>
 
                     <Grid container spacing={2}>

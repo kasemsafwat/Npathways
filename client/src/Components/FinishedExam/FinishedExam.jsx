@@ -8,30 +8,25 @@ import {
   Grid,
   CircularProgress,
   Divider,
-  List,
-  ListItem,
-  ListItemText,
-  ListItemIcon,
-  Card,
-  CardContent,
   useTheme,
   useMediaQuery,
-  Chip,
+  Alert,
 } from "@mui/material";
 import { styled } from "@mui/material/styles";
 import { motion } from "framer-motion";
-import { Link as RouterLink, useLocation, useNavigate } from "react-router-dom";
+import {
+  Link as RouterLink,
+  useLocation,
+  useNavigate,
+  useParams,
+} from "react-router-dom";
+import axios from "axios";
 
 // Icons
-import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
-import CancelOutlinedIcon from "@mui/icons-material/CancelOutlined";
 import TimelineIcon from "@mui/icons-material/Timeline";
-import EmojiEventsIcon from "@mui/icons-material/EmojiEvents";
-import TrendingUpIcon from "@mui/icons-material/TrendingUp";
 import HomeIcon from "@mui/icons-material/Home";
 import SchoolIcon from "@mui/icons-material/School";
 import ReplayIcon from "@mui/icons-material/Replay";
-import VisibilityIcon from "@mui/icons-material/Visibility";
 
 // Custom styled components
 const ResultPaper = styled(Paper)(({ theme }) => ({
@@ -87,7 +82,9 @@ const FinishedExam = () => {
   const navigate = useNavigate();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const [result, setResult] = useState(null);
+  const { submittedExamId } = useParams(); // Get exam ID from URL params
 
   // Animation variants
   const containerVariants = {
@@ -107,50 +104,100 @@ const FinishedExam = () => {
     },
   };
 
-  // Sample/mock data for the exam result
+  // Fetch exam results from API
   useEffect(() => {
-    // Simulate data loading
-    setTimeout(() => {
-      // Mock exam result data
-      setResult({
-        score: 80,
-        passed: true,
-        totalQuestions: location.state?.totalQuestions || 10,
-        answeredQuestions: location.state?.answeredQuestions || 10,
-        correctAnswers: 8,
-        incorrectAnswers: 2,
-        examDuration: "28 minutes",
-        feedbackSummary:
-          "Great job! You demonstrated a solid understanding of BIM fundamentals.",
-        strengths: [
-          "BIM terminology and definitions",
-          "Level 2 BIM understanding",
-          "BIM implementation benefits",
-        ],
-        improvementAreas: [
-          "IFC standards and interoperability",
-          "BIM dimensions beyond 4D and 5D",
-        ],
-        certificateId: "BIM-FUND-2023-42789",
-        nextSteps: {
-          recommendedCourses: [
-            {
-              id: "c001",
-              title: "Advanced BIM Project Management",
-              level: "Intermediate",
-            },
-            {
-              id: "c002",
-              title: "BIM Data Management and Exchange",
-              level: "Intermediate",
-            },
-          ],
-        },
-      });
-      setLoading(false);
-    }, 1500);
-  }, []);
+    const fetchExamResult = async () => {
+      try {
+        setLoading(true);
 
+        // If we have a specific submittedExamId in the URL, fetch that specific exam
+        if (submittedExamId) {
+          const response = await axios.get(
+            `http://localhost:5024/api/exam/submittedExams/${submittedExamId}`
+          );
+          processExamData(response.data);
+        }
+        // Otherwise fetch the most recent exam (from state or the latest one)
+        else {
+          // Try to use the exam ID from location state if available
+          const examIdFromState = location.state?.submittedExamId;
+
+          if (examIdFromState) {
+            const response = await axios.get(
+              `http://localhost:5024/api/exam/submittedExams/${examIdFromState}`
+            );
+            processExamData(response.data);
+          } else {
+            // If no specific ID, fetch all and use the most recent one
+            const response = await axios.get(
+              "http://localhost:5024/api/exam/submittedExams"
+            );
+            if (response.data && response.data.length > 0) {
+              // Sort by submission date and get the most recent one
+              const sortedExams = response.data.sort(
+                (a, b) => new Date(b.submittedAt) - new Date(a.submittedAt)
+              );
+              processExamData(sortedExams[0]);
+            } else {
+              throw new Error("No exam results found");
+            }
+          }
+        }
+      } catch (err) {
+        console.error("Error fetching exam results:", err);
+        setError(err.message || "Failed to load exam results");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchExamResult();
+  }, [submittedExamId, location.state]);
+
+  // Process the exam data from API into the format we need
+  const processExamData = (examData) => {
+    // Count correct and incorrect answers
+    const correctAnswers = examData.responses.filter((r) => r.isCorrect).length;
+    const incorrectAnswers = examData.responses.filter(
+      (r) => !r.isCorrect
+    ).length;
+
+    // Calculate time taken (if available in the API response)
+    let examDuration = "N/A";
+    if (examData.startTime && examData.submittedAt) {
+      const startTime = new Date(examData.startTime);
+      const endTime = new Date(examData.submittedAt);
+      const durationMinutes = Math.round((endTime - startTime) / 60000); // milliseconds to minutes
+      examDuration = `${durationMinutes} minutes`;
+    }
+
+    // Format the data for our UI
+    setResult({
+      score: examData.score,
+      passed: examData.passed,
+      totalQuestions: examData.responses.length,
+      correctAnswers,
+      incorrectAnswers,
+      examDuration,
+      feedbackSummary: getFeedbackSummary(examData.score, examData.passed),
+      submittedAt: new Date(examData.submittedAt).toLocaleString(),
+    });
+  };
+
+  // Generate feedback summary based on score and pass status
+  const getFeedbackSummary = (score, passed) => {
+    if (score >= 80) {
+      return "Great job! You demonstrated an excellent understanding of the course material.";
+    } else if (score >= 70) {
+      return "Good job! You demonstrated a solid understanding of the course material.";
+    } else if (score >= 60) {
+      return "You have a basic understanding of the course material.";
+    } else {
+      return "You may need to review the course material more thoroughly.";
+    }
+  };
+
+  // Show loading state
   if (loading) {
     return (
       <Box
@@ -167,6 +214,46 @@ const FinishedExam = () => {
           Processing your results...
         </Typography>
       </Box>
+    );
+  }
+
+  // Show error state
+  if (error) {
+    return (
+      <Container maxWidth="md" sx={{ py: 5 }}>
+        <Alert severity="error" sx={{ mb: 2 }}>
+          {error}
+        </Alert>
+        <Button
+          variant="contained"
+          component={RouterLink}
+          to="/student/mypathway"
+          startIcon={<HomeIcon />}
+        >
+          Return to Learning Path
+        </Button>
+      </Container>
+    );
+  }
+
+  // If no result data
+  if (!result) {
+    return (
+      <Container maxWidth="md" sx={{ py: 5 }}>
+        <Alert severity="info">
+          No exam results found. Please try taking an exam first.
+        </Alert>
+        <Box sx={{ mt: 2 }}>
+          <Button
+            variant="contained"
+            component={RouterLink}
+            to="/student/mypathway"
+            startIcon={<HomeIcon />}
+          >
+            Return to Learning Path
+          </Button>
+        </Box>
+      </Container>
     );
   }
 
@@ -249,12 +336,19 @@ const FinishedExam = () => {
               <Typography variant="body1" sx={{ mt: 1 }}>
                 {result.feedbackSummary}
               </Typography>
+              <Typography
+                variant="caption"
+                display="block"
+                sx={{ mt: 1, color: "text.secondary" }}
+              >
+                Submitted: {result.submittedAt}
+              </Typography>
             </Box>
           </Box>
         </Box>
 
         {/* Main content with detailed results */}
-        <Grid container spacing={4}>
+        <Grid container spacing={4} justifyContent="center">
           {/* Left column - Performance Results */}
           <Grid
             item
@@ -268,8 +362,8 @@ const FinishedExam = () => {
                 Performance Results
               </Typography>
 
-              <Grid container spacing={3} sx={{ mb: 3 }}>
-                <Grid item xs={6} sm={3}>
+              <Grid container spacing={3}>
+                <Grid item xs={6} sm={4}>
                   <Box
                     sx={{
                       display: "flex",
@@ -287,7 +381,7 @@ const FinishedExam = () => {
                   </Box>
                 </Grid>
 
-                <Grid item xs={6} sm={3}>
+                <Grid item xs={6} sm={4}>
                   <Box
                     sx={{
                       display: "flex",
@@ -309,7 +403,7 @@ const FinishedExam = () => {
                   </Box>
                 </Grid>
 
-                <Grid item xs={6} sm={3}>
+                <Grid item xs={6} sm={4}>
                   <Box
                     sx={{
                       display: "flex",
@@ -330,235 +424,70 @@ const FinishedExam = () => {
                     </Typography>
                   </Box>
                 </Grid>
-
-                <Grid item xs={6} sm={3}>
-                  <Box
-                    sx={{
-                      display: "flex",
-                      flexDirection: "column",
-                      alignItems: "center",
-                      textAlign: "center",
-                    }}
-                  >
-                    <Typography variant="body2" color="text.secondary">
-                      Time Taken
-                    </Typography>
-                    <Typography variant="h6" fontWeight="bold">
-                      {result.examDuration}
-                    </Typography>
-                  </Box>
-                </Grid>
               </Grid>
 
               <Divider sx={{ my: 3 }} />
 
-              <Grid container spacing={4}>
-                <Grid item xs={12} sm={6}>
-                  <Typography
-                    variant="subtitle1"
-                    sx={{ fontWeight: 600, mb: 2 }}
-                  >
-                    Strengths
-                  </Typography>
-                  <List dense disablePadding>
-                    {result.strengths.map((strength, index) => (
-                      <ListItem key={index} sx={{ pl: 0 }}>
-                        <ListItemIcon sx={{ minWidth: 36 }}>
-                          <CheckCircleOutlineIcon color="success" />
-                        </ListItemIcon>
-                        <ListItemText primary={strength} />
-                      </ListItem>
-                    ))}
-                  </List>
-                </Grid>
-
-                <Grid item xs={12} sm={6}>
-                  <Typography
-                    variant="subtitle1"
-                    sx={{ fontWeight: 600, mb: 2 }}
-                  >
-                    Areas for Improvement
-                  </Typography>
-                  <List dense disablePadding>
-                    {result.improvementAreas.map((area, index) => (
-                      <ListItem key={index} sx={{ pl: 0 }}>
-                        <ListItemIcon sx={{ minWidth: 36 }}>
-                          <TrendingUpIcon color="primary" />
-                        </ListItemIcon>
-                        <ListItemText primary={area} />
-                      </ListItem>
-                    ))}
-                  </List>
-                </Grid>
-              </Grid>
-
-              {/* Certificate info for passing scores */}
-              {result.passed && (
-                <React.Fragment>
-                  <Divider sx={{ my: 3 }} />
-                  <Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>
-                    <EmojiEventsIcon
-                      sx={{ color: "warning.main", fontSize: 28, mr: 1 }}
-                    />
-                    <Typography variant="h6" sx={{ fontWeight: 600 }}>
-                      Certification
-                    </Typography>
-                  </Box>
-                  <Box
-                    sx={{
-                      p: 2,
-                      border: "1px dashed",
-                      borderColor: "divider",
-                      borderRadius: 1,
-                      display: "flex",
-                      flexDirection: { xs: "column", sm: "row" },
-                      alignItems: { xs: "flex-start", sm: "center" },
-                      justifyContent: "space-between",
-                      mb: 3,
-                    }}
-                  >
-                    <Box>
-                      <Typography variant="subtitle2">
-                        Certificate ID
-                      </Typography>
-                      <Typography variant="body1" sx={{ fontWeight: 600 }}>
-                        {result.certificateId}
-                      </Typography>
-                    </Box>
+              {/* Action buttons directly in the main card */}
+              <Grid container spacing={2} sx={{ mt: 2 }}>
+                <Grid item xs={12} sm={4}>
+                  {result.passed ? (
                     <Button
-                      variant="outlined"
-                      startIcon={<VisibilityIcon />}
-                      sx={{ mt: { xs: 2, sm: 0 } }}
-                    >
-                      View Certificate
-                    </Button>
-                  </Box>
-                </React.Fragment>
-              )}
-            </ResultPaper>
-
-            {/* Recommended courses based on results */}
-            <Box component={motion.div} variants={itemVariants} sx={{ mt: 4 }}>
-              <Typography variant="h5" sx={{ mb: 3, fontWeight: 700 }}>
-                Recommended Next Steps
-              </Typography>
-
-              <Grid container spacing={3}>
-                {result.nextSteps.recommendedCourses.map((course) => (
-                  <Grid item xs={12} sm={6} key={course.id}>
-                    <Card
-                      sx={{
-                        height: "100%",
-                        display: "flex",
-                        flexDirection: "column",
-                        borderRadius: 2,
-                        transition: "transform 0.3s, box-shadow 0.3s",
-                        "&:hover": {
-                          transform: "translateY(-5px)",
-                          boxShadow: "0 12px 20px rgba(0,0,0,0.1)",
-                        },
-                      }}
-                    >
-                      <CardContent sx={{ flexGrow: 1 }}>
-                        <Chip
-                          label={course.level}
-                          size="small"
-                          color="primary"
-                          variant="outlined"
-                          sx={{ mb: 1 }}
-                        />
-                        <Typography
-                          variant="h6"
-                          sx={{ mb: 1, fontWeight: 600 }}
-                        >
-                          {course.title}
-                        </Typography>
-                        <Box sx={{ mt: 2 }}>
-                          <Button
-                            variant="outlined"
-                            component={RouterLink}
-                            to={`/coursedetails/${course.id}`}
-                            fullWidth
-                          >
-                            Learn More
-                          </Button>
-                        </Box>
-                      </CardContent>
-                    </Card>
-                  </Grid>
-                ))}
-              </Grid>
-            </Box>
-          </Grid>
-
-          {/* Right column - Action buttons and summary */}
-          <Grid item xs={12} md={4}>
-            <Box sx={{ position: { md: "sticky" }, top: 20 }}>
-              {/* Actions */}
-              <Box
-                component={motion.div}
-                variants={itemVariants}
-                sx={{ mb: 4 }}
-              >
-                <ResultPaper>
-                  <Typography variant="h6" sx={{ mb: 3, fontWeight: 600 }}>
-                    Next Steps
-                  </Typography>
-
-                  <Box
-                    sx={{ display: "flex", flexDirection: "column", gap: 2 }}
-                  >
-                    {result.passed ? (
-                      <Button
-                        variant="contained"
-                        color="primary"
-                        size="large"
-                        fullWidth
-                        component={RouterLink}
-                        to="/student/mypathway"
-                        startIcon={<TimelineIcon />}
-                      >
-                        View Learning Path
-                      </Button>
-                    ) : (
-                      <Button
-                        variant="contained"
-                        color="primary"
-                        size="large"
-                        fullWidth
-                        onClick={() => window.location.reload()}
-                        startIcon={<ReplayIcon />}
-                      >
-                        Retry Exam
-                      </Button>
-                    )}
-
-                    <Button
-                      variant="outlined"
+                      variant="contained"
                       color="primary"
                       size="large"
                       fullWidth
                       component={RouterLink}
-                      to="/courses"
-                      startIcon={<SchoolIcon />}
+                      to="/student/mypathway"
+                      startIcon={<TimelineIcon />}
                     >
-                      Browse Courses
+                      View Learning Path
                     </Button>
-
+                  ) : (
                     <Button
-                      variant="outlined"
+                      variant="contained"
+                      color="primary"
                       size="large"
                       fullWidth
-                      component={RouterLink}
-                      to="/"
-                      startIcon={<HomeIcon />}
+                      onClick={() => navigate(-1)} // Go back to retake exam
+                      startIcon={<ReplayIcon />}
                     >
-                      Back to Home
+                      Retry Exam
                     </Button>
-                  </Box>
-                </ResultPaper>
-              </Box>
+                  )}
+                </Grid>
+                <Grid item xs={12} sm={4}>
+                  <Button
+                    variant="outlined"
+                    color="primary"
+                    size="large"
+                    fullWidth
+                    component={RouterLink}
+                    to="/courses"
+                    startIcon={<SchoolIcon />}
+                  >
+                    Browse Courses
+                  </Button>
+                </Grid>
+                <Grid item xs={12} sm={4}>
+                  <Button
+                    variant="outlined"
+                    size="large"
+                    fullWidth
+                    component={RouterLink}
+                    to="/"
+                    startIcon={<HomeIcon />}
+                  >
+                    Back to Home
+                  </Button>
+                </Grid>
+              </Grid>
+            </ResultPaper>
+          </Grid>
 
+          {/* Right column - Performance insights */}
+          <Grid item xs={12} md={4}>
+            <Box sx={{ position: { md: "sticky" }, top: 20 }}>
               {/* Performance insights card */}
               <Box component={motion.div} variants={itemVariants}>
                 <ResultPaper
@@ -579,19 +508,20 @@ const FinishedExam = () => {
                       : result.score >= 70
                       ? "good understanding"
                       : "basic understanding"}{" "}
-                    of BIM fundamentals.
+                    of the exam material.
                   </Typography>
 
                   {result.passed ? (
                     <Typography variant="body2" sx={{ opacity: 0.9 }}>
-                      We recommend continuing with the suggested courses to
-                      build on your knowledge and develop advanced BIM skills.
+                      You have successfully completed this exam. You can
+                      continue your learning journey by exploring more courses
+                      or returning to your learning path.
                     </Typography>
                   ) : (
                     <Typography variant="body2" sx={{ opacity: 0.9 }}>
-                      We recommend reviewing the areas for improvement before
-                      retaking the exam. Focus on the specific topics where you
-                      had difficulties.
+                      We recommend reviewing the course material before retaking
+                      the exam. Focus on the specific topics where you had
+                      difficulties.
                     </Typography>
                   )}
                 </ResultPaper>

@@ -89,7 +89,10 @@ function App() {
                   <Route path="/enrollment/review" element={<Review />} />
                   <Route path="/examDetails" element={<ExamPage />} />
                   <Route path="/exam/:id" element={<Exam />} />
-                  <Route path="/finishExam" element={<FinishedExam />} />
+                  <Route
+                    path="/finishExam/:submittedExamId"
+                    element={<FinishedExam />}
+                  />
                   <Route path="/pathway/:id" element={<Pathway />} />
                   <Route
                     path="/courseContent/:id"

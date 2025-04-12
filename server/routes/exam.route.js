@@ -11,6 +11,11 @@ const router = Router();
 router.get("/", authenticationInstructor, ExamController.getAllExams);
 
 router.get("/submittedExams", authentication, ExamController.getSubmittedExams);
+router.get(
+  "/submittedExams/:id",
+  authentication,
+  ExamController.getSubmittedExamsById
+);
 router.post(
   "/submitExam",
   verifyInput,

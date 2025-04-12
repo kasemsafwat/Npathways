@@ -231,6 +231,15 @@ export default function CourseContent() {
                     borderRadius: 1,
                     border: "1px solid",
                     borderColor: hasPassed ? "success.light" : "divider",
+                    "&:hover": {
+                      backgroundColor: hasPassed ? "success.light" : "grey.100",
+                      cursor: "pointer",
+                    },
+                  }}
+                  onClick={() => {
+                    if (!submittedExam.passed) {
+                      navigate(`/exam/${exam._id}`);
+                    }
                   }}
                 >
                   <ListItemText primary={exam.name || `Exam ${index + 1}`} />
