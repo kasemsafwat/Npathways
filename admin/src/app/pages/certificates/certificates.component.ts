@@ -8,6 +8,8 @@ import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatButtonModule } from '@angular/material/button';
 import { EditCertificateDialogComponent } from './edit-certificate-dialog.component';
 import { ConfirmDialogComponent } from './confirm-dialog.component';
+import { CertificateService } from '../../services/certificate.service';
+// import { UserService } from '../../services/user.service';
 // --- Placeholder Import ---
 // import { CertificatesService, Certificate } from '../../services/certificates.service';
 
@@ -31,7 +33,7 @@ export interface Certificate {
     MatDialogModule,
     MatButtonModule
   ],
-  providers: [CertificatesService],
+  providers: [CertificatesService, CertificateService],
   templateUrl: './certificates.component.html',
   styleUrls: ['./certificates.component.css']
 })
@@ -67,7 +69,9 @@ export class CertificateComponent implements OnInit {
     private courseService: CoursesService,
     private certificatesService: CertificatesService,
     private snackBar: MatSnackBar,
-    private dialog: MatDialog
+    private dialog: MatDialog,
+    private certificateService: CertificateService,
+    // private userService: UserService
   ) {}
 
   ngOnInit(): void {
@@ -99,6 +103,21 @@ export class CertificateComponent implements OnInit {
       }
     });
   }
+
+  // loadUsers(courseId: string): void {
+  //   this.isLoadingUsers = true;
+  //   this.userService.getUsersByCourse(courseId).subscribe({
+  //     next: (data) => {
+  //       this.users = data;
+  //       this.isLoadingUsers = false;
+  //     },
+  //     error: (error) => {
+  //       console.error('Error loading students:', error);
+  //       this.isLoadingUsers = false;
+  //       // Add user feedback
+  //     }
+  //   });
+  // }
 
   onCertificateSelectForGranting(certificateId: string): void {
     this.selectedCertificateIdForGranting = certificateId;

@@ -1,4 +1,4 @@
-<div class="container">
+<div class="container-fluid">
   <h2 class="page-title text-white">Pathways Management</h2>
 
   <!-- Notification -->
@@ -68,17 +68,26 @@
       </div>
 
       <div class="card-content">
-        <div class="metrics-grid text-dark">
-          <div class="metric">
-            <span class="metric-label">- <strong>Description</strong>: </span>
+        <div class="metrics-grid">
+          <div class="metric d-flex flex-column gap-2">
+            <span class="metric-label ms-0 ps-0">
+              <i class="fas fa-info-circle"></i>
+              Description
+            </span>
             <span class="metric-value">{{ pathway.description || "No description" }}</span>
           </div>
           <div class="metric">
-            <span class="metric-label">- <strong>No. Of Courses</strong>: </span>
+            <span class="metric-label">
+              <i class="fas fa-book"></i>
+              Courses
+            </span>
             <span class="metric-value">{{ pathway.courses?.length || 0 }}</span>
           </div>
           <div class="metric">
-            <span class="metric-label">- <strong>No. Of Students</strong>: </span>
+            <span class="metric-label">
+              <i class="fas fa-users"></i>
+              Students
+            </span>
             <span class="metric-value">{{ pathway.studentCount ?? 0 }}</span>
           </div>
         </div>
