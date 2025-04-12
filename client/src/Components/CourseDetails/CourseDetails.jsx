@@ -263,13 +263,18 @@ export default function CourseDetails() {
     setIsBookmarked(!isBookmarked);
     // You would typically save this to user preferences via API call
   };
-
+  console.log(course);
   // Generate course features
   const courseFeatures = [
     {
       icon: <AccessTimeIcon color="primary" />,
       label: "Duration",
-      value: course.duration || "Self-paced",
+      value: course.lessons
+        ? `${course.lessons.reduce(
+            (total, lesson) => total + (lesson.duration || 0),
+            0
+          )} mins`
+        : "Self-paced",
     },
     {
       icon: <EventNoteIcon color="primary" />,
@@ -429,7 +434,7 @@ export default function CourseDetails() {
                   sx={{ borderRadius: 1 }}
                 />
 
-                <Box>
+                {/* <Box>
                   <Tooltip
                     title={
                       isBookmarked ? "Remove from saved" : "Save for later"
@@ -452,7 +457,7 @@ export default function CourseDetails() {
                       <LinkIcon />
                     </IconButton>
                   </Tooltip>
-                </Box>
+                </Box> */}
               </Box>
 
               <Typography
@@ -595,7 +600,7 @@ export default function CourseDetails() {
                       {/* What you'll learn section */}
                       <Box sx={{ mt: 4 }}>
                         <SectionTitle variant="h5" component="h2">
-                          What You'll Learn
+                          What You&apos;ll Learn
                         </SectionTitle>
                         <Grid container spacing={2}>
                           {course.objectives?.length > 0 ? (

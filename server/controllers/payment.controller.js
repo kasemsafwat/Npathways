@@ -90,7 +90,7 @@ const PaymentController = {
 
       await enroll(payment.user, payment.course);
 
-      res.send("Your payment was successfully completed and you are enrolled!");
+      res.redirect("http://localhost:5173/student/mypathway");
     } catch (err) {
       console.error("complete error:", err);
       res.status(500).send("Payment completion failed");

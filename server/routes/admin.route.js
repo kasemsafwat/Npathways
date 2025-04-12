@@ -5,6 +5,8 @@ import {
   newAdminValidation,
   loginValidation,
   ResetValidation,
+  updateUserByAdminValidation,
+  updateAdminValidation,
 } from "../middleware/admin.middleware.js";
 
 import { protectRoutes, allowTo } from "../middleware/AuthAdmin.middleware.js";
@@ -106,16 +108,16 @@ router.post(
 
 router.put(
   "/users/:userId",
+  updateUserByAdminValidation,
   protectRoutes,
   allowTo("admin"),
-  CompletStudentValidation,
   StudentControlller.updateUserByAdmin
 );
 router.put(
   "/updateData/:adminId",
   protectRoutes,
   allowTo("admin"),
-  newAdminValidation,
+  updateAdminValidation,
   AdminControlller.updateAdminData
 );
 

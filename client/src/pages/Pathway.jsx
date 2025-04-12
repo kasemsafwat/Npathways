@@ -34,6 +34,7 @@ import {
   TimelineOutlined as TimelineIcon,
   Launch as LaunchIcon,
   EmojiEvents as EmojiEventsIcon,
+  Lock as LockIcon,
 } from "@mui/icons-material";
 import { AuthContext } from "../contexts/AuthContext";
 import { motion } from "framer-motion";
@@ -245,6 +246,39 @@ function Pathway() {
     };
   };
 
+  // NEW FUNCTION: Check if prerequisites are complete for a course at a specific index
+  const arePrerequisitesComplete = (courseIndex) => {
+    // If it's the first course or no courses data, no prerequisites to check
+    if (courseIndex === 0 || !pathway?.data?.courses) return true;
+
+    // Check all previous courses in the pathway
+    for (let i = 0; i < courseIndex; i++) {
+      const prerequisiteCourse = pathway.data.courses[i];
+
+      // Skip if course has no required exams
+      if (
+        !prerequisiteCourse.requiredExams ||
+        prerequisiteCourse.requiredExams.length === 0
+      ) {
+        continue;
+      }
+
+      // Check if all exams in this prerequisite course are passed
+      const allExamsPassed = prerequisiteCourse.requiredExams.every((exam) => {
+        const examStatus = getExamStatus(exam);
+        return examStatus.passed;
+      });
+
+      // If not all exams are passed in this prerequisite course, return false
+      if (!allExamsPassed) {
+        return false;
+      }
+    }
+
+    // All prerequisite courses have their exams completed
+    return true;
+  };
+
   // Course Card component
   const CourseCard = ({ course, index, isLast, totalCourses }) => {
     const {
@@ -270,6 +304,9 @@ function Pathway() {
 
     // Use the enhanced status determination
     const badgeStatus = getCourseStatus(course);
+
+    // Check if prerequisites are complete for this course
+    const prerequisitesComplete = arePrerequisitesComplete(index);
 
     // Status badge configuration
     const statusConfig = {
@@ -391,7 +428,13 @@ function Pathway() {
                       sx={{ mr: 0.5 }}
                     />
                     <Typography variant="body2" color="text.secondary">
-                      Duration: {duration || "Not specified"}
+                      Duration:{" "}
+                      {course.lessons
+                        ? `${course.lessons.reduce(
+                            (total, lesson) => total + (lesson.duration || 0),
+                            0
+                          )} mins`
+                        : "Self-paced"}
                     </Typography>
                   </Box>
                 </Box>
@@ -418,31 +461,66 @@ function Pathway() {
                   {requiredExams && requiredExams.length > 0 ? (
                     requiredExams.map((exam, i) => {
                       const examStatus = getExamStatus(exam);
+
+                      // Determine whether exam is clickable based on prerequisites and status
+                      const isClickable =
+                        examStatus.passed || // Already passed exams are always clickable for review
+                        (prerequisitesComplete && !examStatus.passed); // Or if prerequisites are complete and not yet passed
+
+                      // Determine tooltip text based on prerequisites and status
+                      let tooltipText;
+                      if (examStatus.passed) {
+                        tooltipText = `Passed with score: ${examStatus.score}%`;
+                      } else if (!prerequisitesComplete) {
+                        tooltipText =
+                          "Complete previous course exams to unlock";
+                      } else if (examStatus.attempted) {
+                        tooltipText =
+                          "Attempted but not passed. Click to retry.";
+                      } else {
+                        tooltipText = "Take this exam";
+                      }
+
                       return (
-                        <Tooltip
-                          key={i}
-                          title={
-                            examStatus.attempted
-                              ? examStatus.passed
-                                ? `Passed with score: ${examStatus.score}%`
-                                : "Attempted but not passed"
-                              : "Not attempted yet"
-                          }
-                          arrow
-                        >
-                          <ExamChip
-                            icon={
-                              examStatus.passed ? (
-                                <CheckCircleIcon fontSize="small" />
-                              ) : (
-                                <InsertDriveFileIcon fontSize="small" />
-                              )
-                            }
-                            label={exam.name}
-                            passed={examStatus.passed}
-                            onClick={() => navigate(`/exam/${exam._id}`)}
-                            clickable={!examStatus.passed}
-                          />
+                        <Tooltip key={i} title={tooltipText} arrow>
+                          <Box
+                            component="span"
+                            sx={{ display: "inline-block", m: 0.5 }}
+                          >
+                            <ExamChip
+                              icon={
+                                examStatus.passed ? (
+                                  <CheckCircleIcon fontSize="small" />
+                                ) : !prerequisitesComplete ? (
+                                  <LockIcon fontSize="small" />
+                                ) : (
+                                  <InsertDriveFileIcon fontSize="small" />
+                                )
+                              }
+                              label={exam.name}
+                              passed={examStatus.passed}
+                              onClick={() => {
+                                if (isClickable) {
+                                  navigate(`/exam/${exam._id}`);
+                                }
+                              }}
+                              clickable={isClickable}
+                              sx={{
+                                opacity:
+                                  !prerequisitesComplete && !examStatus.passed
+                                    ? 0.7
+                                    : 1,
+                                cursor: isClickable ? "pointer" : "not-allowed",
+                                "&:hover": {
+                                  backgroundColor: !isClickable
+                                    ? examStatus.passed
+                                      ? theme.palette.success.light
+                                      : theme.palette.background.paper
+                                    : undefined,
+                                },
+                              }}
+                            />
+                          </Box>
                         </Tooltip>
                       );
                     })
@@ -456,6 +534,18 @@ function Pathway() {
                     </Typography>
                   )}
                 </Box>
+
+                {/* Show lock message if prerequisites are not complete and there are exams */}
+                {!prerequisitesComplete && requiredExams.length > 0 && (
+                  <Alert
+                    severity="info"
+                    icon={<LockIcon fontSize="inherit" />}
+                    sx={{ mt: 2, mb: 1, borderRadius: 2 }}
+                  >
+                    Complete all exams from previous courses to unlock these
+                    exams.
+                  </Alert>
+                )}
               </Box>
 
               {/* Action buttons */}
