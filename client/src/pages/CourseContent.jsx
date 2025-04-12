@@ -237,7 +237,7 @@ export default function CourseContent() {
                     },
                   }}
                   onClick={() => {
-                    if (!submittedExam.passed) {
+                    if (!submittedExam || !submittedExam.passed) {
                       navigate(`/exam/${exam._id}`);
                     }
                   }}

@@ -190,9 +190,9 @@ const FeaturesSection = () => {
               fontSize: { xs: "1rem", md: "1.125rem" },
             }}
           >
-            At NPathways, we don't just offer courses — we design your entire
-            learning journey, guiding you from self-discovery to industry-ready
-            expertise in digital construction.
+            At NPathways, we don&apos;t just offer courses — we design your
+            entire learning journey, guiding you from self-discovery to
+            industry-ready expertise in digital construction.
           </Typography>
 
           {/* Feature Cards */}
@@ -291,8 +291,7 @@ const FeaturesSection = () => {
                         {feature.description}
                       </Typography>
                     </Box>
-
-                    <Box sx={{ textAlign: "right", mt: 2 }}>
+                    {/* <Box sx={{ textAlign: "right", mt: 2 }}>
                       <Tooltip title="Learn more">
                         <IconButton
                           aria-label={`Learn more about ${feature.title}`}
@@ -315,7 +314,7 @@ const FeaturesSection = () => {
                           <ArrowForwardIcon />
                         </IconButton>
                       </Tooltip>
-                    </Box>
+                    </Box> */}
                   </CardContent>
                 </FeatureCard>
               </Grid>
