@@ -11,7 +11,6 @@ import { createTheme, CssBaseline, ThemeProvider } from "@mui/material";
 import { BrowserRouter } from "react-router";
 import { AuthProvider } from "./contexts/AuthContext";
 import { InstructorAuthProvider } from "./contexts/InstructorAuthContext.jsx";
-import dotenv from "dotenv";
 
 const theme = createTheme({
   typography: {

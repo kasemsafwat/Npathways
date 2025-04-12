@@ -20,7 +20,7 @@ export default function MyPathway() {
   const [tap, setTap] = useState("enrollment");
   return (
     <>
-      <Container sx={{ my: 4 }}>
+      <Container sx={{ my: 4, minHeight: "80vh" }} maxWidth="lg">
         <Typography variant="h4" px={4} fontWeight={"bold"}>
           My Pathway
         </Typography>

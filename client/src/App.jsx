@@ -29,6 +29,7 @@ import Pathway from "./pages/Pathway";
 import CourseContent from "./pages/CourseContent";
 import Chat from "./chat/Chat";
 import Footer from "./Components/Footer";
+import HowItWorks from "./pages/HowItWorks";
 
 const Layout = ({ children }) => {
   return (
@@ -58,6 +59,7 @@ function App() {
               <Route path="/" element={<Home />} />
               <Route path="register" element={<Register />} />
               <Route path="/enrollment/Welcome" element={<WelcomePage />} />
+              <Route path="/how-it-works" element={<HowItWorks />} />
               <Route
                 path="/terms-and-conditions"
                 element={<TermsAndConditions />}
