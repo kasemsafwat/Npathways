@@ -3,6 +3,11 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { CoursesService, Course } from '../../services/course.service';
 import { CertificatesService, Certificate as CertificateType } from '../../services/certificates.service';
+import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+import { MatButtonModule } from '@angular/material/button';
+import { EditCertificateDialogComponent } from './edit-certificate-dialog.component';
+import { ConfirmDialogComponent } from './confirm-dialog.component';
 // --- Placeholder Import ---
 // import { CertificatesService, Certificate } from '../../services/certificates.service';
 
@@ -19,7 +24,13 @@ export interface Certificate {
 @Component({
   selector: 'app-certificates',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [
+    CommonModule,
+    FormsModule,
+    MatSnackBarModule,
+    MatDialogModule,
+    MatButtonModule
+  ],
   providers: [CertificatesService],
   templateUrl: './certificates.component.html',
   styleUrls: ['./certificates.component.css']
@@ -54,7 +65,9 @@ export class CertificateComponent implements OnInit {
 
   constructor(
     private courseService: CoursesService,
-    private certificatesService: CertificatesService
+    private certificatesService: CertificatesService,
+    private snackBar: MatSnackBar,
+    private dialog: MatDialog
   ) {}
 
   ngOnInit(): void {
@@ -87,13 +100,17 @@ export class CertificateComponent implements OnInit {
     });
   }
 
-  onCourseChange(): void {
-    this.users = [];
-    this.selectedUserIdForGranting = null; // Reset user selection for granting when course changes
-    if (this.selectedCourseId) {
+  onCertificateSelectForGranting(certificateId: string): void {
+    this.selectedCertificateIdForGranting = certificateId;
+    this.selectedUserIdForGranting = null; // Reset user selection
+    this.users = []; // Clear previous users
+
+    // Find the selected certificate
+    const selectedCertificate = this.certificates.find(cert => cert._id === certificateId);
+    if (selectedCertificate) {
       this.isLoadingUsers = true;
-      console.log('Loading users for Course ID:', this.selectedCourseId);
-      this.courseService.getUsersInCourse(this.selectedCourseId).subscribe({
+      console.log('Loading users for Course ID:', selectedCertificate.course);
+      this.courseService.getUsersInCourse(selectedCertificate.course).subscribe({
         next: (data) => {
           this.users = data.users || data || [];
           console.log('Users loaded:', this.users);
@@ -108,8 +125,6 @@ export class CertificateComponent implements OnInit {
           // Add user feedback
         }
       });
-    } else {
-      console.log('Course selection cleared, clearing users.');
     }
   }
 
@@ -149,9 +164,23 @@ export class CertificateComponent implements OnInit {
 
   // --- Certificate Update ---
   startEdit(certificate: CertificateType): void {
-    this.editingCertificate = certificate;
-    this.editName = certificate.name;
-    this.editDescription = certificate.description;
+    const dialogRef = this.dialog.open(EditCertificateDialogComponent, {
+      width: '500px',
+      data: {
+        certificate: { ...certificate },
+        editName: certificate.name,
+        editDescription: certificate.description
+      }
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        this.editingCertificate = certificate;
+        this.editName = result.editName;
+        this.editDescription = result.editDescription;
+        this.updateCertificate();
+      }
+    });
   }
 
   cancelEdit(): void {
@@ -163,7 +192,12 @@ export class CertificateComponent implements OnInit {
 
   updateCertificate(): void {
     if (!this.editingCertificate || !this.editName || !this.editDescription) {
-      console.error('Certificate, Name, and Description must be provided for update');
+      this.snackBar.open('Certificate, Name, and Description must be provided for update', 'Close', {
+        duration: 3000,
+        panelClass: ['error-snackbar'],
+        verticalPosition: 'top',
+        horizontalPosition: 'right'
+      });
       return;
     }
 
@@ -180,12 +214,22 @@ export class CertificateComponent implements OnInit {
         this.loadCertificates(); // Reload the list
         this.cancelEdit(); // Reset edit state
         this.isUpdating = null;
-        // Add success feedback
+        this.snackBar.open('Certificate updated successfully', 'Close', {
+          duration: 3000,
+          panelClass: ['success-snackbar'],
+          verticalPosition: 'top',
+          horizontalPosition: 'right'
+        });
       },
       error: (err) => {
         console.error('Error updating certificate:', err);
         this.isUpdating = null;
-        // Add error feedback
+        this.snackBar.open(err.error?.message || 'Error updating certificate', 'Close', {
+          duration: 3000,
+          panelClass: ['error-snackbar'],
+          verticalPosition: 'top',
+          horizontalPosition: 'right'
+        });
       }
     });
   }
@@ -193,8 +237,12 @@ export class CertificateComponent implements OnInit {
   // --- Certificate Granting ---
   grantCertificate(): void {
     if (!this.selectedCertificateIdForGranting || !this.selectedUserIdForGranting) {
-      console.error('Certificate and User must be selected for granting');
-      // Add user feedback
+      this.snackBar.open('Please select both certificate and student', 'Close', {
+        duration: 3000,
+        panelClass: ['error-snackbar'],
+        verticalPosition: 'top',
+        horizontalPosition: 'right'
+      });
       return;
     }
     this.isGranting = true;
@@ -205,45 +253,78 @@ export class CertificateComponent implements OnInit {
     console.log('Granting certificate with data:', grantData);
 
     this.certificatesService.grantCertificate(grantData.certificateId, grantData.userId).subscribe({
-      next: (response) => { // Adjust based on actual response
+      next: (response) => {
         console.log('Certificate granted successfully:', response);
         // Reset selections
         this.selectedCertificateIdForGranting = null;
         this.selectedUserIdForGranting = null;
         this.isGranting = false;
-        // Add success feedback
+        // Show success notification
+        this.snackBar.open('Certificate granted successfully', 'Close', {
+          duration: 3000,
+          panelClass: ['success-snackbar'],
+          verticalPosition: 'top',
+          horizontalPosition: 'right'
+        });
       },
       error: (err) => {
         console.error('Error granting certificate:', err);
         this.isGranting = false;
-        // Add error feedback
+        // Show error notification
+        this.snackBar.open(err.error?.message || 'Error granting certificate', 'Close', {
+          duration: 3000,
+          panelClass: ['error-snackbar'],
+          verticalPosition: 'top',
+          horizontalPosition: 'right'
+        });
       }
     });
   }
 
   // --- Certificate Deletion ---
   deleteCertificate(id: string): void {
-    if (!confirm('Are you sure you want to delete this certificate? This might affect granted certificates.')) {
-      return;
-    }
-    this.isDeleting = id;
-    console.log('Deleting certificate ID:', id);
+    const dialogRef = this.dialog.open(ConfirmDialogComponent, {
+      width: '400px',
+      data: {
+        title: 'Delete Certificate',
+        message: 'Are you sure you want to delete this certificate? This might affect granted certificates.',
+        confirmText: 'Delete',
+        cancelText: 'Cancel'
+      }
+    });
 
-    this.certificatesService.deleteCertificate(id).subscribe({
-      next: () => {
-        console.log('Certificate deleted successfully.');
-        this.loadCertificates(); // Reload list
-        this.isDeleting = null;
-        // If the deleted certificate was selected for granting, reset selection
-        if (this.selectedCertificateIdForGranting === id) {
-          this.selectedCertificateIdForGranting = null;
-        }
-        // Add success feedback
-      },
-      error: (err) => {
-        console.error('Error deleting certificate:', err);
-        this.isDeleting = null;
-        // Add error feedback
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        this.isDeleting = id;
+        console.log('Deleting certificate ID:', id);
+
+        this.certificatesService.deleteCertificate(id).subscribe({
+          next: () => {
+            console.log('Certificate deleted successfully.');
+            this.loadCertificates(); // Reload list
+            this.isDeleting = null;
+            // If the deleted certificate was selected for granting, reset selection
+            if (this.selectedCertificateIdForGranting === id) {
+              this.selectedCertificateIdForGranting = null;
+            }
+            this.snackBar.open('Certificate deleted successfully', 'Close', {
+              duration: 3000,
+              panelClass: ['success-snackbar'],
+              verticalPosition: 'top',
+              horizontalPosition: 'right'
+            });
+          },
+          error: (err) => {
+            console.error('Error deleting certificate:', err);
+            this.isDeleting = null;
+            this.snackBar.open(err.error?.message || 'Error deleting certificate', 'Close', {
+              duration: 3000,
+              panelClass: ['error-snackbar'],
+              verticalPosition: 'top',
+              horizontalPosition: 'right'
+            });
+          }
+        });
       }
     });
   }

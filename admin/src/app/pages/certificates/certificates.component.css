@@ -160,3 +160,23 @@ tbody tr:hover {
   margin-top: 10px;
   font-style: italic;
 }
+
+/* Snackbar Styles */
+::ng-deep .success-snackbar {
+  background: #4caf50;
+  color: white;
+}
+
+::ng-deep .error-snackbar {
+  background: #f44336;
+  color: white;
+}
+
+::ng-deep .mat-snack-bar-container {
+  border-radius: 4px;
+  box-shadow: 0 3px 5px -1px rgba(0,0,0,.2), 0 6px 10px 0 rgba(0,0,0,.14), 0 1px 18px 0 rgba(0,0,0,.12);
+}
+
+::ng-deep .mat-simple-snackbar-action {
+  color: white;
+}

@@ -17,7 +17,7 @@
 
     <div>
       <label for="courseSelectCreate">Assign to Course:</label>
-      <select id="courseSelectCreate" [(ngModel)]="selectedCourseId" (change)="onCourseChange()" required>
+      <select id="courseSelectCreate" [(ngModel)]="selectedCourseId" required>
         <option [ngValue]="null" disabled>Select a Course</option>
         <option *ngFor="let course of courses" [value]="course._id">
           {{ course.name }}
@@ -97,37 +97,27 @@
 
     <div>
       <label for="certificateSelectGrant">Select Certificate:</label>
-      <select id="certificateSelectGrant" [(ngModel)]="selectedCertificateIdForGranting" required>
-        <option [ngValue]="null" disabled > Select a Certificate </option>
+      <select id="certificateSelectGrant" [(ngModel)]="selectedCertificateIdForGranting" (change)="onCertificateSelectForGranting($any($event.target).value)" required>
+        <option [ngValue]="null" disabled>Select a Certificate</option>
         <option *ngFor="let cert of certificates" [value]="cert._id">
           {{ cert.name }} ({{ getCourseName(cert.course) }})
         </option>
       </select>
     </div>
 
-    <div>
-      <label for="courseSelectGrant">Select Course (to find students):</label>
-      <select id="courseSelectGrant" [(ngModel)]="selectedCourseId" (change)="onCourseChange()" required>
-        <option [ngValue]="null" disabled > Select Course First </option>
-        <option *ngFor="let course of courses" [value]="course._id">
-          {{ course.name }}
-        </option>
-      </select>
-    </div>
-
-    <div *ngIf="selectedCourseId">
+    <div *ngIf="selectedCertificateIdForGranting">
       <div *ngIf="isLoadingUsers" class="loading-text">Loading students...</div>
       <div *ngIf="!isLoadingUsers && users.length > 0">
         <label for="userSelectGrant">Select Student:</label>
         <select id="userSelectGrant" [(ngModel)]="selectedUserIdForGranting" required>
-          <option [ngValue]="null" disabled > Select a Student </option>
+          <option [ngValue]="null" disabled>Select a Student</option>
           <option *ngFor="let user of users" [value]="user._id">
             {{ user.firstName + ' ' + user.lastName || user._id }}
           </option>
         </select>
       </div>
       <div *ngIf="!isLoadingUsers && users.length === 0" class="info-message">
-        No students found for the selected course.
+        No students found for this course.
       </div>
     </div>
 
