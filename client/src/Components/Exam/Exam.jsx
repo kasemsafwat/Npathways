@@ -683,7 +683,7 @@ export default function Exam() {
                   {responses.filter((r) => r !== undefined).length <
                     exam.questions.length && (
                     <Alert severity="info" sx={{ mt: 2 }}>
-                      You've answered{" "}
+                      You have answered{" "}
                       {responses.filter((r) => r !== undefined).length} of{" "}
                       {exam.questions.length} questions. Consider reviewing
                       before submitting.
@@ -706,7 +706,7 @@ export default function Exam() {
         <DialogTitle id="submit-dialog-title">Submit Exam?</DialogTitle>
         <DialogContent>
           <DialogContentText id="submit-dialog-description">
-            You've answered {responses.filter((r) => r !== undefined).length}{" "}
+            You have answered {responses.filter((r) => r !== undefined).length}{" "}
             out of {exam.questions.length} questions.
             {flaggedQuestions.length > 0 &&
               ` You have ${flaggedQuestions.length} flagged question(s).`}
