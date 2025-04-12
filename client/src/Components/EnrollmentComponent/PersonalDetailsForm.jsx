@@ -49,11 +49,15 @@ export default function PersonalDetailsForm() {
     const newErrors = {};
     if (!payload.firstName?.trim()) {
       newErrors.firstName = "First name is required";
-    } else if (!/^[a-zA-Z]+$/.test(payload.firstName)) {
+    }else if (payload.firstName.trim().length < 2) {
+      newErrors.firstName = "First name must be at least 2 characters";
+    }  else if (!/^[a-zA-Z]+$/.test(payload.firstName)) {
       newErrors.firstName = "First name should contain only letters";
     }
     if (!payload.lastName?.trim()) {
       newErrors.lastName = "Last name is required";
+    } else if (payload.lastName.trim().length < 2) {
+      newErrors.lastName = "Last name must be at least 2 characters";
     } else if (!/^[a-zA-Z]+$/.test(payload.lastName)) {
       newErrors.lastName = "Last name should contain only letters";
     }
@@ -78,9 +82,8 @@ export default function PersonalDetailsForm() {
     }
     if (!payload.motivationLetter?.trim()) {
       newErrors.motivationLetter = "Motivation letter is required";
-    } else if (payload.motivationLetter.length < 50) {
-      newErrors.motivationLetter =
-        "Motivation letter should be at least 50 characters";
+    } else if (payload.motivationLetter.trim().length < 50) {
+      newErrors.motivationLetter = "Motivation letter should be at least 50 characters";
     }
     return newErrors;
   };
