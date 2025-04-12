@@ -19,6 +19,7 @@ router.post(
 );
 
 router.get("/:id", authenticationInstructor, ExamController.getExamById);
+router.get("/getStudent/:id", authentication, ExamController.getExamById);
 router.post(
   "/createExam",
   authenticationInstructor,
