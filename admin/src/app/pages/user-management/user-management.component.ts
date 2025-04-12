@@ -325,26 +325,16 @@ export class UserManagementComponent implements OnInit {
     }
 
     // Password validation
-    if (
-      this.userToEdit.password &&
-      (this.userToEdit.password.length < 6 ||
-        this.userToEdit.password.length > 50)
-    ) {
+    if (this.userToEdit.password && (this.userToEdit.password.length < 6 || this.userToEdit.password.length > 50)) {
       return false;
     }
 
     // Name validation
-    if (
-      this.userToEdit.firstName &&
-      !this.isValidName(this.userToEdit.firstName)
-    ) {
+    if (this.userToEdit.firstName && !this.isValidName(this.userToEdit.firstName)) {
       return false;
     }
 
-    if (
-      this.userToEdit.lastName &&
-      !this.isValidName(this.userToEdit.lastName)
-    ) {
+    if (this.userToEdit.lastName && !this.isValidName(this.userToEdit.lastName)) {
       return false;
     }
 
@@ -357,8 +347,10 @@ export class UserManagementComponent implements OnInit {
   }
 
   private isValidName(name: string): boolean {
-    const nameRegex = /^[a-zA-Z\s]*$/;
-    return nameRegex.test(name) && name.length <= 50;
+    // Allow letters, numbers, and spaces, but not only numbers
+    const nameRegex = /^[a-zA-Z0-9\s]*$/;
+    const onlyNumbersRegex = /^\d+$/;
+    return nameRegex.test(name) && !onlyNumbersRegex.test(name) && name.length <= 50;
   }
 
   suspendUser(user: User): void {
