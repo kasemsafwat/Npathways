@@ -67,6 +67,29 @@ export class ExamService {
   }
 
   uploadQuestionsSheet(file: File, examId: string): Observable<any> {
+    const allowedType = '.xlsx';
+    const fileExtension = file.name
+      .substring(file.name.lastIndexOf('.'))
+      .toLowerCase();
+
+    if (fileExtension !== allowedType) {
+      return new Observable((observer) => {
+        observer.error(
+          'Invalid file type. Please upload Excel (.xlsx) files only.'
+        );
+        observer.complete();
+      });
+    }
+
+    // Validate file size (max 5MB)
+    const maxSize = 5 * 1024 * 1024; // 5MB
+    if (file.size > maxSize) {
+      return new Observable((observer) => {
+        observer.error('File size exceeds 5MB limit.');
+        observer.complete();
+      });
+    }
+
     const formData = new FormData();
     formData.append('file', file, file.name);
 
