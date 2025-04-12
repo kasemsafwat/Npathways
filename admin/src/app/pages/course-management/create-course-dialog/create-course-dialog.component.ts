@@ -22,6 +22,16 @@ interface CreateCourse {
   category?: string;
 }
 
+interface ValidationErrors {
+  name?: string;
+  description?: string;
+  price?: string;
+  discount?: string;
+  image?: string;
+  instructors?: string;
+  lessons?: { [key: number]: { name?: string; duration?: string } };
+}
+
 @Component({
   selector: 'app-create-course-dialog',
   templateUrl: './create-course-dialog.component.html',
@@ -54,6 +64,7 @@ export class CreateCourseDialogComponent implements OnInit {
   instructors: Instructor[] = [];
   selectedInstructors: string[] = [];
   newInstructor: string = '';
+  validationErrors: ValidationErrors = {};
 
   constructor(
     private coursesService: CoursesService,
@@ -104,7 +115,7 @@ export class CreateCourseDialogComponent implements OnInit {
       // Check file type
       const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
       if (!validTypes.includes(file.type)) {
-        this.error = 'Please select a valid image file (PNG, JPEG, JPG, or WEBP)';
+        this.validationErrors.image = 'Please select a valid image file (PNG, JPEG, JPG, or WEBP)';
         input.value = ''; // Clear the input
         this.imagePreview = null;
         this.courseImage = null;
@@ -114,7 +125,7 @@ export class CreateCourseDialogComponent implements OnInit {
       // Check file size (max 5MB)
       const maxSize = 5 * 1024 * 1024; // 5MB in bytes
       if (file.size > maxSize) {
-        this.error = 'Image size should be less than 5MB';
+        this.validationErrors.image = 'Image size should be less than 5MB';
         input.value = ''; // Clear the input
         this.imagePreview = null;
         this.courseImage = null;
@@ -122,6 +133,7 @@ export class CreateCourseDialogComponent implements OnInit {
       }
 
       this.courseImage = file;
+      this.validationErrors.image = undefined;
       
       // Create preview URL
       const reader = new FileReader();
@@ -143,9 +155,83 @@ export class CreateCourseDialogComponent implements OnInit {
     this.course.lessons.splice(index, 1);
   }
 
-  async saveCourse() {
+  validateForm(): boolean {
+    this.validationErrors = {};
+    let isValid = true;
+
+    // Validate course name
+    if (!this.course.name.trim()) {
+      this.validationErrors.name = 'Course name is required';
+      isValid = false;
+    } else if (this.course.name.trim().length < 3) {
+      this.validationErrors.name = 'Course name must be at least 3 characters long';
+      isValid = false;
+    }
+
+    // Validate description
+    if (!this.course.description.trim()) {
+      this.validationErrors.description = 'Course description is required';
+      isValid = false;
+    } else if (this.course.description.trim().length < 10) {
+      this.validationErrors.description = 'Description must be at least 10 characters long';
+      isValid = false;
+    }
+
+    // Validate price
+    if (this.course.price !== undefined && this.course.price < 0) {
+      this.validationErrors.price = 'Price cannot be negative';
+      isValid = false;
+    }
+
+    // Validate discount
+    if (this.course.discount !== undefined) {
+      if (this.course.discount < 0) {
+        this.validationErrors.discount = 'Discount cannot be negative';
+        isValid = false;
+      } else if (this.course.discount > 100) {
+        this.validationErrors.discount = 'Discount cannot be more than 100%';
+        isValid = false;
+      }
+    }
+
+    // Validate image
+    if (!this.courseImage && !this.imagePreview) {
+      this.validationErrors.image = 'Course image is required';
+      isValid = false;
+    }
+
+    // Validate instructors
     if (this.selectedInstructors.length === 0) {
-      this.error = 'Please select at least one instructor';
+      this.validationErrors.instructors = 'At least one instructor is required';
+      isValid = false;
+    }
+
+    // Validate lessons
+    if (this.course.lessons.length === 0) {
+      this.validationErrors.lessons = { 0: { name: 'At least one lesson is required' } };
+      isValid = false;
+    } else {
+      this.course.lessons.forEach((lesson, index) => {
+        if (!lesson.name.trim()) {
+          this.validationErrors.lessons = this.validationErrors.lessons || {};
+          this.validationErrors.lessons[index] = this.validationErrors.lessons[index] || {};
+          this.validationErrors.lessons[index].name = 'Lesson name is required';
+          isValid = false;
+        }
+        if (typeof lesson.duration === 'number' && lesson.duration <= 0) {
+          this.validationErrors.lessons = this.validationErrors.lessons || {};
+          this.validationErrors.lessons[index] = this.validationErrors.lessons[index] || {};
+          this.validationErrors.lessons[index].duration = 'Duration must be greater than 0';
+          isValid = false;
+        }
+      });
+    }
+
+    return isValid;
+  }
+
+  async saveCourse() {
+    if (!this.validateForm()) {
       return;
     }
 
@@ -232,6 +318,7 @@ export class CreateCourseDialogComponent implements OnInit {
     this.imagePreview = null;
     this.error = null;
     this.success = null;
+    this.validationErrors = {};
     this.isSubmitting = false;
   }
 }

@@ -195,53 +195,93 @@
   <div class="modal-content">
     <div class="modal-header">
       <h2>Create New Admin</h2>
-      <button class="close-btn" (click)="showCreateAdminModal = false">&times;</button>
+      <button class="close-btn" (click)="showCreateAdminModal = false">
+        &times;
+      </button>
     </div>
     <div class="modal-body">
       <form #adminForm="ngForm" (ngSubmit)="createAdmin(adminForm)" novalidate>
         <div class="form-group">
           <label for="firstName">First Name</label>
-          <input type="text" id="firstName" [(ngModel)]="newAdmin.firstName" name="firstName" required #firstName="ngModel" class="form-control" pattern="[a-zA-Z0-9\s]*" maxlength="50">
+          <input
+            type="text"
+            id="firstName"
+            [(ngModel)]="newAdmin.firstName"
+            name="firstName"
+            required
+            #firstName="ngModel"
+            class="form-control"
+          />
           <div *ngIf="firstName.touched && firstName.invalid" class="error-message">
             <div *ngIf="firstName.errors?.['required']">First Name is required.</div>
-            <div *ngIf="firstName.errors?.['pattern']">First Name can only contain letters, numbers, and spaces.</div>
-            <div *ngIf="firstName.errors?.['maxlength']">First Name cannot exceed 50 characters.</div>
           </div>
         </div>
 
         <div class="form-group">
           <label for="lastName">Last Name</label>
-          <input type="text" id="lastName" [(ngModel)]="newAdmin.lastName" name="lastName" required #lastName="ngModel" class="form-control" pattern="[a-zA-Z0-9\s]*" maxlength="50">
+          <input
+            type="text"
+            id="lastName"
+            [(ngModel)]="newAdmin.lastName"
+            name="lastName"
+            required
+            #lastName="ngModel"
+            class="form-control"
+          />
           <div *ngIf="lastName.touched && lastName.invalid" class="error-message">
             <div *ngIf="lastName.errors?.['required']">Last Name is required.</div>
-            <div *ngIf="lastName.errors?.['pattern']">Last Name can only contain letters, numbers, and spaces.</div>
-            <div *ngIf="lastName.errors?.['maxlength']">Last Name cannot exceed 50 characters.</div>
           </div>
         </div>
 
         <div class="form-group">
           <label for="email">Email</label>
-          <input type="email" id="email" [(ngModel)]="newAdmin.email" name="email" required email #email="ngModel" class="form-control" pattern="[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$" maxlength="100">
+          <input
+            type="email"
+            id="email"
+            [(ngModel)]="newAdmin.email"
+            name="email"
+            required
+            email
+            #email="ngModel"
+            class="form-control"
+          />
           <div *ngIf="email.touched && email.invalid" class="error-message">
             <div *ngIf="email.errors?.['required']">Email is required.</div>
-            <div *ngIf="email.errors?.['email'] || email.errors?.['pattern']">Please enter a valid email address.</div>
-            <div *ngIf="email.errors?.['maxlength']">Email cannot exceed 100 characters.</div>
+            <div *ngIf="email.errors?.['email']">Please enter a valid email address.</div>
           </div>
         </div>
 
         <div class="form-group">
           <label for="password">Password</label>
-          <input type="password" id="password" [(ngModel)]="newAdmin.password" name="password" required minlength="6" maxlength="50" #password="ngModel" class="form-control">
+          <input
+            type="password"
+            id="password"
+            [(ngModel)]="newAdmin.password"
+            name="password"
+            required
+            minlength="6"
+            #password="ngModel"
+            class="form-control"
+          />
           <div *ngIf="password.touched && password.invalid" class="error-message">
             <div *ngIf="password.errors?.['required']">Password is required.</div>
-            <div *ngIf="password.errors?.['minlength']">Password must be at least 6 characters long.</div>
-            <div *ngIf="password.errors?.['maxlength']">Password cannot exceed 50 characters.</div>
+            <div *ngIf="password.errors?.['minlength']">
+              Password must be at least 6 characters long.
+            </div>
           </div>
         </div>
 
         <div class="modal-footer">
-          <button type="button" class="cancel-btn" (click)="showCreateAdminModal = false">Cancel</button>
-          <button type="submit" [disabled]="adminForm.invalid" class="create-btn">Create Admin</button>
+          <button
+            type="button"
+            class="cancel-btn"
+            (click)="showCreateAdminModal = false"
+          >
+            Cancel
+          </button>
+          <button type="submit" [disabled]="adminForm.invalid" class="create-btn">
+            Create Admin
+          </button>
         </div>
       </form>
     </div>
@@ -254,53 +294,93 @@
   <div class="modal-content">
     <div class="modal-header">
       <h2>Create New Instructor</h2>
-      <button class="close-btn" (click)="showCreateInstructorModal = false">&times;</button>
+      <button class="close-btn" (click)="showCreateInstructorModal = false">
+        &times;
+      </button>
     </div>
     <div class="modal-body">
       <form #instructorForm="ngForm" (ngSubmit)="createInstructor(instructorForm)" novalidate>
         <div class="form-group">
           <label for="firstName">First Name</label>
-          <input type="text" id="firstName" [(ngModel)]="newInstructor.firstName" name="firstName" required #firstName="ngModel" class="form-control" pattern="[a-zA-Z0-9\s]*" maxlength="50">
+          <input
+            type="text"
+            id="firstName"
+            [(ngModel)]="newInstructor.firstName"
+            name="firstName"
+            required
+            #firstName="ngModel"
+            class="form-control"
+          />
           <div *ngIf="firstName.touched && firstName.invalid" class="error-message">
             <div *ngIf="firstName.errors?.['required']">First Name is required.</div>
-            <div *ngIf="firstName.errors?.['pattern']">First Name can only contain letters, numbers, and spaces.</div>
-            <div *ngIf="firstName.errors?.['maxlength']">First Name cannot exceed 50 characters.</div>
           </div>
         </div>
 
         <div class="form-group">
           <label for="lastName">Last Name</label>
-          <input type="text" id="lastName" [(ngModel)]="newInstructor.lastName" name="lastName" required #lastName="ngModel" class="form-control" pattern="[a-zA-Z0-9\s]*" maxlength="50">
+          <input
+            type="text"
+            id="lastName"
+            [(ngModel)]="newInstructor.lastName"
+            name="lastName"
+            required
+            #lastName="ngModel"
+            class="form-control"
+          />
           <div *ngIf="lastName.touched && lastName.invalid" class="error-message">
             <div *ngIf="lastName.errors?.['required']">Last Name is required.</div>
-            <div *ngIf="lastName.errors?.['pattern']">Last Name can only contain letters, numbers, and spaces.</div>
-            <div *ngIf="lastName.errors?.['maxlength']">Last Name cannot exceed 50 characters.</div>
           </div>
         </div>
 
         <div class="form-group">
           <label for="email">Email</label>
-          <input type="email" id="email" [(ngModel)]="newInstructor.email" name="email" required email #email="ngModel" class="form-control" pattern="[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$" maxlength="100">
+          <input
+            type="email"
+            id="email"
+            [(ngModel)]="newInstructor.email"
+            name="email"
+            required
+            email
+            #email="ngModel"
+            class="form-control"
+          />
           <div *ngIf="email.touched && email.invalid" class="error-message">
             <div *ngIf="email.errors?.['required']">Email is required.</div>
-            <div *ngIf="email.errors?.['email'] || email.errors?.['pattern']">Please enter a valid email address.</div>
-            <div *ngIf="email.errors?.['maxlength']">Email cannot exceed 100 characters.</div>
+            <div *ngIf="email.errors?.['email']">Please enter a valid email address.</div>
           </div>
         </div>
 
         <div class="form-group">
           <label for="password">Password</label>
-          <input type="password" id="password" [(ngModel)]="newInstructor.password" name="password" required minlength="6" maxlength="50" #password="ngModel" class="form-control">
+          <input
+            type="password"
+            id="password"
+            [(ngModel)]="newInstructor.password"
+            name="password"
+            required
+            minlength="6"
+            #password="ngModel"
+            class="form-control"
+          />
           <div *ngIf="password.touched && password.invalid" class="error-message">
             <div *ngIf="password.errors?.['required']">Password is required.</div>
-            <div *ngIf="password.errors?.['minlength']">Password must be at least 6 characters long.</div>
-            <div *ngIf="password.errors?.['maxlength']">Password cannot exceed 50 characters.</div>
+            <div *ngIf="password.errors?.['minlength']">
+              Password must be at least 6 characters long.
+            </div>
           </div>
         </div>
 
         <div class="modal-footer">
-          <button type="button" class="cancel-btn" (click)="showCreateInstructorModal = false">Cancel</button>
-          <button type="submit" [disabled]="instructorForm.invalid" class="create-btn">Create Instructor</button>
+          <button
+            type="button"
+            class="cancel-btn"
+            (click)="showCreateInstructorModal = false"
+          >
+            Cancel
+          </button>
+          <button type="submit" [disabled]="instructorForm.invalid" class="create-btn">
+            Create Instructor
+          </button>
         </div>
       </form>
     </div>
@@ -365,25 +445,52 @@
         <form #editForm="ngForm" (ngSubmit)="updateUser(editForm)">
           <div class="form-group mb-3">
             <label for="editFirstName">First Name (Optional)</label>
-            <input type="text" id="editFirstName" [(ngModel)]="userToEdit.firstName" name="firstName" class="form-control" #firstName="ngModel" pattern="[a-zA-Z0-9\s]*" maxlength="50">
+            <input 
+              type="text" 
+              id="editFirstName" 
+              [(ngModel)]="userToEdit.firstName" 
+              name="firstName" 
+              class="form-control" 
+              #firstName="ngModel"
+              pattern="[a-zA-Z\s]*"
+              maxlength="50"
+            >
             <div *ngIf="firstName.touched && firstName.invalid" class="error-message text-danger mt-1">
-              <div *ngIf="firstName.errors?.['pattern']">First Name can only contain letters, numbers, and spaces.</div>
+              <div *ngIf="firstName.errors?.['pattern']">First Name can only contain letters and spaces.</div>
               <div *ngIf="firstName.errors?.['maxlength']">First Name cannot exceed 50 characters.</div>
             </div>
           </div>
 
           <div class="form-group mb-3">
             <label for="editLastName">Last Name (Optional)</label>
-            <input type="text" id="editLastName" [(ngModel)]="userToEdit.lastName" name="lastName" class="form-control" #lastName="ngModel" pattern="[a-zA-Z0-9\s]*" maxlength="50">
+            <input 
+              type="text" 
+              id="editLastName" 
+              [(ngModel)]="userToEdit.lastName" 
+              name="lastName" 
+              class="form-control" 
+              #lastName="ngModel"
+              pattern="[a-zA-Z\s]*"
+              maxlength="50"
+            >
             <div *ngIf="lastName.touched && lastName.invalid" class="error-message text-danger mt-1">
-              <div *ngIf="lastName.errors?.['pattern']">Last Name can only contain letters, numbers, and spaces.</div>
+              <div *ngIf="lastName.errors?.['pattern']">Last Name can only contain letters and spaces.</div>
               <div *ngIf="lastName.errors?.['maxlength']">Last Name cannot exceed 50 characters.</div>
             </div>
           </div>
 
           <div class="form-group mb-3">
             <label for="editEmail">Email (Optional)</label>
-            <input type="email" id="editEmail" [(ngModel)]="userToEdit.email" name="email" class="form-control" #email="ngModel" pattern="[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$" maxlength="100">
+            <input 
+              type="email" 
+              id="editEmail" 
+              [(ngModel)]="userToEdit.email" 
+              name="email" 
+              class="form-control" 
+              #email="ngModel"
+              pattern="[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$"
+              maxlength="100"
+            >
             <div *ngIf="email.touched && email.invalid" class="error-message text-danger mt-1">
               <div *ngIf="email.errors?.['pattern']">Please enter a valid email address.</div>
               <div *ngIf="email.errors?.['maxlength']">Email cannot exceed 100 characters.</div>
@@ -392,7 +499,16 @@
 
           <div class="form-group mb-3">
             <label for="editPassword">New Password (Optional)</label>
-            <input type="password" id="editPassword" [(ngModel)]="userToEdit.password" name="password" class="form-control" #password="ngModel" minlength="6" maxlength="50">
+            <input 
+              type="password" 
+              id="editPassword" 
+              [(ngModel)]="userToEdit.password" 
+              name="password" 
+              class="form-control" 
+              #password="ngModel" 
+              minlength="6"
+              maxlength="50"
+            >
             <div *ngIf="password.touched && password.invalid" class="error-message text-danger mt-1">
               <div *ngIf="password.errors?.['minlength']">Password must be at least 6 characters long.</div>
               <div *ngIf="password.errors?.['maxlength']">Password cannot exceed 50 characters.</div>

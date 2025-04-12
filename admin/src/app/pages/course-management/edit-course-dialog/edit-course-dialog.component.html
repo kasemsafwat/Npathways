@@ -17,9 +17,13 @@
               <div class="flex-grow-1">
                 <input type="file" 
                        class="form-control" 
+                       [class.is-invalid]="validationErrors.image"
                        accept="image/png, image/jpeg, image/jpg, image/webp"
                        (change)="onImageSelected($event)">
                 <small class="text-muted d-block mt-1">Recommended size: 1280x720 pixels. Accepted formats: PNG, JPEG, JPG, WEBP</small>
+                <div class="text-danger" *ngIf="validationErrors.image">
+                  {{ validationErrors.image }}
+                </div>
               </div>
             </div>
           </div>
@@ -29,20 +33,28 @@
             <label for="courseName" class="form-label">Course Name *</label>
             <input type="text" 
                    class="form-control" 
+                   [class.is-invalid]="validationErrors.name"
                    id="courseName" 
                    name="name"
                    [(ngModel)]="course.name" 
                    required>
+            <div class="text-danger" *ngIf="validationErrors.name">
+              {{ validationErrors.name }}
+            </div>
           </div>
 
           <div class="mb-4">
             <label for="courseDescription" class="form-label">Description *</label>
             <textarea class="form-control" 
+                      [class.is-invalid]="validationErrors.description"
                       id="courseDescription" 
                       name="description"
                       [(ngModel)]="course.description" 
                       rows="3"
                       required></textarea>
+            <div class="text-danger" *ngIf="validationErrors.description">
+              {{ validationErrors.description }}
+            </div>
           </div>
 
           <!-- Price Information -->
@@ -51,21 +63,29 @@
               <label for="coursePrice" class="form-label">Price ($)</label>
               <input type="number" 
                      class="form-control" 
+                     [class.is-invalid]="validationErrors.price"
                      id="coursePrice" 
                      name="price"
                      [(ngModel)]="course.price" 
                      min="0"
                      step="0.01">
+              <div class="text-danger" *ngIf="validationErrors.price">
+                {{ validationErrors.price }}
+              </div>
             </div>
             <div class="col-md-6">
               <label for="courseDiscount" class="form-label">Discount (%)</label>
               <input type="number" 
                      class="form-control" 
+                     [class.is-invalid]="validationErrors.discount"
                      id="courseDiscount" 
                      name="discount"
                      [(ngModel)]="course.discount" 
                      min="0"
                      max="100">
+              <div class="text-danger" *ngIf="validationErrors.discount">
+                {{ validationErrors.discount }}
+              </div>
             </div>
           </div>
 
@@ -108,6 +128,7 @@
               </div>
             </div>
             <select class="form-select" 
+                    [class.is-invalid]="validationErrors.instructors"
                     name="instructor" 
                     [(ngModel)]="newInstructor"
                     (change)="addInstructor()">
@@ -117,6 +138,9 @@
               </option>
             </select>
             <small class="text-muted d-block mt-1">Select at least one instructor</small>
+            <div class="text-danger" *ngIf="validationErrors.instructors">
+              {{ validationErrors.instructors }}
+            </div>
           </div>
 
           <!-- Lessons Section -->
@@ -137,19 +161,27 @@
                         <label [for]="'lessonName' + i" class="form-label">Lesson Name *</label>
                         <input type="text" 
                                class="form-control" 
+                               [class.is-invalid]="validationErrors.lessons && validationErrors.lessons[i]?.name"
                                [id]="'lessonName' + i"
                                [(ngModel)]="lesson.name" 
                                [name]="'lessonName' + i"
                                required>
+                        <div class="text-danger" *ngIf="validationErrors.lessons && validationErrors.lessons[i]?.name">
+                          {{ validationErrors.lessons[i].name }}
+                        </div>
                       </div>
                       <div class="col-md-4">
                         <label [for]="'lessonDuration' + i" class="form-label">Duration (minutes)</label>
                         <input type="number" 
                                class="form-control" 
+                               [class.is-invalid]="validationErrors.lessons && validationErrors.lessons[i]?.duration"
                                [id]="'lessonDuration' + i"
                                [(ngModel)]="lesson.duration" 
                                [name]="'lessonDuration' + i"
                                min="1">
+                        <div class="text-danger" *ngIf="validationErrors.lessons && validationErrors.lessons[i]?.duration">
+                          {{ validationErrors.lessons[i].duration }}
+                        </div>
                       </div>
                       <div class="col-md-2 d-flex align-items-end">
                         <button type="button" 
@@ -162,6 +194,9 @@
                   </div>
                 </div>
               </div>
+            </div>
+            <div class="text-danger" *ngIf="validationErrors.lessons && validationErrors.lessons[0]?.name">
+              {{ validationErrors.lessons[0].name }}
             </div>
           </div>
 
