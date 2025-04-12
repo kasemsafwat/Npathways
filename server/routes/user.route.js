@@ -13,7 +13,7 @@ const router = express.Router();
 
 router.post("/signup", newUserValidation, userController.newUser);
 router.post("/login", loginValidation, userController.login);
-
+router.get("/VerifyEmail/:token",userController.VerifyEmail);
 router.post("/forgetPassword", userController.forgetPassword);
 router.patch(
   "/resetPassword/:token",

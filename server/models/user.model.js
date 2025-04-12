@@ -2,6 +2,7 @@ import mongoose from "mongoose";
 const Schema = mongoose.Schema;
 import bcrypt from "bcrypt";
 import crypto from "crypto";
+import { type } from "os";
 
 const userSchema = new Schema(
   {
@@ -83,6 +84,10 @@ const userSchema = new Schema(
     changePasswordAt: Date,
     passwordResetToken: String,
     passwordResetExpires: Date,
+    verify:{
+         type:Boolean,
+         default:false
+    },
   },
 
   { timestamps: true }
