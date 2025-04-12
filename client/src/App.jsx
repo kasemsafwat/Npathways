@@ -9,7 +9,7 @@ import Register from "./pages/Register";
 import NotFound from "./pages/NotFound";
 import ExamPage from "./Components/ExamPage/ExamPage";
 import CreateExam from "./Components/CreateExam/CreateExam";
-import Exam from "./Components/Exam/Exam";
+import Exam from "./Components/Exam/Exam.jsx";
 import FinishedExam from "./Components/FinishedExam/FinishedExam";
 import UserProfile from "./Components/UserProfile/UserProfile";
 import TermsAndConditions from "./pages/TermsAndConditions";

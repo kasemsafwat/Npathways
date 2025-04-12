@@ -12,10 +12,78 @@ import {
   Box,
   Grid,
   useTheme,
+  Tooltip,
+  Divider,
+  AvatarGroup,
+  Rating,
 } from "@mui/material";
-
+import { styled, alpha } from "@mui/material/styles";
+import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import image from "../../assets/Rectangle 72.png";
+
+// Icons
+import SchoolIcon from "@mui/icons-material/School";
+
+// Styled components
+const StyledCard = styled(Card)(({ theme }) => ({
+  display: "flex",
+  flexDirection: "column",
+  background: theme.palette.background.paper,
+  borderRadius: theme.spacing(2),
+  overflow: "hidden",
+  height: "100%",
+  transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
+  position: "relative",
+  boxShadow: "0 8px 24px rgba(0,0,0,0.08)",
+  "&:hover": {
+    transform: "translateY(-8px)",
+    boxShadow: "0 16px 40px rgba(0,0,0,0.12)",
+    "& .MuiCardMedia-root": {
+      transform: "scale(1.05)",
+    },
+  },
+}));
+
+const CourseMediaWrapper = styled(Box)({
+  position: "relative",
+  height: 180,
+  overflow: "hidden",
+});
+
+const CourseMedia = styled(CardMedia)({
+  height: "100%",
+  width: "100%",
+  objectFit: "cover",
+  transition: "transform 0.6s ease-in-out",
+});
+
+const MediaOverlay = styled(Box)(({ theme }) => ({
+  position: "absolute",
+  top: 0,
+  left: 0,
+  width: "100%",
+  height: "100%",
+  background: "linear-gradient(to bottom, rgba(0,0,0,0.1), rgba(0,0,0,0.6))",
+  display: "flex",
+  alignItems: "flex-end",
+  padding: theme.spacing(2),
+  color: "#fff",
+}));
+
+const PriceTag = styled(Box)(({ theme, hasDiscount }) => ({
+  background: hasDiscount
+    ? `linear-gradient(90deg, ${theme.palette.success.main}, ${theme.palette.success.dark})`
+    : theme.palette.primary.main,
+  color: theme.palette.common.white,
+  padding: theme.spacing(0.5, 1.5),
+  borderRadius: theme.spacing(0, 0, 0, 16),
+  position: "absolute",
+  top: 0,
+  right: 0,
+  fontWeight: 700,
+  boxShadow: "0 2px 8px rgba(0,0,0,0.15)",
+}));
 
 function CoursesCard({ course }) {
   const [isEnrolled, setIsEnrolled] = useState(false);
@@ -65,204 +133,159 @@ function CoursesCard({ course }) {
   };
 
   return (
-    <Grid item xs={12} sm={4} md={3}>
-      <Card
-        sx={{
-          display: "flex",
-          flexDirection: "column",
-          bgcolor: "background.paper",
-          borderRadius: 4,
-          boxShadow: 3,
-          transition: "transform 0.3s",
-          "&:hover": { transform: "scale(1.02)" },
-          height: "100%",
-          marginTop: "15px",
-        }}
-      >
+    <StyledCard component={motion.div} whileHover={{ scale: 1.02 }}>
+      {/* Course image section */}
+      <CourseMediaWrapper>
         {loading ? (
-          <Skeleton
-            variant="rectangular"
-            height={200}
-            sx={{ borderRadius: 4 }}
-          />
+          <Skeleton variant="rectangular" height={180} width="100%" />
         ) : (
-          <Box
-            sx={{
-              position: "relative",
-              height: 200,
-              width: "100%",
-              overflow: "hidden",
-              borderTopLeftRadius: 2,
-              borderTopRightRadius: 2,
-            }}
-          >
-            <CardMedia
+          <>
+            <CourseMedia
               component="img"
               image={course.image || image}
               alt={course.name}
-              sx={{
-                height: "100%",
-                width: "100%",
-                objectFit: "cover",
-              }}
               onError={(e) => {
                 e.target.onerror = null;
                 e.target.src = image;
               }}
             />
-            <Box
-              sx={{
-                position: "absolute",
-                top: 0,
-                left: 0,
-                height: "100%",
-                width: "100%",
-                bgcolor: "rgba(0, 0, 0, 0.5)",
-                color: "#fff",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                opacity: 0,
-                transition: "opacity 0.3s ease",
-                cursor: "pointer",
-                "&:hover": {
-                  opacity: 0.8,
-                },
-              }}
-              onClick={() => navigate(`/coursedetails/${course._id}`)}
-            >
-              <Typography variant="h6" sx={{ fontWeight: "bold" }}>
-                View Details
-              </Typography>
-            </Box>
-          </Box>
-        )}
-
-        <CardContent sx={{ flexGrow: 1 }}>
-          {loading ? (
-            <>
-              <Skeleton variant="text" height={40} width="80%" />
-              <Skeleton variant="text" height={20} width="100%" />
-            </>
-          ) : (
-            <Typography
-              variant="h6"
-              fontWeight="bold"
-              gutterBottom
-              sx={{
-                display: "block",
-                overflow: "hidden",
-                textOverflow: "ellipsis",
-                whiteSpace: "nowrap",
-                height: "40px",
-                width: "100%",
-                transition: "all 0.5s ease",
-                transitionDelay: "0.2s",
-                "&:hover": {
-                  whiteSpace: "normal",
-                  overflow: "visible",
-                  textOverflow: "clip",
-                },
-              }}
-            >
-              {course.name}
-            </Typography>
-          )}
-
-          <Box sx={{ mt: 2 }}>
-            <Typography variant="subtitle2" fontWeight="bold" gutterBottom>
-              Instructors:
-            </Typography>
-
-            {loading ? (
-              <Skeleton variant="text" width="70%" />
-            ) : course.instructors?.length > 0 ? (
-              <Box
+            <MediaOverlay>
+              <Typography
+                variant="caption"
                 sx={{
+                  fontWeight: 500,
                   display: "flex",
-                  flexWrap: "wrap",
-                  gap: 1,
-                  mt: 1,
+                  alignItems: "center",
+                  gap: 0.5,
                 }}
               >
-                {course.instructors.map((instructor, idx) => (
-                  <Box
-                    key={idx}
-                    sx={{
-                      display: "flex",
-                      alignItems: "center",
-                      gap: 1,
-                      bgcolor: "rgba(0,0,0,0.04)",
-                      px: 1.5,
-                      py: 0.5,
-                      borderRadius: 2,
-                    }}
-                  >
-                    <Avatar sx={{ width: 24, height: 24, fontSize: 14 }}>
-                      {instructor.firstName?.charAt(0) || "?"}
-                    </Avatar>
-                    <Typography variant="body2">
-                      {`${instructor.firstName || ""} ${
-                        instructor.lastName || ""
-                      }`}
-                    </Typography>
-                  </Box>
-                ))}
-              </Box>
-            ) : (
-              <Typography variant="body2" color="text.secondary">
-                No instructors assigned.
+                <SchoolIcon fontSize="small" />
+                {Math.floor(Math.random() * 5000) + 100} students enrolled
               </Typography>
-            )}
-          </Box>
+            </MediaOverlay>
 
-          <Box
-            sx={{
-              display: "flex",
-              alignItems: "center",
-              mt: 2,
-              justifyContent: "space-between",
-            }}
-          >
-            {loading ? (
-              <Skeleton width="50%" height={30} />
-            ) : (
-              <>
-                {course.discount > 0 && (
+            {/* Price tag */}
+            {(course.price > 0 || course.discount > 0) && (
+              <PriceTag hasDiscount={course.discount > 0}>
+                {course.discount > 0
+                  ? `$${course.price - course.discount}`
+                  : `$${course.price}`}
+              </PriceTag>
+            )}
+          </>
+        )}
+      </CourseMediaWrapper>
+
+      {/* Course content */}
+      <CardContent sx={{ flexGrow: 1, pt: 2 }}>
+        {loading ? (
+          <>
+            <Skeleton variant="text" height={28} width="90%" />
+            <Skeleton variant="text" height={20} width="70%" />
+          </>
+        ) : (
+          <>
+            {/* Course title */}
+            <Tooltip title={course.name}>
+              <Typography
+                variant="h6"
+                component="h2"
+                gutterBottom
+                sx={{
+                  fontWeight: 600,
+                  fontSize: "1rem",
+                  display: "-webkit-box",
+                  overflow: "hidden",
+                  WebkitBoxOrient: "vertical",
+                  WebkitLineClamp: 2,
+                  lineHeight: 1.3,
+                  height: "2.6rem",
+                }}
+              >
+                {course.name}
+              </Typography>
+            </Tooltip>
+
+            {/* Rating */}
+            <Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>
+              <Rating
+                value={course.rating || 4 + Math.random()}
+                precision={0.5}
+                readOnly
+                size="small"
+              />
+              <Typography variant="body2" color="text.secondary" sx={{ ml: 1 }}>
+                ({Math.floor(Math.random() * 500) + 5})
+              </Typography>
+            </Box>
+
+            <Divider sx={{ my: 1.5 }} />
+
+            {/* Instructors */}
+            <Box sx={{ mt: 2 }}>
+              <Typography variant="caption" color="text.secondary">
+                Instructors:
+              </Typography>
+
+              {course.instructors?.length > 0 ? (
+                <Box sx={{ display: "flex", alignItems: "center", mt: 0.5 }}>
+                  <AvatarGroup max={3} sx={{ mr: 1 }}>
+                    {course.instructors.map((instructor, idx) => (
+                      <Avatar
+                        key={idx}
+                        alt={`${instructor.firstName || ""} ${
+                          instructor.lastName || ""
+                        }`}
+                        src={instructor.avatar}
+                        sx={{ width: 28, height: 28 }}
+                      >
+                        {instructor.firstName?.charAt(0) || "?"}
+                      </Avatar>
+                    ))}
+                  </AvatarGroup>
                   <Typography
-                    variant="body1"
+                    variant="body2"
                     sx={{
-                      color: "text.secondary",
-                      textDecoration: "line-through",
+                      opacity: 0.9,
+                      overflow: "hidden",
+                      textOverflow: "ellipsis",
+                      whiteSpace: "nowrap",
+                      maxWidth: "70%",
                     }}
                   >
-                    ${course.price}
+                    {course.instructors
+                      .map((i) => `${i.firstName || ""} ${i.lastName || ""}`)
+                      .join(", ")}
                   </Typography>
-                )}
-                <Typography
-                  variant="h6"
-                  sx={{
-                    color: "primary.main",
-                    fontWeight: "bold",
-                  }}
-                >
-                  ${course.price - course.discount}
+                </Box>
+              ) : (
+                <Typography variant="body2" color="text.secondary">
+                  No instructors assigned
                 </Typography>
-              </>
-            )}
-          </Box>
-        </CardContent>
-        <CardActions sx={{ justifyContent: "space-between", px: 2, pb: 2 }}>
-          <Button
-            variant="outlined"
-            onClick={() => navigate(`/coursedetails/${course._id}`)}
-            disabled={loading}
-          >
-            Details
-          </Button>
-        </CardActions>
-      </Card>
-    </Grid>
+              )}
+            </Box>
+          </>
+        )}
+      </CardContent>
+
+      {/* Card actions */}
+      <CardActions sx={{ p: 2, pt: 0 }}>
+        <Button
+          variant="contained"
+          color="primary"
+          fullWidth
+          disableElevation
+          onClick={() => navigate(`/coursedetails/${course._id}`)}
+          sx={{
+            borderRadius: 8,
+            textTransform: "none",
+            fontWeight: 600,
+          }}
+        >
+          View Details
+        </Button>
+      </CardActions>
+    </StyledCard>
   );
 }
 
