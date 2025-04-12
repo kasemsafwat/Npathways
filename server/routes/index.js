@@ -12,6 +12,7 @@ import enrollmentRouter from "./enrollment.route.js";
 import instructorRouter from "./instructor.route.js";
 import paymentRouter from "./payment.route.js";
 import LoginContoller from "../controllers/login.controller.js";
+import verifyInput from "../middleware/verify.middleware.js";
 
 // The prefix is /api
 const router = express.Router();
@@ -29,5 +30,6 @@ router.use("/enrollment", enrollmentRouter);
 router.use("/instructor", instructorRouter);
 router.use("/payment", paymentRouter);
 router.post("/login", LoginContoller.universalLogin);
+router.post("/availableEmail", verifyInput, LoginContoller.availableEmail);
 
 export default router;

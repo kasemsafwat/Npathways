@@ -5,6 +5,7 @@ import authAdminController from "./authAdmin.controller.js";
 import instructorContoller from "./instructor.controller.js";
 import bcrypt from "bcrypt";
 import userController from "./user.controller.js";
+import isDuplicatedEmail from "../services/helper.js";
 
 const LoginContoller = {
   universalLogin: async (req, res) => {
@@ -59,6 +60,28 @@ const LoginContoller = {
       });
     } catch (error) {
       console.error("Universal Login Error:", error);
+      return res.status(500).send({
+        message: error.message,
+      });
+    }
+  },
+  availableEmail: async (req, res) => {
+    try {
+      let email;
+      if (req.body.email) email = req.body.email.toLowerCase();
+
+      const isEmailTaken = await isDuplicatedEmail(email);
+
+      if (isEmailTaken)
+        return res.status(409).send({
+          message: "Email Already Taken",
+        });
+
+      return res.status(200).send({
+        message: "Email Available",
+      });
+    } catch (error) {
+      console.error("Available Email Error:", error);
       return res.status(500).send({
         message: error.message,
       });

@@ -289,7 +289,15 @@ const updateEnrollmentSchema = Joi.object({
 
 function getSchema(link, method) {
   if (method !== "POST" && method !== "PUT") return null;
-  if (link === `${examRoute}/createExam`) {
+  if (link === "/api/availableEmail") {
+    return Joi.object({
+      email: Joi.string().email().required().messages({
+        "string.email": "Enter a valid email",
+        "string.empty": "Email is required",
+        "any.required": "Email is required",
+      }),
+    });
+  } else if (link === `${examRoute}/createExam`) {
     return createExamSchema;
   } else if (link.includes(`${examRoute}/updateExam`)) {
     return updateExamSchema;
