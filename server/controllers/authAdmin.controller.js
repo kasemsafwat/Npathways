@@ -112,8 +112,8 @@ const authAdminController = {
         User.countDocuments({ status: "active" }),
         Course.countDocuments(),
         Course.countDocuments({ status: "published" }),
-        Admin.countDocuments({ role: "instructor" }),
-        Admin.countDocuments({ role: "instructor", status: "available" }),
+        Instructor.countDocuments({ role: "instructor" }),
+        Instructor.countDocuments({ role: "instructor", status: "available" }),
       ]);
       res.status(200).send({
         message: "Dashboard Admin : ",

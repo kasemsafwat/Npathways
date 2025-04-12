@@ -50,6 +50,7 @@ class CourseController {
         lessons,
         price,
         discount,
+        status,
       } = req.body;
       let image = "";
       if (req.file) {
@@ -73,6 +74,7 @@ class CourseController {
         image,
         price,
         discount,
+        status,
       });
       res.status(201).json(course);
     } catch (error) {
@@ -92,6 +94,7 @@ class CourseController {
         lessons,
         price,
         discount,
+        status,
       } = req.body;
 
       if (!id.match(/^[0-9a-fA-F]{24}$/)) {
@@ -142,6 +145,7 @@ class CourseController {
           image,
           price,
           discount,
+          status,
         },
         { new: true }
       );
