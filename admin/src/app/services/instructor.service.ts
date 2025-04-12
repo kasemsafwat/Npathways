@@ -42,7 +42,9 @@ export class InstructorService {
   }
 
   deleteInstructor(id: string): Observable<any> {
-    return this.http.delete(`${this.BASE_URL}/instructor/${id}`);
+    return this.http.delete(
+      `${this.BASE_URL}/instructor/deleteInstructor/${id}`
+    );
   }
 
   updateInstructor(
