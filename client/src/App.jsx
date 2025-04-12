@@ -30,6 +30,8 @@ import CourseContent from "./pages/CourseContent";
 import Chat from "./chat/Chat";
 import Footer from "./Components/Footer";
 import HowItWorks from "./pages/HowItWorks";
+import { QueryClientProvider } from "@tanstack/react-query";
+import queryClient from "./queryClient.js";
 
 const Layout = ({ children }) => {
   return (
@@ -48,62 +50,72 @@ const Layout = ({ children }) => {
 
 function App() {
   return (
-    <InstructorAuthProvider>
-      <AuthProvider>
-        <EnrollmentProvider>
-          <Layout>
-            <Routes>
-              {/* Public routes */}
-              <Route path="/login" element={<Login />} />
-              <Route path="/InstructorLogin" element={<InstructorLogin />} />
-              <Route path="/" element={<Home />} />
-              <Route path="register" element={<Register />} />
-              <Route path="/enrollment/Welcome" element={<WelcomePage />} />
-              <Route path="/how-it-works" element={<HowItWorks />} />
-              <Route
-                path="/terms-and-conditions"
-                element={<TermsAndConditions />}
-              />
-
-              {/* Common authenticated routes (both roles can access) */}
-              <Route element={<ProtectedRoute />}>
-                <Route path="/user" element={<UserProfile />} />
-                <Route path="/courses" element={<Courses />} />
-                <Route path="/coursedetails/:id" element={<CourseDetails />} />
-              </Route>
-
-              {/* Student-only routes */}
-              <Route element={<ProtectedRoute allowedRoles={["student"]} />}>
-                <Route path="/student/mypathway" element={<MyPathway />} />
+    <QueryClientProvider client={queryClient}>
+      <InstructorAuthProvider>
+        <AuthProvider>
+          <EnrollmentProvider>
+            <Layout>
+              <Routes>
+                {/* Public routes */}
+                <Route path="/login" element={<Login />} />
+                <Route path="/InstructorLogin" element={<InstructorLogin />} />
+                <Route path="/" element={<Home />} />
+                <Route path="register" element={<Register />} />
+                <Route path="/enrollment/Welcome" element={<WelcomePage />} />
+                <Route path="/how-it-works" element={<HowItWorks />} />
                 <Route
-                  path="/enrollment/personal-details"
-                  element={<PersonalDetails />}
+                  path="/terms-and-conditions"
+                  element={<TermsAndConditions />}
                 />
-                <Route path="/enrollment/entryExam" element={<EntryExam />} />
-                <Route path="/enrollment/review" element={<Review />} />
-                <Route path="/examDetails" element={<ExamPage />} />
-                <Route path="/exam/:id" element={<Exam />} />
-                <Route path="/finishExam" element={<FinishedExam />} />
-                <Route path="/pathway/:id" element={<Pathway />} />
-                <Route path="/courseContent/:id" element={<CourseContent />} />
-                <Route path="/chat" element={<Chat />} />
-              </Route>
 
-              {/* Instructor-only routes */}
-              <Route element={<ProtectedRoute allowedRoles={["instructor"]} />}>
+                {/* Common authenticated routes (both roles can access) */}
+                <Route element={<ProtectedRoute />}>
+                  <Route path="/user" element={<UserProfile />} />
+                  <Route path="/courses" element={<Courses />} />
+                  <Route
+                    path="/coursedetails/:id"
+                    element={<CourseDetails />}
+                  />
+                </Route>
+
+                {/* Student-only routes */}
+                <Route element={<ProtectedRoute allowedRoles={["student"]} />}>
+                  <Route path="/student/mypathway" element={<MyPathway />} />
+                  <Route
+                    path="/enrollment/personal-details"
+                    element={<PersonalDetails />}
+                  />
+                  <Route path="/enrollment/entryExam" element={<EntryExam />} />
+                  <Route path="/enrollment/review" element={<Review />} />
+                  <Route path="/examDetails" element={<ExamPage />} />
+                  <Route path="/exam/:id" element={<Exam />} />
+                  <Route path="/finishExam" element={<FinishedExam />} />
+                  <Route path="/pathway/:id" element={<Pathway />} />
+                  <Route
+                    path="/courseContent/:id"
+                    element={<CourseContent />}
+                  />
+                  <Route path="/chat" element={<Chat />} />
+                </Route>
+
+                {/* Instructor-only routes */}
                 <Route
-                  path="/instructor/dashboard"
-                  element={<InstructorDashboard />}
-                />
-                <Route path="/createExam/:examId?" element={<CreateExam />} />
-              </Route>
+                  element={<ProtectedRoute allowedRoles={["instructor"]} />}
+                >
+                  <Route
+                    path="/instructor/dashboard"
+                    element={<InstructorDashboard />}
+                  />
+                  <Route path="/createExam/:examId?" element={<CreateExam />} />
+                </Route>
 
-              <Route path="*" element={<NotFound />} />
-            </Routes>
-          </Layout>
-        </EnrollmentProvider>
-      </AuthProvider>
-    </InstructorAuthProvider>
+                <Route path="*" element={<NotFound />} />
+              </Routes>
+            </Layout>
+          </EnrollmentProvider>
+        </AuthProvider>
+      </InstructorAuthProvider>
+    </QueryClientProvider>
   );
 }
 

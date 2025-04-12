@@ -1283,22 +1283,6 @@ const HowItWorks = () => {
                 />
               ))}
             </Box>
-
-            <Box
-              sx={{
-                mt: 6,
-                textAlign: "center",
-              }}
-              component={motion.div}
-              variants={itemVariants}
-            >
-              <Typography variant="body1" sx={{ mb: 3 }}>
-                Still have questions? We're here to help.
-              </Typography>
-              <GhostButton component={Link} to="/contact">
-                Contact Support
-              </GhostButton>
-            </Box>
           </Box>
         </Container>
       </Box>
