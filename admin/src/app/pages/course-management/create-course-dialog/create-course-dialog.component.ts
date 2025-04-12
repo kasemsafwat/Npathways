@@ -52,7 +52,8 @@ export class CreateCourseDialogComponent implements OnInit {
   imagePreview: string | null = null;
   courseImage: File | null = null;
   instructors: Instructor[] = [];
-  selectedInstructor: string = '';
+  selectedInstructors: string[] = [];
+  newInstructor: string = '';
 
   constructor(
     private coursesService: CoursesService,
@@ -73,6 +74,26 @@ export class CreateCourseDialogComponent implements OnInit {
         this.error = 'Failed to load instructors. Please try again.';
       }
     });
+  }
+
+  getInstructorName(instructorId: string): string {
+    const instructor = this.instructors.find(i => i._id === instructorId);
+    return instructor ? `${instructor.firstName} ${instructor.lastName}` : '';
+  }
+
+  getAvailableInstructors(): Instructor[] {
+    return this.instructors.filter(instructor => instructor._id && !this.selectedInstructors.includes(instructor._id));
+  }
+
+  addInstructor() {
+    if (this.newInstructor && !this.selectedInstructors.includes(this.newInstructor)) {
+      this.selectedInstructors.push(this.newInstructor);
+      this.newInstructor = '';
+    }
+  }
+
+  removeInstructor(instructorId: string) {
+    this.selectedInstructors = this.selectedInstructors.filter(id => id !== instructorId);
   }
 
   onImageSelected(event: Event) {
@@ -123,8 +144,8 @@ export class CreateCourseDialogComponent implements OnInit {
   }
 
   async saveCourse() {
-    if (!this.selectedInstructor) {
-      this.error = 'Please select an instructor';
+    if (this.selectedInstructors.length === 0) {
+      this.error = 'Please select at least one instructor';
       return;
     }
 
@@ -154,8 +175,8 @@ export class CreateCourseDialogComponent implements OnInit {
         formData.append('category', this.course.category);
       }
 
-      // Add instructor
-      formData.append('instructors', JSON.stringify([this.selectedInstructor]));
+      // Add instructors
+      formData.append('instructors', JSON.stringify(this.selectedInstructors));
 
       // Add lessons - create new objects without any _id fields
       const validLessons = this.course.lessons
@@ -206,7 +227,7 @@ export class CreateCourseDialogComponent implements OnInit {
       discount: 0,
       category: ''
     };
-    this.selectedInstructor = '';
+    this.selectedInstructors = [];
     this.courseImage = null;
     this.imagePreview = null;
     this.error = null;

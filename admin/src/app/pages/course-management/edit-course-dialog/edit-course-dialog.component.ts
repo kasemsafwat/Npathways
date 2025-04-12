@@ -39,7 +39,8 @@ export class EditCourseDialogComponent implements OnInit {
   imagePreview: string | null = null;
   courseImage: File | null = null;
   instructors: Instructor[] = [];
-  selectedInstructor: string = '';
+  selectedInstructors: string[] = [];
+  newInstructor: string = '';
 
   constructor(
     private coursesService: CoursesService,
@@ -60,6 +61,26 @@ export class EditCourseDialogComponent implements OnInit {
         this.error = 'Failed to load instructors. Please try again.';
       }
     });
+  }
+
+  getInstructorName(instructorId: string): string {
+    const instructor = this.instructors.find(i => i._id === instructorId);
+    return instructor ? `${instructor.firstName} ${instructor.lastName}` : '';
+  }
+
+  getAvailableInstructors(): Instructor[] {
+    return this.instructors.filter(instructor => instructor._id && !this.selectedInstructors.includes(instructor._id));
+  }
+
+  addInstructor() {
+    if (this.newInstructor && !this.selectedInstructors.includes(this.newInstructor)) {
+      this.selectedInstructors.push(this.newInstructor);
+      this.newInstructor = '';
+    }
+  }
+
+  removeInstructor(instructorId: string) {
+    this.selectedInstructors = this.selectedInstructors.filter(id => id !== instructorId);
   }
 
   onImageSelected(event: Event) {
@@ -112,9 +133,9 @@ export class EditCourseDialogComponent implements OnInit {
   openDialog(course: Course) {
     this.course = { ...course };
     this.imagePreview = course.image || null;
-    this.selectedInstructor = typeof course.instructors[0] === 'string' 
-      ? course.instructors[0] 
-      : course.instructors[0]?._id || '';
+    this.selectedInstructors = course.instructors.map(instructor => 
+      typeof instructor === 'string' ? instructor : instructor._id || ''
+    ).filter(Boolean);
     this.showDialog = true;
     this.error = null;
   }
@@ -125,8 +146,8 @@ export class EditCourseDialogComponent implements OnInit {
       return;
     }
 
-    if (!this.selectedInstructor) {
-      this.error = 'Please select an instructor';
+    if (this.selectedInstructors.length === 0) {
+      this.error = 'Please select at least one instructor';
       return;
     }
 
@@ -155,8 +176,8 @@ export class EditCourseDialogComponent implements OnInit {
         formData.append('category', this.course.category);
       }
 
-      // Add instructor
-      formData.append('instructors', JSON.stringify([this.selectedInstructor]));
+      // Add instructors
+      formData.append('instructors', JSON.stringify(this.selectedInstructors));
 
       // Add lessons - only include name and duration
       const validLessons = this.course.lessons
@@ -196,7 +217,8 @@ export class EditCourseDialogComponent implements OnInit {
       discount: 0,
       category: ''
     };
-    this.selectedInstructor = '';
+    this.selectedInstructors = [];
+    this.newInstructor = '';
     this.courseImage = null;
     this.imagePreview = null;
     this.error = null;

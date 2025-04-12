@@ -8,7 +8,7 @@ import { InstructorService, Instructor } from '../../services/instructor.service
 import { forkJoin, Observable, of } from 'rxjs';
 
 interface CourseWithDetails extends Course {
-  instructorDetails?: Instructor;
+  instructorDetails?: Instructor[];
   studentCount?: number;
 }
 
@@ -68,14 +68,14 @@ export class CourseManagementComponent implements OnInit {
 
         const instructorObservables = courses.map((course) => {
           if (course.instructors && course.instructors.length > 0) {
-            const instructorId =
-              typeof course.instructors[0] === 'string'
-                ? course.instructors[0]
-                : course.instructors[0]._id;
-            console.log('Fetching instructor:', instructorId);
-            return instructorId ? this.instructorService.getInstructorById(instructorId) : of(null);
+            return forkJoin(
+              course.instructors.map(instructorId => {
+                const id = typeof instructorId === 'string' ? instructorId : instructorId._id;
+                return id ? this.instructorService.getInstructorById(id) : of(null);
+              })
+            );
           }
-          return of(null);
+          return of([]);
         });
 
         const studentCountObservables = courses.map((course) => {
@@ -96,7 +96,7 @@ export class CourseManagementComponent implements OnInit {
 
             this.courses = courses.map((course, index) => ({
               ...course,
-              instructorDetails: results.instructors[index] || undefined,
+              instructorDetails: (results.instructors[index] || []).filter((instructor): instructor is Instructor => instructor !== null),
               studentCount: results.studentCounts[index]?.length || 0,
             }));
 
@@ -151,8 +151,16 @@ export class CourseManagementComponent implements OnInit {
       filtered = filtered.filter(
         (course) =>
           course.name.toLowerCase().includes(query) ||
-          course.instructorDetails?.firstName?.toLowerCase().includes(query) ||
-          course.instructorDetails?.lastName?.toLowerCase().includes(query)
+          course.instructorDetails?.some(
+            (instructor) =>
+              instructor.firstName?.toLowerCase().includes(query) ||
+              instructor.lastName?.toLowerCase().includes(query)
+          ) ||
+          course.instructorDetails?.some(
+            (instructor) =>
+              instructor.firstName?.toLowerCase().includes(query) ||
+              instructor.lastName?.toLowerCase().includes(query)
+          )
       );
     }
 
@@ -177,8 +185,8 @@ export class CourseManagementComponent implements OnInit {
   }
 
   getInstructorName(course: CourseWithDetails): string {
-    if (course.instructorDetails) {
-      return `${course.instructorDetails.firstName} ${course.instructorDetails.lastName}`;
+    if (course.instructorDetails && course.instructorDetails.length > 0) {
+      return `${course.instructorDetails[0].firstName} ${course.instructorDetails[0].lastName}`;
     }
     return 'No instructor assigned';
   }

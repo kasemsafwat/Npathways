@@ -100,16 +100,23 @@
 
           <!-- Instructor Selection -->
           <div class="mb-4">
-            <label class="form-label">Instructor *</label>
+            <label class="form-label">Instructors *</label>
+            <div class="selected-instructors mb-2">
+              <div *ngFor="let instructorId of selectedInstructors" class="badge bg-primary me-2 mb-2">
+                {{ getInstructorName(instructorId) }}
+                <button type="button" class="btn-close btn-close-white ms-1" (click)="removeInstructor(instructorId)"></button>
+              </div>
+            </div>
             <select class="form-select" 
                     name="instructor" 
-                    [(ngModel)]="selectedInstructor"
-                    required>
+                    [(ngModel)]="newInstructor"
+                    (change)="addInstructor()">
               <option value="">Select Instructor</option>
-              <option *ngFor="let instructor of instructors" [value]="instructor._id">
+              <option *ngFor="let instructor of getAvailableInstructors()" [value]="instructor._id">
                 {{ instructor.firstName }} {{ instructor.lastName }}
               </option>
             </select>
+            <small class="text-muted d-block mt-1">Select at least one instructor</small>
           </div>
 
           <!-- Lessons Section -->
