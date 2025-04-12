@@ -9,6 +9,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatIconModule } from '@angular/material/icon';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { ConfirmDialogComponent } from './confirm-dialog.component';
 
 @Component({
@@ -23,7 +24,8 @@ import { ConfirmDialogComponent } from './confirm-dialog.component';
     MatInputModule,
     MatSelectModule,
     MatIconModule,
-    MatDialogModule
+    MatDialogModule,
+    MatSnackBarModule
   ],
   templateUrl: './exam-details.component.html',
   styleUrl: './exam-details.component.css'
@@ -42,7 +44,8 @@ export class ExamDetailsComponent implements OnInit {
     private router: Router,
     private examService: ExamService,
     private fb: FormBuilder,
-    private dialog: MatDialog
+    private dialog: MatDialog,
+    private snackBar: MatSnackBar
   ) {
     this.examForm = this.createExamForm();
   }
@@ -91,6 +94,7 @@ export class ExamDetailsComponent implements OnInit {
       },
       error: (error) => {
         console.error('Error loading exam details:', error);
+        this.showErrorNotification('Error loading exam details. Please try again.');
       }
     });
   }
@@ -193,10 +197,11 @@ export class ExamDetailsComponent implements OnInit {
             next: (updatedExam) => {
               this.exam = updatedExam;
               this.isEditing = false;
+              this.showSuccessNotification('Exam updated successfully!');
             },
             error: (error) => {
               console.error('Error updating exam:', error);
-              alert('Error updating exam. Please try again.');
+              this.showErrorNotification(error.error?.message || 'Error updating exam. Please try again.');
             }
           });
         }
@@ -210,15 +215,33 @@ export class ExamDetailsComponent implements OnInit {
       this.examService.uploadQuestionsSheet(file, this.examId).subscribe({
         next: (response: any) => {
           console.log('File uploaded successfully:', response);
-          alert('Questions sheet uploaded successfully!');
-          // Reload the exam data to show the new questions
+          this.showSuccessNotification('Questions sheet uploaded successfully!');
           this.loadExamDetails();
         },
         error: (error: any) => {
           console.error('Error uploading file:', error);
-          alert('Error uploading questions sheet. Please try again.');
+          this.showErrorNotification(error.error?.message || 'Error uploading questions sheet. Please try again.');
         }
       });
     }
   }
+
+  private showErrorNotification(message: string): void {
+    this.snackBar.open(message, 'Close', {
+      duration: 5000,
+      panelClass: ['error-snackbar'],
+      verticalPosition: 'top',
+      horizontalPosition: 'right'
+    });
+  }
+
+  private showSuccessNotification(message: string): void {
+    this.snackBar.open(message, 'Close', {
+      duration: 3000,
+      panelClass: ['success-snackbar'],
+      verticalPosition: 'top',
+      horizontalPosition: 'right'
+    });
+  }
 }
+
