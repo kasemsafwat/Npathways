@@ -112,3 +112,47 @@ export let resetSchema = Joi.object({
       "any.required": "Confirm Password is a required field.",
     }),
 });
+export const updateUserByAdminSchema = Joi.object({
+  firstName: Joi.string()
+    .pattern(/^[A-Za-z]+$/)
+    .min(2)
+    .max(15)
+    .trim()
+    .optional()
+    .messages({
+      "string.pattern.base": "First name must contain only letters.",
+      "string.min": "First name must be at least 2 characters.",
+      "string.max": "First name must not exceed 15 characters.",
+    }),
+  lastName: Joi.string()
+    .pattern(/^[A-Za-z]+$/)
+    .min(2)
+    .max(15)
+    .trim()
+    .optional()
+    .messages({
+      "string.pattern.base": "Last name must contain only letters.",
+      "string.min": "Last name must be at least 2 characters.",
+      "string.max": "Last name must not exceed 15 characters.",
+    }),
+  email: Joi.string()
+    .email({ minDomainSegments: 2 })
+    .trim()
+    .optional()
+    .messages({
+      "string.email": "Please enter a valid email address.",
+    }),
+  phone: Joi.string()
+    .pattern(/^[0-9]+$/)
+    .min(10)
+    .max(15)
+    .trim()
+    .optional()
+    .messages({
+      "string.pattern.base": "Phone must contain only numbers.",
+      "string.min": "Phone must be at least 10 digits.",
+      "string.max": "Phone must not exceed 15 digits.",
+    }),
+  
+ });
+

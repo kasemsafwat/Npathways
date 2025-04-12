@@ -4,6 +4,7 @@ import {
   CompletStudentSchema,
   updatePasswordUserSchema,
   resetPaswwordUserSchema,
+  updateStudentSchema
 } from "../services/userValidation.service.js";
 
 export function newUserValidation(req, res, next) {
@@ -80,6 +81,23 @@ export const UpdateUserPasswordValidation = (req, res, next) => {
 export function ResetPasswordUserValidation(req, res, next) {
   try {
     let { error } = resetPaswwordUserSchema.validate(req.body);
+    if (error) {
+      let errMsg = error.details[0].message;
+      return res.status(403).send({ message: errMsg });
+    }
+    // console.log(error.details[0].message);
+    next();
+  } catch (error) {
+    console.error("Validate reset Error: ", error);
+    return res.status(500).send({
+      message: error.message,
+    });
+  }
+}
+
+export function UpdateUserValidation(req, res, next) {
+  try {
+    let { error } = updateStudentSchema.validate(req.body);
     if (error) {
       let errMsg = error.details[0].message;
       return res.status(403).send({ message: errMsg });
