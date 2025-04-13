@@ -1,15 +1,5 @@
 import React, { useState } from "react";
-import {
-  Grid,
-  TextField,
-  FormControl,
-  InputLabel,
-  Select,
-  MenuItem,
-  Typography,
-  Box,
-  IconButton,
-} from "@mui/material";
+import { Grid, TextField, Box, Typography, IconButton } from "@mui/material";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 
 const styles = {
@@ -67,9 +57,14 @@ const FormSection = ({
   </Box>
 );
 
-export default function ContactInfoSection({ formData, errors, handleChange }) {
+export default function ContactInfoSection({
+  formData,
+  errors,
+  handleChange,
+  handleBlur,
+}) {
   const [expandedSections, setExpandedSections] = useState({
-    contactInfo: true,
+    contactDetails: true,
   });
 
   const handleToggleSection = (section) => {
@@ -83,8 +78,8 @@ export default function ContactInfoSection({ formData, errors, handleChange }) {
     <Box>
       <FormSection
         title="Contact Information"
-        name="contactInfo"
-        expanded={expandedSections.contactInfo}
+        name="contactDetails"
+        expanded={expandedSections.contactDetails}
         handleToggleSection={handleToggleSection}
         required
       >
@@ -92,10 +87,11 @@ export default function ContactInfoSection({ formData, errors, handleChange }) {
           <Grid item xs={12}>
             <TextField
               fullWidth
-              label="Email Address *"
+              label="Email *"
               name="email"
               value={formData.email}
               onChange={handleChange}
+              onBlur={handleBlur}
               error={Boolean(errors.email)}
               helperText={errors.email}
               sx={styles.input}
@@ -108,6 +104,7 @@ export default function ContactInfoSection({ formData, errors, handleChange }) {
               name="phone"
               value={formData.phone}
               onChange={handleChange}
+              onBlur={handleBlur}
               error={Boolean(errors.phone)}
               helperText={errors.phone}
               sx={styles.input}

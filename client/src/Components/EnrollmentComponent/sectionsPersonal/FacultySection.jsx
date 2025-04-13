@@ -11,13 +11,14 @@ import {
   IconButton,
 } from "@mui/material";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
+
 const FACULTIES = [
   "Engineering",
   "Computer Science",
   "Business",
   "Medicine",
   "Law",
-  "Information Technology ",
+  "Information Technology",
   "Pharmacy",
   "Dentistry",
   "Nursing",
@@ -91,7 +92,12 @@ const FormSection = ({
   </Box>
 );
 
-export default function FacultySection({ formData, errors, handleChange }) {
+export default function FacultySection({
+  formData,
+  errors,
+  handleChange,
+  handleBlur,
+}) {
   const [expandedSections, setExpandedSections] = useState({
     facultyAndGPA: true,
   });
@@ -114,13 +120,18 @@ export default function FacultySection({ formData, errors, handleChange }) {
       >
         <Grid container spacing={2} mt={1}>
           <Grid item xs={12} md={6}>
-            <FormControl fullWidth error={Boolean(errors.faculty)}>
+            <FormControl
+              fullWidth
+              error={Boolean(errors.faculty)}
+              sx={styles.input}
+            >
               <InputLabel>Faculty *</InputLabel>
               <Select
                 label="Faculty *"
                 name="faculty"
                 value={formData.faculty}
                 onChange={handleChange}
+                onBlur={handleBlur}
               >
                 {FACULTIES.map((fac) => (
                   <MenuItem key={fac} value={fac}>
@@ -139,9 +150,11 @@ export default function FacultySection({ formData, errors, handleChange }) {
             <TextField
               fullWidth
               label="GPA (0.00 - 4.00)"
+              placeholder="GPA"
               name="GPA"
               value={formData.GPA}
               onChange={handleChange}
+              onBlur={handleBlur}
               error={Boolean(errors.GPA)}
               helperText={errors.GPA}
               inputProps={{
@@ -150,6 +163,7 @@ export default function FacultySection({ formData, errors, handleChange }) {
                 min: 0,
                 max: 4,
               }}
+              sx={styles.input}
             />
           </Grid>
         </Grid>
