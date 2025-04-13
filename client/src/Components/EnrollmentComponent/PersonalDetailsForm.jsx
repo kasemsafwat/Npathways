@@ -24,6 +24,7 @@ export default function PersonalDetailsForm() {
   const navigate = useNavigate();
   const [activeStep] = useState(0);
   const steps = ["User Info", "Exam", "Result"];
+
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
@@ -37,9 +38,12 @@ export default function PersonalDetailsForm() {
       street: "",
     },
     faculty: "",
+    facultyName: "",
     GPA: "",
     motivationLetter: "",
+    exam: [],
   });
+
   const [errors, setErrors] = useState({});
   const [snackbarQueue, setSnackbarQueue] = useState([]);
   const [openSnackbar, setOpenSnackbar] = useState(false);
@@ -48,16 +52,16 @@ export default function PersonalDetailsForm() {
     firstName: Yup.string()
       .required("First name is required")
       .min(2, "First name must be at least 2 characters")
-      .matches(/^[a-zA-Z]+$/, "First name should contain only letters"),
+      .matches(/^[a-zA-Z]+$/, "First name must contain only letters"),
     lastName: Yup.string()
       .required("Last name is required")
       .min(2, "Last name must be at least 2 characters")
-      .matches(/^[a-zA-Z]+$/, "Last name should contain only letters"),
+      .matches(/^[a-zA-Z]+$/, "Last name must contain only letters"),
     dateOfBirth: Yup.date()
-      .required("Data of birth is required")
-      .min(new Date(1980, 0, 1), "Birthdate must be 1980 or later")
-      .max(new Date(), " Birthdate cannot be in the future ")
-      .typeError("Please enter a valid date"),
+      .required("Date of birth is required")
+      .min(new Date(1980, 0, 1), "Date of birth must be 1980 or later")
+      .max(new Date(), "Date of birth cannot be in the future")
+      .typeError("Please enter a valid date of birth"),
     nationality: Yup.string().required("Nationality is required"),
     email: Yup.string()
       .required("Email is required")
@@ -74,42 +78,53 @@ export default function PersonalDetailsForm() {
       street: Yup.string(),
     }),
     faculty: Yup.string().required("Faculty is required"),
+    facultyName: Yup.string().required("Faculty is required"),
     GPA: Yup.number()
       .required("GPA is required")
-      .min(0, "Please enter a valid GPA (0-4)")
-      .max(4, "Please enter a valid GPA (0-4)")
-      .typeError("Please enter a valid GPA (0-4)"),
+      .min(0, "GPA must be between 0-4")
+      .max(4, "GPA must be between 0-4")
+      .typeError("Enter a valid number"),
     motivationLetter: Yup.string()
       .required("Motivation letter is required")
-      .min(50, "Motivation letter should be at least 50 characters"),
+      .min(50, "Motivation letter must be at least 50 characters"),
   });
+
   const handleChange = (e) => {
     const { name, value } = e.target;
-    if (name.includes(".")) {
-      const [parent, child] = name.split(".");
-      setFormData((prev) => ({
-        ...prev,
-        [parent]: {
-          ...prev[parent],
-          [child]: value,
-        },
-      }));
-    } else {
-      setFormData((prev) => ({ ...prev, [name]: value }));
-    }
+
+    setFormData((prev) => {
+      if (name.includes(".")) {
+        const [parent, child] = name.split(".");
+        return {
+          ...prev,
+          [parent]: {
+            ...prev[parent],
+            [child]: value,
+          },
+        };
+      }
+      if (name === "faculty") {
+        return {
+          ...prev,
+          faculty: value,
+          facultyName: value,
+        };
+      }
+      return { ...prev, [name]: value };
+    });
+
     setErrors((prev) => {
       const newErrors = { ...prev };
       if (name.includes(".")) {
         const [parent, child] = name.split(".");
-        if (newErrors[parent]?.[child]) {
-          delete newErrors[parent][child];
-        }
-      } else if (newErrors[name]) {
+        if (newErrors[parent]?.[child]) delete newErrors[parent][child];
+      } else {
         delete newErrors[name];
       }
       return newErrors;
     });
   };
+
   const handleBlur = async (e) => {
     const { name, value } = e.target;
     try {
@@ -121,48 +136,41 @@ export default function PersonalDetailsForm() {
   };
 
   const handleNext = async () => {
-    const payload = {
-      firstName: formData.firstName,
-      lastName: formData.lastName,
-      dateOfBirth: formData.dateOfBirth,
-      email: formData.email,
-      phone: formData.phone,
-      address: {
-        country: formData.country,
-        city: formData.city,
-        street: formData.street,
-      },
-      motivationLetter: formData.motivationLetter,
-      nationality: formData.nationality,
-      faculty: formData.faculty,
-      GPA: formData.GPA ? parseFloat(formData.GPA) : undefined,
-    };
-
     try {
-      await validationSchema.validate(payload, { abortEarly: false });
+      await validationSchema.validate(formData, { abortEarly: false });
+
+      const payload = {
+        ...formData,
+        facultyName: formData.faculty || formData.facultyName,
+        GPA: formData.GPA ? parseFloat(formData.GPA) : undefined,
+        dateOfBirth: new Date(formData.dateOfBirth).toISOString(),
+        address: {
+          country: formData.address.country || "",
+          city: formData.address.city || "",
+          street: formData.address.street || "",
+        },
+      };
+
       setErrors({});
       setPersonalDetails(payload);
       navigate("/enrollment/entryExam");
     } catch (error) {
       const validationErrors = {};
       const errorMessages = [];
+
       error.inner.forEach((err) => {
         validationErrors[err.path] = err.message;
         errorMessages.push(err.message);
       });
+
       setErrors(validationErrors);
       setSnackbarQueue(errorMessages);
       setOpenSnackbar(true);
-      setStep(2);
     }
   };
 
   const handleSnackbarClose = () => {
-    setSnackbarQueue((prev) => {
-      const newQueue = [...prev];
-      newQueue.shift();
-      return newQueue;
-    });
+    setSnackbarQueue((prev) => prev.slice(1));
     setOpenSnackbar(false);
     if (snackbarQueue.length > 1) {
       setTimeout(() => setOpenSnackbar(true), 300);
@@ -173,7 +181,17 @@ export default function PersonalDetailsForm() {
     const savedData = localStorage.getItem("formData");
     if (savedData) {
       try {
-        setFormData(JSON.parse(savedData));
+        const parsedData = JSON.parse(savedData);
+        setFormData((prev) => ({
+          ...prev,
+          ...parsedData,
+          address: {
+            ...prev.address,
+            ...(parsedData.address || {}),
+          },
+          exam: parsedData.exam || [],
+          facultyName: parsedData.facultyName || parsedData.faculty || "",
+        }));
       } catch (error) {
         console.error("Error parsing saved data", error);
       }
@@ -189,37 +207,44 @@ export default function PersonalDetailsForm() {
       <Typography variant="h5" gutterBottom color="#46C98B">
         Personal Details and Motivation
       </Typography>
+
       <CustomStepper activeStep={activeStep} steps={steps} />
+
       <PersonalInfoSection
         formData={formData}
         errors={errors}
         handleChange={handleChange}
         handleBlur={handleBlur}
       />
+
       <ContactInfoSection
         formData={formData}
         errors={errors}
         handleChange={handleChange}
         handleBlur={handleBlur}
       />
+
       <AddressSection
         formData={formData}
         errors={errors}
         handleChange={handleChange}
         handleBlur={handleBlur}
       />
+
       <FacultySection
         formData={formData}
         errors={errors}
         handleChange={handleChange}
         handleBlur={handleBlur}
       />
+
       <MotivationLetterSection
         formData={formData}
         errors={errors}
         handleChange={handleChange}
         handleBlur={handleBlur}
       />
+
       <Box sx={{ display: "flex", justifyContent: "space-between", mt: 3 }}>
         <Button
           variant="contained"
@@ -238,6 +263,7 @@ export default function PersonalDetailsForm() {
           Next Step
         </Button>
       </Box>
+
       <Snackbar
         open={openSnackbar}
         autoHideDuration={6000}
