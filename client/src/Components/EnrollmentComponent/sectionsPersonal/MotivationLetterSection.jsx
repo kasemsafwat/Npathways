@@ -61,6 +61,7 @@ export default function MotivationLetterSection({
   formData,
   errors,
   handleChange,
+  handleBlur,
 }) {
   const [expandedSections, setExpandedSections] = useState({
     motivationLetter: true,
@@ -92,8 +93,9 @@ export default function MotivationLetterSection({
               name="motivationLetter"
               value={formData.motivationLetter}
               onChange={handleChange}
+              onBlur={handleBlur}
               error={Boolean(errors.motivationLetter)}
-              helperText={errors.motivationLetter || "Min: 50 characters"}
+              helperText={errors.motivationLetter || "Minimum 50 characters"}
               sx={styles.input}
             />
           </Grid>

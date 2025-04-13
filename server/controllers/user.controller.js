@@ -11,15 +11,19 @@ const __dirname = path.dirname(__filename);
 import crypto from "crypto";
 import CourseModel from "../models/course.model.js";
 import PathwayModel from "../models/pathway.model.js";
+import Instructor from "../models/instructor.model.js";
+import Admin from "../models/admin.model.js";
+import isDuplicatedEmail from "../services/helper.js";
+import { error } from "console";
 
 const userController = {
   newUser: async (req, res) => {
     try {
-      let data = req.body;
-      data.email = data.email.toLowerCase();
+      const data = { ...req.body, email: req.body.email.toLowerCase() };
 
-      let duplicateEmail = await User.findOne({ email: data.email });
-      if (duplicateEmail) {
+      const isDuplicate = await isDuplicatedEmail(data.email, null);
+
+      if (isDuplicate) {
         return res.status(403).send({
           message:
             "This email is already registered. Please use a different email.",
@@ -27,6 +31,20 @@ const userController = {
       }
       let newUser = new User(data);
       await newUser.save();
+      // Verify /////////////////////////
+      const resetToken = jwt.sign({id:newUser._id},process.env.VERIFY_KEY);
+      console.log(resetToken);
+      // await data.save({ validateeforeSave: false });
+      const reseUrl = `${req.protocol}://${req.headers.host}/api/auth/VerifyEmail/${resetToken}`;
+      const message = `We have received a password reset request. please use the below link to reset password : 
+      \n\n ${reseUrl} \n\n This reset Password Link will be valid only for 15 minutes `;
+      console.log(reseUrl);
+      sendEmail({
+          email:data.email,
+          subject: "Password change request receivesd",
+          message: message,
+      })
+   
       return res.status(201).send({
         message: "Account Created Successfully",
       });
@@ -37,45 +55,76 @@ const userController = {
       });
     }
   },
+  VerifyEmail:async(req,res)=>{
+      try {
+        let {token}=req.params
+        jwt.verify(token,process.env.VERIFY_KEY,async(error,decoded)=>{
+            if(error){
+              res.send(error)
+            }
+            let updateUser=  await User.findByIdAndUpdate(decoded.id,{verify:true},{new:true})
+            res.json({message:updateUser})
+
+        })
+      }catch(error){
+        console.error("Verify User Error:", error);
+        return res.status(500).send({
+          message: error.message,
+        });
+      }
+  },
+  // todo optimize login for universal login
   login: async (req, res) => {
     try {
       let { email, password } = req.body;
-      email = email.toLowerCase();
-      let user = await User.findOne({ email });
+       email = email.toLowerCase();
+      let user = await User.findOne({ email })
+        .populate("pathways")
+        .populate("courses");
       if (!user) {
         return res.status(404).send({
           message: "Invalid Email Or Password",
         });
       }
-      let validPassword = await bcrypt.compare(password, user.password);
-      if (!validPassword) {
-        return res.status(404).send({
-          message: "Invalid Email Or Password",
+      if(user.verify){
+        let validPassword = await bcrypt.compare(password, user.password);
+        if (!validPassword) {
+          return res.status(404).send({
+            message: "Invalid Email Or Password",
+          });
+        }
+        let secretKey = process.env.SECRET_KEY || "secretKey";
+        let token = jwt.sign({ id: user._id }, secretKey, { expiresIn: "2d" });
+        res.cookie("access_token", `Bearer ${token}`, {
+          httpOnly: true,
+          maxAge: 60 * 60 * 24 * 2 * 1000,
         });
-      }
-      let secretKey = process.env.SECRET_KEY || "secretKey";
-      let token = jwt.sign({ id: user._id }, secretKey, { expiresIn: "2d" });
-      res.cookie("access_token", `Bearer ${token}`, {
-        httpOnly: true,
-        maxAge: 60 * 60 * 24 * 2 * 1000,
-      });
+  
+        user.tokens.push(token);
+        if (user.tokens.length > 2) {
+          user.tokens = user.tokens.slice(-2);
+        }
+        await user.save();
+        return res.status(200).send({
+          message: "Login successfully",
+          token: token,
+          userId: user._id,
+          firstName: user.firstName,
+          lastName: user.lastName,
+          email: user.email,
+          pathways: user.pathways,
+          courses: user.courses,
+        });
 
-      user.tokens.push(token);
-
-      if (user.tokens.length > 2) {
-        user.tokens = user.tokens.slice(-2);
+      }else {
+        return res.send({
+          message: "Please Verify Your Email First",
+        }) 
       }
-      await user.save();
+
       // console.log("Updated User:", user);
       // console.log("Updated User:", user);
-      return res.status(200).send({
-        message: "Login successfully",
-        token: token,
-        userId: user._id,
-        firstName: user.firstName,
-        lastName: user.lastName,
-        email: user.email,
-      });
+       
     } catch (error) {
       console.error("Login Error:", error);
       return res.status(500).send({
@@ -83,6 +132,7 @@ const userController = {
       });
     }
   },
+
   getAllUsers: async (req, res) => {
     try {
       const userId = req.user._id;
@@ -136,7 +186,9 @@ const userController = {
         return res.status(400).json({ error: "Invalid User ID" });
       }
 
-      let user = await User.findById(id);
+      let user = await User.findById(id)
+        .populate("pathways")
+        .populate("courses");
       let userObject = user.toObject();
       delete userObject.password;
       delete userObject.tokens;
@@ -151,18 +203,12 @@ const userController = {
 
   changUserImage: async (req, res) => {
     try {
-      const { id } = req.params;
-      if (!id.match(/^[0-9a-fA-F]{24}$/)) {
-        return res.status(400).json({ error: "Invalid User ID" });
-      }
-
-      const user = await User.findById(id);
-      if (!user) {
-        return res.status(404).json({ message: "User not found" });
-      }
-
-      if (req.file) {
-        const imageUrl = `${req.file.filename}`;
+      const userId = req.user._id;
+       if (req.file) {
+        const user = await User.findById(userId);
+        const HOST = process.env.HOST || "http://localhost";
+        const PORT = process.env.PORT || 5024;
+        const imageUrl = `${HOST}:${PORT}/uploads/${req.file.filename}`;
 
         // Remove old image if it exists
         if (user.image) {
@@ -171,21 +217,21 @@ const userController = {
             "../uploads",
             path.basename(user.image)
           );
-          console.log("Attempting to delete:", oldImagePath);
+          // console.log("Attempting to delete:", oldImagePath);
 
           if (fs.existsSync(oldImagePath)) {
             try {
               fs.unlinkSync(oldImagePath);
-              console.log("Old image deleted successfully");
+              // console.log("Old image deleted successfully");
             } catch (error) {
-              console.error("Error deleting old image:", error);
+              // console.error("Error deleting old image:", error);
             }
           } else {
-            console.log("Old image not found:", oldImagePath);
+            // console.log("Old image not found:", oldImagePath);
           }
         }
         const updatedUser = await User.findByIdAndUpdate(
-          id,
+          userId,
           { image: imageUrl },
           { new: true }
         );
@@ -194,9 +240,13 @@ const userController = {
           return res.status(404).json({ message: "User not found" });
         }
 
+        const userResponse = updatedUser.toObject();
+        delete userResponse.password;
+        delete userResponse.tokens;
+
         return res
           .status(200)
-          .json({ message: "Image updated successfully", user: updatedUser });
+          .json({ message: "Image updated successfully", user: userResponse });
       } else {
         return res.status(400).json({ message: "No image file provided" });
       }
@@ -221,7 +271,8 @@ const userController = {
   // Forget Password
   forgetPassword: async (req, res) => {
     try {
-      let { email } = req.body;
+      let email = req.body.email.toLowerCase();
+
       let user = await User.findOne({
         email,
       });
@@ -262,7 +313,9 @@ const userController = {
   },
   resetPassword: async (req, res) => {
     try {
-      const { email, password, confirmPassword } = req.body;
+      const { password, confirmPassword } = req.body;
+      const email = req.body.email.toLowerCase();
+
       if (!email || !password || !confirmPassword) {
         return res.status(400).send({ message: "All fields are required!" });
       }
@@ -314,6 +367,7 @@ const userController = {
         firstName: req.user.firstName,
         lastName: req.user.lastName,
         email: req.user.email,
+        user: req.user,
       });
     } catch (error) {
       console.error("Verify User Error:", error);
@@ -326,7 +380,7 @@ const userController = {
   getUsersInCourse: async (req, res) => {
     try {
       const { courseId } = req.params;
-      const userId = req.user._id;
+      const userId = req.user ? req.user._id : null;
 
       if (!courseId.match(/^[0-9a-fA-F]{24}$/)) {
         return res.status(400).json({ error: "Invalid course ID" });
@@ -360,7 +414,7 @@ const userController = {
   getUsersInPathway: async (req, res) => {
     try {
       const { pathwayId } = req.params;
-      const userId = req.user._id;
+      const userId = req.user ? req.user._id : null;
 
       if (!pathwayId.match(/^[0-9a-fA-F]{24}$/)) {
         return res.status(400).json({ error: "Invalid pathway ID" });

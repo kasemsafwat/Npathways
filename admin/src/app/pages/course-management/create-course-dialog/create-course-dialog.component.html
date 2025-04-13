@@ -1,4 +1,4 @@
-<div class="modal" [class.show]="showDialog" tabindex="-1" role="dialog" [style.display]="showDialog ? 'block' : 'none'">
+<div class="modal" [class.show]="showDialog" tabindex="-1" [style.display]="showDialog ? 'block' : 'none'">
   <div class="modal-dialog modal-dialog-centered modal-lg">
     <div class="modal-content">
       <div class="modal-header">
@@ -6,67 +6,171 @@
         <button type="button" class="btn-close" (click)="closeDialog()"></button>
       </div>
       <div class="modal-body">
-        <form #courseForm="ngForm">
+        <form [formGroup]="courseForm" (ngSubmit)="saveCourse()">
+          <!-- Course Image -->
+          <div class="mb-4">
+            <label class="form-label">Course Image *</label>
+            <div class="d-flex align-items-center gap-3">
+              <img [src]="imagePreview || 'assets/images/course.jpg'" 
+                   class="rounded" 
+                   style="width: 120px; height: 80px; object-fit: cover;">
+              <div class="flex-grow-1">
+                <input type="file" 
+                       class="form-control" 
+                       accept="image/png, image/jpeg, image/jpg, image/webp"
+                       (change)="onImageSelected($event)"
+                       [class.is-invalid]="image?.invalid && image?.touched">
+                <small class="text-muted d-block mt-1">Recommended size: 1280x720 pixels. Accepted formats: PNG, JPEG, JPG, WEBP</small>
+                <div class="invalid-feedback" *ngIf="image?.invalid && image?.touched">
+                  <div *ngIf="image?.errors?.['required']">Course image is required</div>
+                  <div *ngIf="image?.errors?.['invalidType']">Please select a valid image file (PNG, JPEG, JPG, or WEBP)</div>
+                  <div *ngIf="image?.errors?.['maxSize']">Image size should be less than 5MB</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
           <!-- Basic Information -->
           <div class="mb-4">
-            <label for="courseName" class="form-label">Course Name</label>
-            <input 
-              type="text" 
-              class="form-control" 
-              id="courseName" 
-              name="name"
-              [(ngModel)]="course.name" 
-              required>
+            <label for="courseName" class="form-label">Course Name *</label>
+            <input type="text" 
+                   class="form-control" 
+                   id="courseName" 
+                   formControlName="name"
+                   [class.is-invalid]="name?.invalid && name?.touched">
+            <div class="invalid-feedback" *ngIf="name?.invalid && name?.touched">
+              <div *ngIf="name?.errors?.['required']">Course name is required</div>
+              <div *ngIf="name?.errors?.['minlength']">Course name must be at least 3 characters long</div>
+              <div *ngIf="name?.errors?.['maxlength']">Course name cannot exceed 100 characters</div>
+            </div>
           </div>
 
           <div class="mb-4">
-            <label for="courseDescription" class="form-label">Description</label>
-            <textarea 
-              class="form-control" 
-              id="courseDescription" 
-              name="description"
-              [(ngModel)]="course.description" 
-              rows="3"
-              required></textarea>
+            <label for="courseDescription" class="form-label">Description *</label>
+            <textarea class="form-control" 
+                      id="courseDescription" 
+                      formControlName="description"
+                      rows="3"
+                      [class.is-invalid]="description?.invalid && description?.touched"></textarea>
+            <div class="invalid-feedback" *ngIf="description?.invalid && description?.touched">
+              <div *ngIf="description?.errors?.['required']">Course description is required</div>
+              <div *ngIf="description?.errors?.['minlength']">Description must be at least 10 characters long</div>
+              <div *ngIf="description?.errors?.['maxlength']">Description cannot exceed 1000 characters</div>
+            </div>
+          </div>
+
+          <!-- Price Information -->
+          <div class="row mb-4">
+            <div class="col-md-6">
+              <label for="coursePrice" class="form-label">Price ($)</label>
+              <input type="number" 
+                     class="form-control" 
+                     id="coursePrice" 
+                     formControlName="price"
+                     min="0"
+                     step="0.01"
+                     [class.is-invalid]="price?.invalid && price?.touched">
+              <div class="invalid-feedback" *ngIf="price?.invalid && price?.touched">
+                <div *ngIf="price?.errors?.['min']">Price cannot be negative</div>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <label for="courseDiscount" class="form-label">Discount (%)</label>
+              <input type="number" 
+                     class="form-control" 
+                     id="courseDiscount" 
+                     formControlName="discount"
+                     min="0"
+                     max="100"
+                     [class.is-invalid]="discount?.invalid && discount?.touched">
+              <div class="invalid-feedback" *ngIf="discount?.invalid && discount?.touched">
+                <div *ngIf="discount?.errors?.['min']">Discount cannot be negative</div>
+                <div *ngIf="discount?.errors?.['max']">Discount cannot be more than 100%</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Status -->
+          <div class="mb-4">
+            <label for="courseStatus" class="form-label">Status</label>
+            <select class="form-select" 
+                    id="courseStatus" 
+                    formControlName="status">
+              <option value="unpublished">Unpublished</option>
+              <option value="published">Published</option>
+            </select>
+          </div>
+
+          <!-- Instructor Selection -->
+          <div class="mb-4">
+            <label class="form-label">Instructors *</label>
+            <div class="selected-instructors mb-2">
+              <div *ngFor="let instructorId of selectedInstructors" class="badge bg-primary me-2 mb-2">
+                {{ getInstructorName(instructorId) }}
+                <button type="button" class="btn-close btn-close-white ms-1" (click)="removeInstructor(instructorId)"></button>
+              </div>
+            </div>
+            <select class="form-select" 
+                    name="instructor" 
+                    [(ngModel)]="newInstructor"
+                    [ngModelOptions]="{standalone: true}"
+                    (change)="addInstructor()"
+                    [class.is-invalid]="instructorsControl?.invalid && instructorsControl?.touched">
+              <option value="">Select Instructor</option>
+              <option *ngFor="let instructor of getAvailableInstructors()" [value]="instructor._id">
+                {{ instructor.firstName }} {{ instructor.lastName }}
+              </option>
+            </select>
+            <small class="text-muted d-block mt-1">Select at least one instructor</small>
+            <div class="invalid-feedback" *ngIf="instructorsControl?.invalid && instructorsControl?.touched">
+              <div *ngIf="instructorsControl?.errors?.['required']">At least one instructor is required</div>
+            </div>
           </div>
 
           <!-- Lessons Section -->
           <div class="mb-4">
             <div class="d-flex justify-content-between align-items-center mb-3">
-              <label class="form-label mb-0">Lessons</label>
+              <label class="form-label mb-0">Lessons *</label>
               <button type="button" class="btn btn-outline-primary btn-sm" (click)="addLesson()">
                 <i class="bi bi-plus"></i> Add Lesson
               </button>
             </div>
 
-            <div class="lessons-list">
-              <div class="lesson-item mb-3" *ngFor="let lesson of course.lessons; let i = index">
+            <div class="lessons-list" formArrayName="lessons">
+              <div class="lesson-item mb-3" *ngFor="let lesson of lessons.controls; let i = index" [formGroupName]="i">
                 <div class="card">
                   <div class="card-body">
                     <div class="row g-3">
                       <div class="col-md-6">
-                        <label [for]="'lessonName' + i" class="form-label">Lesson Name</label>
-                        <input 
-                          type="text" 
-                          class="form-control" 
-                          [id]="'lessonName' + i"
-                          [(ngModel)]="lesson.name" 
-                          [name]="'lessonName' + i"
-                          required>
+                        <label [for]="'lessonName' + i" class="form-label">Lesson Name *</label>
+                        <input type="text" 
+                               class="form-control" 
+                               [id]="'lessonName' + i"
+                               formControlName="name"
+                               [class.is-invalid]="lessons.at(i).get('name')?.invalid && lessons.at(i).get('name')?.touched">
+                        <div class="invalid-feedback" *ngIf="lessons.at(i).get('name')?.invalid && lessons.at(i).get('name')?.touched">
+                          <div *ngIf="lessons.at(i).get('name')?.errors?.['required']">Lesson name is required</div>
+                          <div *ngIf="lessons.at(i).get('name')?.errors?.['minlength']">Lesson name must be at least 2 characters long</div>
+                        </div>
                       </div>
                       <div class="col-md-4">
-                        <label [for]="'lessonDuration' + i" class="form-label">Duration (minutes)</label>
-                        <input 
-                          type="number" 
-                          class="form-control" 
-                          [id]="'lessonDuration' + i"
-                          [(ngModel)]="lesson.duration" 
-                          [name]="'lessonDuration' + i"
-                          min="1"
-                          required>
+                        <label [for]="'lessonDuration' + i" class="form-label">Duration (minutes) *</label>
+                        <input type="number" 
+                               class="form-control" 
+                               [id]="'lessonDuration' + i"
+                               formControlName="duration"
+                               min="1"
+                               [class.is-invalid]="lessons.at(i).get('duration')?.invalid && lessons.at(i).get('duration')?.touched">
+                        <div class="invalid-feedback" *ngIf="lessons.at(i).get('duration')?.invalid && lessons.at(i).get('duration')?.touched">
+                          <div *ngIf="lessons.at(i).get('duration')?.errors?.['required']">Duration is required</div>
+                          <div *ngIf="lessons.at(i).get('duration')?.errors?.['min']">Duration must be greater than 0</div>
+                        </div>
                       </div>
                       <div class="col-md-2 d-flex align-items-end">
-                        <button type="button" class="btn btn-outline-danger w-100" (click)="removeLesson(i)">
+                        <button type="button" 
+                                class="btn btn-outline-danger w-100" 
+                                (click)="removeLesson(i)"
+                                [disabled]="lessons.length === 1">
                           <i class="bi bi-trash"></i>
                         </button>
                       </div>
@@ -75,22 +179,36 @@
                 </div>
               </div>
             </div>
+            <div class="invalid-feedback" *ngIf="lessons.invalid && lessons.touched">
+              <div *ngIf="lessons.errors?.['required']">At least one lesson is required</div>
+            </div>
+          </div>
+
+          <!-- Error Message -->
+          <div class="alert alert-danger mt-3 mb-3" *ngIf="error" style="position: relative; z-index: 1000;">
+            <i class="bi bi-exclamation-triangle-fill me-2"></i>
+            {{ error }}
+          </div>
+
+          <!-- Success Message -->
+          <div class="alert alert-success mt-3 mb-3" *ngIf="success" style="position: relative; z-index: 1000;">
+            <i class="bi bi-check-circle-fill me-2"></i>
+            {{ success }}
+          </div>
+
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" (click)="closeDialog()">Cancel</button>
+            <button type="submit" 
+                    class="btn btn-primary" 
+                    [disabled]="courseForm.invalid || isSubmitting">
+              <span class="spinner-border spinner-border-sm me-1" *ngIf="isSubmitting"></span>
+              {{ isSubmitting ? 'Creating...' : 'Create Course' }}
+            </button>
           </div>
         </form>
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" (click)="closeDialog()">Cancel</button>
-        <button 
-          type="button" 
-          class="btn btn-primary" 
-          (click)="saveCourse()"
-          [disabled]="!courseForm.form.valid">
-          Create Course
-        </button>
       </div>
     </div>
   </div>
 </div>
 
-<!-- Modal Backdrop -->
 <div class="modal-backdrop fade show" *ngIf="showDialog"></div> 

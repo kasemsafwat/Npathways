@@ -3,7 +3,6 @@ import SubmittedExamModel from "../models/submittedExam.model.js";
 import ExcelJS from "exceljs";
 import fs from "fs";
 import path from "path";
-import { upload } from "../config/multer.storage.js";
 
 class ExamController {
   static async getAllExams(req, res) {
@@ -193,6 +192,7 @@ class ExamController {
 
       res.status(200).json({
         message: "Exam submitted successfully",
+        _id: submittedExam._id,
         score,
         responses: evaluatedResponses,
         unknownQuestions: unknownQuestions > 0 ? unknownQuestions : undefined,
@@ -208,10 +208,26 @@ class ExamController {
       const submittedExams = await SubmittedExamModel.find({
         userId: req.user.id,
       });
-      res.status(200).json(submittedExams);
+      return res.status(200).json(submittedExams);
     } catch (error) {
       console.error(`Error in exam controller: ${error.message}`);
-      res.status(500).json({ error: "Internal server error" });
+      return res.status(500).json({ error: "Internal server error" });
+    }
+  }
+  static async getSubmittedExamsById(req, res) {
+    try {
+      const { id } = req.params;
+      if (!id.match(/^[0-9a-fA-F]{24}$/)) {
+        return res.status(400).json({ error: "Invalid exam ID" });
+      }
+      const submittedExam = await SubmittedExamModel.findById(id);
+      if (!submittedExam) {
+        return res.status(404).json({ error: "Submitted exam not found" });
+      }
+      return res.status(200).json(submittedExam);
+    } catch (error) {
+      console.error(`Error in exam controller: ${error.message}`);
+      return res.status(500).json({ error: "Internal server error" });
     }
   }
 
@@ -229,11 +245,9 @@ class ExamController {
       // Validate file type
       const fileExtension = path.extname(req.file.originalname).toLowerCase();
       if (fileExtension !== ".xlsx") {
-        return res
-          .status(400)
-          .json({
-            message: "Invalid file format. Only .xlsx files are allowed.",
-          });
+        return res.status(400).json({
+          message: "Invalid file format. Only .xlsx files are allowed.",
+        });
       }
 
       const uploadName = `${Date.now()}-${req.file.originalname}`;

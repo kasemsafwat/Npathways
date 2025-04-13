@@ -1,5 +1,6 @@
 import Admin from "../models/admin.model.js";
 import User from "../models/user.model.js";
+import Instructor from "../models/instructor.model.js";
 import Course from "../models/course.model.js";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
@@ -12,19 +13,24 @@ const __dirname = path.dirname(__filename);
 
 import crypto from "crypto";
 import sendEmail from "../services/email.js";
+import isDuplicatedEmail from "../services/helper.js";
 
 const authAdminController = {
   register: async (req, res) => {
     try {
-      let data = req.body;
-      let dublicatedEmail = await Admin.findOne({ email: data.email });
-      if (dublicatedEmail) {
+      let data = { ...req.body, email: req.body.email.toLowerCase() };
+
+      const isDuplicate = await isDuplicatedEmail(
+        data.email,
+        null
+      );
+
+      if (isDuplicate) {
         return res.status(403).send({
           message:
             "This email is already registered. Please use a different email.",
         });
       }
-
       const user = new Admin({
         firstName: data.firstName,
         lastName: data.lastName,
@@ -44,11 +50,11 @@ const authAdminController = {
       });
     }
   },
-
+  // todo optimize login for universal login
   login: async (req, res) => {
     try {
       let { email, password } = req.body;
-      let user = await Admin.findOne({ email });
+      let user = await Admin.findOne({ email: email.toLowerCase() });
       if (!user) {
         return res.status(404).send({
           message: "Invalid Email Or Password",
@@ -64,10 +70,7 @@ const authAdminController = {
       // console.log(validPassword);
       // let secretKey=process.env.SECRET_KEY || 'secretKey';
       // let token=await jwt.sign({id:user._id},secretKey)
-      // res.cookie('access_token', `Bearer ${token}`, {
-      //       httpOnly: true,
-      //       maxAge: 60 * 60 * 24 * 2 * 1000,
-      //  });
+
       // // console.log(token);
       // user.tokens.push(token);
       // await user.save();
@@ -77,6 +80,10 @@ const authAdminController = {
       // await user.save();
       let secretKey = process.env.SECRET_KEY || "secretKey";
       let token = await jwt.sign({ id: user._id, role: user.role }, secretKey);
+      res.cookie("access_token", `Bearer ${token}`, {
+        httpOnly: true,
+        maxAge: 60 * 60 * 24 * 2 * 1000,
+      });
       return res.status(200).send({
         message: "Login successfully",
         token: token,
@@ -105,8 +112,8 @@ const authAdminController = {
         User.countDocuments({ status: "active" }),
         Course.countDocuments(),
         Course.countDocuments({ status: "published" }),
-        Admin.countDocuments({ role: "instructor" }),
-        Admin.countDocuments({ role: "instructor", status: "available" }),
+        Instructor.countDocuments({ role: "instructor" }),
+        Instructor.countDocuments({ role: "instructor", status: "available" }),
       ]);
       res.status(200).send({
         message: "Dashboard Admin : ",
@@ -133,23 +140,16 @@ const authAdminController = {
   },
 
   // Dashboard Of Instructor
-  // ChangeImage Of Instructor :
+  //! ChangeImage Of ADMIN :
   changInstructorImage: async (req, res) => {
     try {
-      const { id } = req.params;
-      if (!id.match(/^[0-9a-fA-F]{24}$/)) {
-        return res.status(400).send({ error: "Invalid Instructor ID" });
-      }
-
-      const user = await Admin.findById(id);
-      if (!user) {
-        return res
-          .status(404)
-          .send({ message: "Instructor Not Found not found" });
-      }
+      const adminId = req.admin._id;
 
       if (req.file) {
-        const imageUrl = `${req.file.filename}`;
+        const user = await Admin.findById(adminId);
+        const HOST = process.env.HOST || "http://localhost";
+        const PORT = process.env.PORT || 5024;
+        const imageUrl = `${HOST}:${PORT}/uploads/${req.file.filename}`;
 
         // Remove old image if it exists
         if (user.image) {
@@ -158,21 +158,21 @@ const authAdminController = {
             "../uploads",
             path.basename(user.image)
           );
-          console.log("Attempting to delete:", oldImagePath);
+          // console.log("Attempting to delete:", oldImagePath);
 
           if (fs.existsSync(oldImagePath)) {
             try {
               fs.unlinkSync(oldImagePath);
-              console.log("Old image deleted successfully");
+              // console.log("Old image deleted successfully");
             } catch (error) {
-              console.error("Error deleting old image:", error);
+              // console.error("Error deleting old image:", error);
             }
           } else {
-            console.log("Old image not found:", oldImagePath);
+            // console.log("Old image not found:", oldImagePath);
           }
         }
         const updatedInstructor = await Admin.findByIdAndUpdate(
-          id,
+          adminId,
           { image: imageUrl },
           { new: true }
         );
@@ -180,12 +180,16 @@ const authAdminController = {
         if (!updatedInstructor) {
           return res
             .status(404)
-            .send({ message: "Instructornot found not found" });
+            .send({ message: "Instructor not found not found" });
         }
+
+        const userResponse = updatedInstructor.toObject();
+        delete userResponse.password;
+        delete userResponse.tokens;
 
         return res.status(200).send({
           message: "Image updated successfully",
-          user: updatedInstructor,
+          user: userResponse,
         });
       } else {
         return res.status(400).send({ message: "No image file provided" });
@@ -199,7 +203,7 @@ const authAdminController = {
   // Forget Password
   forgetPassword: async (req, res) => {
     try {
-      let { email } = req.body;
+      let email = req.body.email.toLowerCase();
       let user = await Admin.findOne({
         email,
       });
@@ -209,13 +213,13 @@ const authAdminController = {
         });
       }
       const resetToken = user.createResetPasswordToken();
-      console.log(resetToken);
+      // console.log(resetToken);
       await user.save({ validateeforeSave: false });
 
       const reseUrl = `${req.protocol}://${req.headers.host}/api/admin/resetPassword/${resetToken}`;
       const message = `We have received a password reset request. please use the below link to reset password : 
     \n\n ${reseUrl} \n\n This reset Password Link will be valid only for 15 minutes `;
-      console.log(reseUrl);
+      // console.log(reseUrl);
 
       try {
         await sendEmail({
@@ -240,7 +244,9 @@ const authAdminController = {
   },
   resetPassword: async (req, res) => {
     try {
-      const { email, password, confirmPassword } = req.body;
+      const { password, confirmPassword } = req.body;
+      const email = req.body.email.toLowerCase();
+
       if (!email || !password || !confirmPassword) {
         return res.status(400).send({ message: "All fields are required!" });
       }

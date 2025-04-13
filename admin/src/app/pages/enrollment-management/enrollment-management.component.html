@@ -1,1 +1,117 @@
-<p>enrollment-management works!</p>
+<div class="enrollment-container">
+  <div class="enrollment-header">
+    <div class="header-content">
+      <h1>Enrollment Management</h1>
+      <p class="subtitle">Review student test results and approve pathways</p>
+    </div>
+  </div>
+
+  <div class="enrollment-section">
+    <div class="section-header">
+      <div class="section-title">
+        <h2>Enrollments</h2>
+        <p class="subtitle">Review and manage student course enrollments</p>
+      </div>
+      <button class="export-btn" (click)="exportToPDF()">
+        <i class="fas fa-download"></i>
+        Export Data
+      </button>
+    </div>
+
+    <div class="enrollment-tabs">
+      <button
+        [class.active]="currentTab === 'all'"
+        (click)="setTab('all')">
+        All Enrollments
+      </button>
+      <button
+        [class.active]="currentTab === 'pending'"
+        (click)="setTab('pending')">
+        Pending Approval
+        <span class="badge">{{getPendingCount()}}</span>
+      </button>
+      <button
+        [class.active]="currentTab === 'approved'"
+        (click)="setTab('approved')">
+        Approved
+      </button>
+    </div>
+
+    <div class="enrollment-filters">
+      <div class="search-box">
+        <i class="fas fa-search"></i>
+        <input
+          type="text"
+          [(ngModel)]="searchTerm"
+          placeholder="Search enrollments..."
+        >
+      </div>
+    </div>
+
+    <div class="enrollment-table">
+      <table>
+        <thead>
+          <tr>
+            <th>Student</th>
+            <th>Faculty</th>
+            <th>Date</th>
+            <th>GPA</th>
+            <th>Progress</th>
+            <th>Pathway</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let enrollment of filteredEnrollments">
+            <td class="student-cell">
+              <div class="student-info">
+                <div class="avatar">
+                  <i class="fas fa-user"></i>
+                </div>
+                <div class="student-details">
+                  <div class="student-name">{{enrollment.firstName}} {{enrollment.lastName}}</div>
+                  <div class="student-email">{{enrollment.email}}</div>
+                </div>
+              </div>
+            </td>
+            <td>{{enrollment.facultyName}}</td>
+            <td>{{enrollment.createdAt | date:'mediumDate'}}</td>
+            <td>
+              <div class="score-wrapper">
+                <span class="score-value" [class.low-score]="enrollment.GPA < 2">
+                  {{enrollment.GPA}}
+                </span>
+              </div>
+            </td>
+            <td>
+              <div class="score-bar d-flex  align-items-center">
+                <div class="score-progress" [style.width.%]="(enrollment.GPA/4)*100"></div>
+              </div>
+            </td>
+            <td>
+              <span class="d-flex justify-content-center align-items-center" [class]="'pathway-badge pathway-' + getPathwayStatus(enrollment)">
+                {{getPathwayName(enrollment)}}
+              </span>
+            </td>
+            <td>
+              <div class="action-buttons">
+                <button class="action-btn view" (click)="viewEnrollmentDetails(enrollment)">
+                  <i class="fas fa-eye"></i>
+                </button>
+                <button class="action-btn delete" (click)="deleteEnrollment(enrollment)">
+                  <i class="fas fa-trash"></i>
+                </button>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<app-enrollment-details
+  *ngIf="showDetailsModal"
+  [enrollment]="selectedEnrollment"
+  (close)="closeDetailsModal()">
+</app-enrollment-details>

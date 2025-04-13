@@ -28,6 +28,11 @@ router.get("/verify", authenticationInstructor, instructorContoller.verifyUser);
 router.delete("/logout", authenticationInstructor, instructorContoller.logout);
 
 // Function:
+router.get(
+  "/getAllInstructors",
+  authenticationInstructor,
+  instructorContoller.getAllInstructors
+);
 router.get("/", authenticationInstructor, instructorContoller.profile);
 router.patch(
   "/update",
@@ -43,7 +48,7 @@ router.post(
 );
 
 router.post(
-  "/changeInstructorImage/:id",
+  "/changeInstructorImage/",
   userUpload.single("image"),
   authenticationInstructor,
   instructorContoller.changInstructorImage
@@ -55,34 +60,46 @@ router.patch(
   ResetPasswordInstructorValidation,
   instructorContoller.resetPassword
 );
+router.delete(
+  "/deleteInstructor/:id",
+  authenticationInstructor,
+  instructorContoller.deleteInstructor
+);
 
 //Instructor Permissions
 //   1) Create Course()   ==>  updateMyCourse  ==> getMyCourse(T)  ==>  getCourseStudents (T)
 
+router.post(
+  "/createCourse",
+  upload.single("image"),
+  verifyInput,
+  authenticationInstructor,
+  CourseController.createCourse
+);
 // router.post(
 //   "/courses",
 //   upload.single("image"),
-//   verifyInput,
 //   authenticationInstructor,
-//   CourseController.createCourse
+//   instructorContoller.createCourse
 // );
-router.post(
-  "/courses",
-  upload.single("image"),
-  authenticationInstructor,
-  instructorContoller.createCourse
-);
 router.get(
   "/courses",
   authenticationInstructor,
   instructorContoller.getMyCourses
 );
-
-router.get(
-  "/courses/:id",
+router.put(
+  "/updateCourse/:id",
+  upload.single("image"),
+  verifyInput,
   authenticationInstructor,
-  instructorContoller.getCourseStudents
+  CourseController.updateCourse
 );
+
+// router.get(
+//   "/courses/:id",
+//   authenticationInstructor,
+//   instructorContoller.getCourseStudents
+// );
 
 //? /////////////////////////
 router.get(

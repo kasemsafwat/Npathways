@@ -1,12 +1,25 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { AuthService } from './auth.service';
+
+interface DashboardData {
+  students: {
+    total: number;
+    active: number;
+  };
+  courses: {
+    total: number;
+    published: number;
+  };
+  instructors: {
+    total: number;
+    available: number;
+  };
+}
 
 interface DashboardResponse {
-  totalUsers?: number;
-  totalOrders?: number;
-  recentActivity?: any[];
+  message: string;
+  data: DashboardData;
 }
 
 @Injectable({
@@ -15,16 +28,9 @@ interface DashboardResponse {
 export class DashboardService {
   private readonly API_URL = 'http://localhost:5024/api/admin/dashboard';
 
-  constructor(private http: HttpClient, private authService: AuthService) {}
-  // get dashboard data from the API
+  constructor(private http: HttpClient) {}
+
   getDashboardData(): Observable<DashboardResponse> {
-    // and include the auth token in the headers
-    const token = this.authService.getToken();
-
-    const headers = new HttpHeaders({
-      Authorization: `Bearer ${token}`,
-    });
-
-    return this.http.get<DashboardResponse>(this.API_URL, { headers });
+    return this.http.get<DashboardResponse>(this.API_URL);
   }
 }

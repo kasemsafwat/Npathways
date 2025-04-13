@@ -1,6 +1,8 @@
 <div class="user-management">
   <h1>User Management</h1>
-  <p class="subtitle">Manage students, instructors, and admins across the platform</p>
+  <p class="subtitle">
+    Manage students, instructors, and admins across the platform
+  </p>
 
   <div class="users-section">
     <div class="header">
@@ -8,29 +10,86 @@
         <h2>Users</h2>
         <p class="subtitle">Manage users and their permissions</p>
       </div>
-      <button class="add-user-btn">
+      <!--       <button class="add-user-btn">
         <i class="bi bi-person-plus"></i>
         Add User
-      </button>
+      </button> -->
     </div>
 
-    <div class="tabs">
-      <button class="tab" [class.active]="selectedTab === 'all'" (click)="selectTab('all')">All Users</button>
-      <button class="tab" [class.active]="selectedTab === 'students'" (click)="selectTab('students')">Students</button>
-      <button class="tab" [class.active]="selectedTab === 'instructors'" (click)="selectTab('instructors')">Instructors</button>
-      <button class="tab" [class.active]="selectedTab === 'admins'" (click)="selectTab('admins')">Admins</button>
+    <div class="nav-container">
+      <div class="nav nav-tabs">
+        <li class="nav-item">
+          <a
+            class="nav-link"
+            href="javascript:void(0)"
+            [class.active]="selectedTab === 'all'"
+            (click)="selectTab('all')"
+            >All Users</a
+          >
+        </li>
+        <li class="nav-item">
+          <a
+            class="nav-link"
+            href="javascript:void(0)"
+            [class.active]="selectedTab === 'students'"
+            (click)="selectTab('students')"
+            >Students</a
+          >
+        </li>
+        <li class="nav-item">
+          <a
+            class="nav-link"
+            href="javascript:void(0)"
+            [class.active]="selectedTab === 'instructors'"
+            (click)="selectTab('instructors')"
+            >Instructors</a
+          >
+        </li>
+        <li class="nav-item">
+          <a
+            class="nav-link"
+            href="javascript:void(0)"
+            [class.active]="selectedTab === 'admins'"
+            (click)="selectTab('admins')"
+            >Admins</a
+          >
+        </li>
+      </div>
     </div>
+
 
     <div class="filters-row">
       <div class="search-box">
         <i class="bi bi-search"></i>
-        <input type="text" placeholder="Search users..." [(ngModel)]="searchQuery">
+        <input
+          type="text"
+          placeholder="Search users..."
+          [(ngModel)]="searchQuery"
+        />
       </div>
+      <button
+        style="width: auto"
+        *ngIf="selectedTab === 'admins'"
+        class="create-admin-btn"
+        (click)="showCreateAdminModal = true"
+      >
+        Create Admin
+      </button>
+            <button
+        style="width: auto"
+        *ngIf="selectedTab === 'instructors'"
+        class="create-admin-btn"
+        (click)="showCreateInstructorModal = true"
+      >
+        Create instructor
+      </button>
+    </div>
+    <!--
       <button class="filter-btn">
         <i class="bi bi-funnel"></i>
         Filters
       </button>
-    </div>
+     -->
 
     <table class="users-table">
       <thead>
@@ -44,24 +103,34 @@
         </tr>
       </thead>
       <tbody>
-        <tr *ngFor="let user of filteredUsers" [attr.data-user-id]="user.id">
+        <tr *ngFor="let user of paginatedUsers" [attr.data-user-id]="user.id">
           <td class="user-cell">
-            <div class="avatar">
-              <img [src]="user.avatar || 'assets/default-avatar.png'" alt="User avatar">
+            <div class="avatar" *ngIf="!user.avatar">
+              <div class="letter-avatar">
+                {{ user.name.charAt(0) | uppercase }}
+              </div>
             </div>
+            <div class="avatar" *ngIf="user.avatar">
+              <img [src]="user.avatar" alt="User avatar" />
+            </div>
+
             <div class="user-info">
-              <div class="name">{{user.name}}</div>
-              <div class="email">{{user.email}}</div>
+              <div class="name">{{ user.name }}</div>
+              <div class="email">{{ user.email }}</div>
             </div>
           </td>
           <td>
-            <span class="role-badge" [class]="user.role.toLowerCase()">{{user.role}}</span>
+            <span class="role-badge" [class]="user.role.toLowerCase()">{{
+              user.role
+            }}</span>
           </td>
           <td>
-            <span class="status-badge" [class]="user.status.toLowerCase()">{{user.status}}</span>
+            <span class="status-badge" [class]="user.status.toLowerCase()">{{
+              user.status
+            }}</span>
           </td>
-          <td>{{user.joinDate | date:'MMM dd, yyyy'}}</td>
-          <td>{{user.courses}}</td>
+          <td>{{ user.joinDate | date : "MMM dd, yyyy" }}</td>
+          <td>{{ user.courses }}</td>
           <td>
             <div class="actions-dropdown" [class.show]="user.showActions">
               <button class="action-btn" (click)="toggleActions(user, $event)">
@@ -74,9 +143,14 @@
                 </button>
                 <button class="dropdown-item" (click)="suspendUser(user)">
                   <i class="bi bi-ban"></i>
-                  <span>Suspend</span>
+                  <span>{{
+                    user.status === "Suspended" ? "Activate" : "Suspend"
+                  }}</span>
                 </button>
-                <button class="dropdown-item delete" (click)="deleteUser(user)">
+                <button
+                  class="dropdown-item delete"
+                  (click)="confirmDeleteUser(user)"
+                >
                   <i class="bi bi-trash3-fill"></i>
                   <span>Delete</span>
                 </button>
@@ -87,4 +161,403 @@
       </tbody>
     </table>
   </div>
+  <div class="pagination-container">
+    <nav *ngIf="totalPages > 1" aria-label="Page navigation" class="mt-3">
+      <ul class="pagination justify-content-center">
+        <li class="page-item" [class.disabled]="currentPage === 1">
+          <button class="page-link" (click)="goToPage(currentPage - 1)">
+            Previous
+          </button>
+        </li>
+
+        <li
+          class="page-item"
+          *ngFor="let page of [].constructor(totalPages); let i = index"
+          [class.active]="currentPage === i + 1"
+        >
+          <button class="page-link" (click)="goToPage(i + 1)">
+            {{ i + 1 }}
+          </button>
+        </li>
+
+        <li class="page-item" [class.disabled]="currentPage === totalPages">
+          <button class="page-link" (click)="goToPage(currentPage + 1)">
+            Next
+          </button>
+        </li>
+      </ul>
+    </nav>
+  </div>
 </div>
+
+<!-- Create Admin Modal -->
+<div class="modal" *ngIf="showCreateAdminModal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h2>Create New Admin</h2>
+      <button class="close-btn" (click)="showCreateAdminModal = false">
+        &times;
+      </button>
+    </div>
+    <div class="modal-body">
+      <form [formGroup]="createAdminForm" (ngSubmit)="createAdmin()" novalidate>
+        <div class="form-group">
+          <label for="firstName">First Name</label>
+          <input
+            type="text"
+            id="firstName"
+            formControlName="firstName"
+            class="form-control"
+            [class.is-invalid]="firstName?.invalid && firstName?.touched"
+          />
+          <div class="invalid-feedback" *ngIf="firstName?.invalid && firstName?.touched">
+            <div *ngIf="firstName?.errors">
+              <div *ngIf="firstName?.errors?.['required']">First Name is required</div>
+              <div *ngIf="firstName?.errors?.['pattern']">First name must contain only letters</div>
+              <div *ngIf="firstName?.errors?.['minlength'] || firstName?.errors?.['maxlength']">
+                First name must be 2-15 characters long
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="lastName">Last Name</label>
+          <input
+            type="text"
+            id="lastName"
+            formControlName="lastName"
+            class="form-control"
+            [class.is-invalid]="lastName?.invalid && lastName?.touched"
+          />
+          <div class="invalid-feedback" *ngIf="lastName?.invalid && lastName?.touched">
+            <div *ngIf="lastName?.errors">
+              <div *ngIf="lastName?.errors?.['required']">Last Name is required</div>
+              <div *ngIf="lastName?.errors?.['pattern']">Last name must contain only letters</div>
+              <div *ngIf="lastName?.errors?.['minlength'] || lastName?.errors?.['maxlength']">
+                Last name must be 2-15 characters long
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="email">Email</label>
+          <input
+            type="email"
+            id="email"
+            formControlName="email"
+            class="form-control"
+            [class.is-invalid]="(email?.invalid && email?.touched) || emailError"
+          />
+          <div class="invalid-feedback" *ngIf="(email?.invalid && email?.touched) || emailError">
+            <div *ngIf="email?.errors">
+              <div *ngIf="email?.errors?.['required']">Email is required</div>
+              <div *ngIf="email?.errors?.['pattern']">Email must be a valid address</div>
+            </div>
+            <div *ngIf="emailError" class="text-danger">
+              {{ emailError }}
+            </div>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="password">Password</label>
+          <input
+            [type]="showPassword ? 'text' : 'password'"
+            id="password"
+            formControlName="password"
+            class="form-control"
+            [class.is-invalid]="password?.invalid && password?.touched"
+          />
+          <div class="invalid-feedback" *ngIf="password?.invalid && password?.touched">
+            <div *ngIf="password?.errors">
+              <div *ngIf="password?.errors?.['required']">Password is required</div>
+              <div *ngIf="password?.errors?.['pattern']">
+                Password must contain at least 8 characters, including an
+                uppercase letter, a lowercase letter, a number, and a special
+                character.
+              </div>
+            </div>
+          </div>
+                <div class="password-toggle">
+            <a href="javascript:void(0)" (click)="togglePasswordVisibility()">
+              <i class="fas" [class]="showPassword ? 'fa-eye-slash' : 'fa-eye'"></i>
+              {{ showPassword ? 'Hide' : 'Show' }} Password
+            </a>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button
+            type="button"
+            class="cancel-btn"
+            (click)="showCreateAdminModal = false"
+          >
+            Cancel
+          </button>
+          <button type="submit" [disabled]="createAdminForm.invalid" class="create-btn">
+            Create Admin
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+
+<!-- Create Instructors Modal -->
+<div class="modal" *ngIf="showCreateInstructorModal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h2>Create New Instructor</h2>
+      <button class="close-btn" (click)="showCreateInstructorModal = false">
+        &times;
+      </button>
+    </div>
+    <div class="modal-body">
+      <form [formGroup]="createInstructorForm" (ngSubmit)="createInstructor()" novalidate>
+        <div class="form-group">
+          <label for="firstName">First Name</label>
+          <input
+            type="text"
+            id="firstName"
+            formControlName="firstName"
+            class="form-control"
+            [class.is-invalid]="firstNameInstructor?.invalid && firstNameInstructor?.touched"
+          />
+          <div class="invalid-feedback" *ngIf="firstNameInstructor?.invalid && firstNameInstructor?.touched">
+            <div *ngIf="firstNameInstructor?.errors">
+              <div *ngIf="firstNameInstructor?.errors?.['required']">First Name is required</div>
+              <div *ngIf="firstNameInstructor?.errors?.['pattern']">First name must contain only letters</div>
+              <div *ngIf="firstNameInstructor?.errors?.['minlength'] || firstNameInstructor?.errors?.['maxlength']">
+                First name must be 2-15 characters long
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="lastName">Last Name</label>
+          <input
+            type="text"
+            id="lastName"
+            formControlName="lastName"
+            class="form-control"
+            [class.is-invalid]="lastNameInstructor?.invalid && lastNameInstructor?.touched"
+          />
+          <div class="invalid-feedback" *ngIf="lastNameInstructor?.invalid && lastNameInstructor?.touched">
+            <div *ngIf="lastNameInstructor?.errors">
+              <div *ngIf="lastNameInstructor?.errors?.['required']">Last Name is required</div>
+              <div *ngIf="lastNameInstructor?.errors?.['pattern']">Last name must contain only letters</div>
+              <div *ngIf="lastNameInstructor?.errors?.['minlength'] || lastNameInstructor?.errors?.['maxlength']">
+                Last name must be 2-15 characters long
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="email">Email</label>
+          <input
+            type="email"
+            id="email"
+            formControlName="email"
+            class="form-control"
+            [class.is-invalid]="(emailInstructor?.invalid && emailInstructor?.touched) || emailError"
+          />
+          <div class="invalid-feedback" *ngIf="(emailInstructor?.invalid && emailInstructor?.touched) || emailError">
+            <div *ngIf="emailInstructor?.errors">
+              <div *ngIf="emailInstructor?.errors?.['required']">Email is required</div>
+              <div *ngIf="emailInstructor?.errors?.['pattern']">Email must be a valid address</div>
+            </div>
+            <div *ngIf="emailError" class="text-danger">
+              {{ emailError }}
+            </div>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="password">Password</label>
+          <input
+            [type]="showPassword ? 'text' : 'password'"
+            id="password"
+            formControlName="password"
+            class="form-control"
+            [class.is-invalid]="passwordInstructor?.invalid && passwordInstructor?.touched"
+          />
+          <div class="invalid-feedback" *ngIf="passwordInstructor?.invalid && passwordInstructor?.touched">
+            <div *ngIf="passwordInstructor?.errors">
+              <div *ngIf="passwordInstructor?.errors?.['required']">Password is required</div>
+              <div *ngIf="passwordInstructor?.errors?.['pattern']">
+                Password must contain at least 8 characters, including an
+                uppercase letter, a lowercase letter, a number, and a special
+                character.
+              </div>
+            </div>
+          </div>
+          <div class="password-toggle">
+            <a href="javascript:void(0)" (click)="togglePasswordVisibility()">
+              <i class="fas" [class]="showPassword ? 'fa-eye-slash' : 'fa-eye'"></i>
+              {{ showPassword ? 'Hide' : 'Show' }} Password
+            </a>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button
+            type="button"
+            class="cancel-btn"
+            (click)="showCreateInstructorModal = false"
+          >
+            Cancel
+          </button>
+          <button type="submit" [disabled]="createInstructorForm.invalid" class="create-btn">
+            Create Instructor
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+
+<!-- Delete Confirmation Modal -->
+<div
+  class="modal fade show d-block"
+  tabindex="-1"
+  role="dialog"
+  style="background-color: rgba(0, 0, 0, 0.5)"
+  *ngIf="showDeleteConfirmationModal"
+>
+  <div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Confirm Deletion</h5>
+        <button
+          type="button"
+          class="btn-close"
+          aria-label="Close"
+          (click)="showDeleteConfirmationModal = false"
+        ></button>
+      </div>
+      <div class="modal-body">
+        <p>
+          Are you sure you want to delete
+          <strong>{{ userToDelete?.name }}</strong
+          >?
+        </p>
+      </div>
+      <div class="modal-footer">
+        <button
+          type="button"
+          class="btn btn-secondary"
+          (click)="showDeleteConfirmationModal = false"
+        >
+          Cancel
+        </button>
+        <button
+          type="button"
+          class="btn btn-danger"
+          (click)="deleteConfirmedUser()"
+        >
+          Delete
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Edit User Modal -->
+<div class="modal fade show d-block" tabindex="-1" role="dialog" style="background-color: rgba(0, 0, 0, 0.5)" *ngIf="showEditModal">
+  <div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Edit User</h5>
+        <button type="button" class="btn-close" aria-label="Close" (click)="showEditModal = false"></button>
+      </div>
+      <div class="modal-body">
+        <form #editForm="ngForm" (ngSubmit)="updateUser(editForm)">
+          <div class="form-group mb-3">
+            <label for="editFirstName">First Name (Optional)</label>
+            <input 
+              type="text" 
+              id="editFirstName" 
+              [(ngModel)]="userToEdit.firstName" 
+              name="firstName" 
+              class="form-control" 
+              #firstName="ngModel"
+              pattern="[a-zA-Z\s]*"
+              maxlength="50"
+            >
+            <div *ngIf="firstName.touched && firstName.invalid" class="error-message text-danger mt-1">
+              <div *ngIf="firstName.errors?.['pattern']">First Name can only contain letters and spaces.</div>
+              <div *ngIf="firstName.errors?.['maxlength']">First Name cannot exceed 50 characters.</div>
+            </div>
+          </div>
+
+          <div class="form-group mb-3">
+            <label for="editLastName">Last Name (Optional)</label>
+            <input 
+              type="text" 
+              id="editLastName" 
+              [(ngModel)]="userToEdit.lastName" 
+              name="lastName" 
+              class="form-control" 
+              #lastName="ngModel"
+              pattern="[a-zA-Z\s]*"
+              maxlength="50"
+            >
+            <div *ngIf="lastName.touched && lastName.invalid" class="error-message text-danger mt-1">
+              <div *ngIf="lastName.errors?.['pattern']">Last Name can only contain letters and spaces.</div>
+              <div *ngIf="lastName.errors?.['maxlength']">Last Name cannot exceed 50 characters.</div>
+            </div>
+          </div>
+
+          <div class="form-group mb-3">
+            <label for="editEmail">Email (Optional)</label>
+            <input 
+              type="email" 
+              id="editEmail" 
+              [(ngModel)]="userToEdit.email" 
+              name="email" 
+              class="form-control" 
+              #email="ngModel"
+              pattern="[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$"
+              maxlength="100"
+            >
+            <div *ngIf="email.touched && email.invalid" class="error-message text-danger mt-1">
+              <div *ngIf="email.errors?.['pattern']">Please enter a valid email address.</div>
+              <div *ngIf="email.errors?.['maxlength']">Email cannot exceed 100 characters.</div>
+            </div>
+          </div>
+
+          <div class="form-group mb-3">
+            <label for="editPassword">New Password (Optional)</label>
+            <input 
+              type="password" 
+              id="editPassword" 
+              [(ngModel)]="userToEdit.password" 
+              name="password" 
+              class="form-control" 
+              #password="ngModel" 
+              minlength="6"
+              maxlength="50"
+            >
+            <div *ngIf="password.touched && password.invalid" class="error-message text-danger mt-1">
+              <div *ngIf="password.errors?.['minlength']">Password must be at least 6 characters long.</div>
+              <div *ngIf="password.errors?.['maxlength']">Password cannot exceed 50 characters.</div>
+            </div>
+            <small class="text-muted">Leave empty to keep current password</small>
+          </div>
+
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" (click)="showEditModal = false">Cancel</button>
+            <button type="submit" class="btn btn-primary" [disabled]="editForm.invalid">Save Changes</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+

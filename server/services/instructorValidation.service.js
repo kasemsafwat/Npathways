@@ -106,37 +106,49 @@ export let updateInstructorSchema = Joi.object({
     .messages({
       "string.email": "Please enter a valid email address.",
     }),
+  phone: Joi.string()
+    .pattern(/^[0-9]+$/)
+    .min(10)
+    .max(15)
+    .trim()
+    .optional()
+    .messages({
+      "string.pattern.base": "Phone number must contain only numbers.",
+      "string.min": "Phone number must be at least 10 digits long.",
+      "string.max": "Phone number must not exceed 15 digits.",
+    }),
+  image: Joi.string().optional(),
 });
 export const updatePasswordSchema = Joi.object({
-    oldPassword: Joi.string()
+  oldPassword: Joi.string()
     .pattern(
-        new RegExp(
+      new RegExp(
         "^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%^&*])[a-zA-Z0-9!@#$%^&*]{8,30}$"
-        )
+      )
     )
     .trim()
     .required()
     .messages({
-    "string.pattern.base":
+      "string.pattern.base":
         "Password must contain letters, numbers, and special characters (8-30 characters).",
-      'string.base': 'Old password must be a string.',
-      'string.empty': 'Old password cannot be empty.',
-      'any.required': 'Old password is required.',
+      "string.base": "Old password must be a string.",
+      "string.empty": "Old password cannot be empty.",
+      "any.required": "Old password is required.",
     }),
   newPassword: Joi.string()
     .pattern(
-        new RegExp(
+      new RegExp(
         "^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%^&*])[a-zA-Z0-9!@#$%^&*]{8,30}$"
-        )
+      )
     )
     .trim()
     .required()
     .messages({
-    "string.pattern.base":
+      "string.pattern.base":
         "Password must contain letters, numbers, and special characters (8-30 characters).",
-      'string.base': 'New password must be a string.',
-      'string.empty': 'New password cannot be empty.',
-       'any.required': 'New password is required.',
+      "string.base": "New password must be a string.",
+      "string.empty": "New password cannot be empty.",
+      "any.required": "New password is required.",
     }),
 });
 export let resetPaswwordInstructorSchema = Joi.object({
@@ -173,4 +185,3 @@ export let resetPaswwordInstructorSchema = Joi.object({
       "any.required": "Confirm Password is a required field.",
     }),
 });
-

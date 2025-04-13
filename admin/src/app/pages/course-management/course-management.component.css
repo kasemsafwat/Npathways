@@ -95,7 +95,7 @@
 /* Container for the tabs */
 .nav-container {
   border-bottom: 1px solid #E5E7EB;
-  margin: 0 -1.5rem;
+  margin: 1rem -1.5rem;
   padding: 0 1.5rem;
 }
 
@@ -264,4 +264,63 @@
   .d-flex.gap-3 {
     gap: 1rem !important;
   }
+}
+
+.course-card {
+  transition: transform 0.2s, box-shadow 0.2s;
+  border: none;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.course-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+}
+
+.card-img-top {
+  height: 200px;
+  object-fit: cover;
+}
+
+.new-course-card {
+  border: 2px dashed #dee2e6;
+  transition: all 0.2s;
+}
+
+.new-course-card:hover {
+  border-color: #0d6efd;
+  background-color: #f8f9fa;
+}
+
+.new-course-card i {
+  color: #0d6efd;
+}
+
+.badge {
+  font-weight: 500;
+  padding: 0.5em 1em;
+}
+
+.category-tag {
+  font-size: 0.875rem;
+  color: #6c757d;
+}
+
+.card-title {
+  font-weight: 600;
+  line-height: 1.4;
+  margin-bottom: 0.75rem;
+}
+
+.card-text {
+  color: #6c757d;
+}
+
+.price {
+  font-weight: 600;
+  color: #198754;
+}
+
+.modal-backdrop {
+  background-color: rgba(0, 0, 0, 0.5);
 }

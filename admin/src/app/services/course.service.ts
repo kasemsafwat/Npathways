@@ -20,6 +20,9 @@ export interface Course {
   status?: string;
   category?: string;
   price?: number;
+  discount?: number;
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 @Injectable({
@@ -38,21 +41,22 @@ export class CoursesService {
     return this.http.get<Course>(`${this.apiUrl}/${id}`);
   }
 
-  createCourse(course: {
-    name: string;
-    description: string;
-    requiredExams: string[];
-    instructors: string[];
-    lessons: { name: string }[];
-  }): Observable<Course> {
-    return this.http.post<Course>(`${this.apiUrl}/createCourse`, course);
+  createCourse(course: FormData): Observable<Course> {
+    return this.http.post<Course>(`${this.apiUrl}/createCourse`, course, {
+      withCredentials: true,
+    });
   }
 
-  updateCourse(id: string, course: Course): Observable<Course> {
+  updateCourse(id: string, course: FormData): Observable<Course> {
     return this.http.put<Course>(`${this.apiUrl}/updateCourse/${id}`, course);
   }
 
   deleteCourse(id: string): Observable<void> {
     return this.http.delete<void>(`${this.apiUrl}/deleteCourse/${id}`);
+  }
+  getUsersInCourse(id: string): Observable<any> {
+    return this.http.get<any>(
+      `http://localhost:5024/api/admin/getUsersInCourse/${id}`
+    );
   }
 }

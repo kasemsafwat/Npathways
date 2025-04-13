@@ -36,6 +36,7 @@ const NATIONALITIES = [
   "United Arab Emirates",
   "Yemen",
 ];
+
 const styles = {
   input: {
     "& .MuiOutlinedInput-root": {
@@ -68,6 +69,7 @@ const styles = {
     overflow: "hidden",
   },
 };
+
 const FormSection = ({
   title,
   name,
@@ -94,10 +96,14 @@ export default function PersonalInfoSection({
   formData,
   errors,
   handleChange,
+  handleBlur,
 }) {
   const [expandedSections, setExpandedSections] = useState({
     personalDetails: true,
   });
+  const currentDate = new Date();
+  const maxDate = currentDate.toISOString().split("T")[0];
+
   const handleToggleSection = (section) => {
     setExpandedSections((prev) => ({
       ...prev,
@@ -122,6 +128,7 @@ export default function PersonalInfoSection({
               name="firstName"
               value={formData.firstName}
               onChange={handleChange}
+              onBlur={handleBlur}
               error={Boolean(errors.firstName)}
               helperText={errors.firstName}
               sx={styles.input}
@@ -134,6 +141,7 @@ export default function PersonalInfoSection({
               name="lastName"
               value={formData.lastName}
               onChange={handleChange}
+              onBlur={handleBlur}
               error={Boolean(errors.lastName)}
               helperText={errors.lastName}
               sx={styles.input}
@@ -147,7 +155,12 @@ export default function PersonalInfoSection({
               name="dateOfBirth"
               value={formData.dateOfBirth}
               onChange={handleChange}
+              onBlur={handleBlur}
               InputLabelProps={{ shrink: true }}
+              inputProps={{
+                min: "1980-01-01",
+                max: maxDate,
+              }}
               error={Boolean(errors.dateOfBirth)}
               helperText={errors.dateOfBirth}
               sx={styles.input}
@@ -165,6 +178,7 @@ export default function PersonalInfoSection({
                 name="nationality"
                 value={formData.nationality}
                 onChange={handleChange}
+                onBlur={handleBlur}
               >
                 {NATIONALITIES.map((nat) => (
                   <MenuItem key={nat} value={nat}>

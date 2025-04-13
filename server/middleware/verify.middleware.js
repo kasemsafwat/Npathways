@@ -8,6 +8,7 @@ const courseRoute = "/api/course";
 const chatRoute = "/api/chat";
 const certificateRoute = "/api/certificate";
 const enrollmentRoute = "/api/enrollment";
+const instructorRoute = "/api/instructor";
 
 const exampleExam = {
   name: "Exam 1",
@@ -117,6 +118,9 @@ const createCourseSchema = Joi.object({
   ),
   description: Joi.string().required(),
   image: Joi.string(),
+  price: Joi.number().required(),
+  discount: Joi.number().default(0),
+  status: Joi.string().valid("published", "unpublished").default("unpublished"),
 });
 
 const updateCourseSchema = Joi.object({
@@ -142,6 +146,9 @@ const updateCourseSchema = Joi.object({
   ),
   description: Joi.string(),
   image: Joi.string(),
+  price: Joi.number(),
+  discount: Joi.number(),
+  status: Joi.string().valid("published", "unpublished").default("unpublished"),
 });
 
 const sendMessageSchema = Joi.object({
@@ -222,8 +229,8 @@ const createEnrollmentSchema = Joi.object({
       "string.empty": "Country is required",
       "any.required": "Country is required",
     }),
-    city: Joi.string(),
-    street: Joi.string(),
+    city: Joi.string().optional().allow(""),
+    street: Joi.string().optional().allow(""),
   })
     .required()
     .messages({
@@ -282,13 +289,27 @@ const updateEnrollmentSchema = Joi.object({
 
 function getSchema(link, method) {
   if (method !== "POST" && method !== "PUT") return null;
-  if (link === `${examRoute}/createExam`) {
+  if (link === "/api/availableEmail") {
+    return Joi.object({
+      email: Joi.string().email().required().messages({
+        "string.email": "Enter a valid email",
+        "string.empty": "Email is required",
+        "any.required": "Email is required",
+      }),
+    });
+  } else if (link === `${examRoute}/createExam`) {
     return createExamSchema;
   } else if (link.includes(`${examRoute}/updateExam`)) {
     return updateExamSchema;
-  } else if (link === `${courseRoute}/createCourse`) {
+  } else if (
+    link === `${courseRoute}/createCourse` ||
+    link === `${instructorRoute}/createCourse`
+  ) {
     return createCourseSchema;
-  } else if (link.includes(`${courseRoute}/updateCourse`)) {
+  } else if (
+    link.includes(`${courseRoute}/updateCourse`) ||
+    link.includes(`${instructorRoute}/updateCourse`)
+  ) {
     return updateCourseSchema;
   } else if (link.includes(`${chatRoute}/sendMessage`)) {
     return sendMessageSchema;
@@ -310,7 +331,7 @@ export default async function verifyInput(req, res, next) {
   const schema = getSchema(req.originalUrl, req.method);
 
   if (!schema) {
-    return res.status(404).json({ error: "Route not found" });
+    return res.status(404).json({ error: "Route not verified" });
   }
 
   // Parse stringified JSON arrays and objects in request body

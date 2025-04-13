@@ -1,0 +1,122 @@
+<div class="container-fluid">
+  <h2 class="page-title text-white">Pathways Management</h2>
+
+  <!-- Notification -->
+  <div class="notification" *ngIf="notification.show" [ngClass]="notification.type">
+    {{ notification.message }}
+  </div>
+
+  <!-- Create Pathway Form -->
+  <div class="form-container">
+    <h3 class="form-title">Create New Pathway</h3>
+    <form (ngSubmit)="createPathway()" class="pathway-form">
+      <div class="form-group">
+        <label for="name">Name:</label>
+        <input
+          type="text"
+          id="name"
+          [(ngModel)]="formModel.name"
+          name="name"
+          required
+          placeholder="Enter pathway name"
+          class="form-input"
+        />
+      </div>
+
+      <div class="form-group">
+        <label for="description">Description:</label>
+        <textarea
+          id="description"
+          [(ngModel)]="formModel.description"
+          name="description"
+          placeholder="Enter pathway description"
+          class="form-textarea"
+        ></textarea>
+      </div>
+
+      <div class="form-group">
+        <label>Select Courses:</label>
+        <div class="courses-selection">
+          <div
+            *ngFor="let course of courses"
+            class="course-option"
+            [class.selected]="course._id && isCourseSelected(course._id)"
+            (click)="course._id && toggleCourseSelection(course._id)"
+          >
+            <input
+              type="checkbox"
+              [checked]="course._id && isCourseSelected(course._id)"
+              (change)="course._id && toggleCourseSelection(course._id)"
+              class="course-checkbox"
+            />
+            <span class="course-name text-black">{{ course.name }}</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="button-group">
+        <button type="submit" class="btn btn-primary">Create Pathway</button>
+      </div>
+    </form>
+  </div>
+
+  <!-- Pathways Grid -->
+  <div class="pathways-grid">
+    <div class="pathway-card" *ngFor="let pathway of pathways">
+      <div class="card-header">
+        <h3 class="card-title">{{ pathway.name }}</h3>
+      </div>
+
+      <div class="card-content">
+        <div class="metrics-grid">
+          <div class="metric d-flex flex-column gap-2">
+            <span class="metric-label ms-0 ps-0">
+              <i class="fas fa-info-circle"></i>
+              Description
+            </span>
+            <span class="metric-value">{{ pathway.description || "No description" }}</span>
+          </div>
+          <div class="metric">
+            <span class="metric-label">
+              <i class="fas fa-book"></i>
+              Courses
+            </span>
+            <span class="metric-value">{{ pathway.courses?.length || 0 }}</span>
+          </div>
+          <div class="metric">
+            <span class="metric-label">
+              <i class="fas fa-users"></i>
+              Students
+            </span>
+            <span class="metric-value">{{ pathway.studentCount ?? 0 }}</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="card-footer">
+        <div class="card-actions">
+          <button class="btn btn-icon" (click)="viewPathwayDetails(pathway)">
+            <i class="fas fa-eye"></i>
+            View Details
+          </button>
+          <button class="btn btn-icon btn-danger" (click)="deletePathway(pathway._id)">
+            <i class="fas fa-trash"></i>
+            Delete
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- View Details Dialog -->
+  <app-pathway-details-dialog
+    *ngIf="showDetailsDialog && selectedPathway"
+    [pathway]="selectedPathway"
+    [courses]="courses"
+    [allStudents]="allStudents"
+    (close)="closeDetailsDialog()"
+    (save)="onSavePathway($event)"
+    (enrollStudent)="onEnrollStudent($event)"
+    (unenrollStudent)="onUnenrollStudent($event)"
+  ></app-pathway-details-dialog>
+</div>

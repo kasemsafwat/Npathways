@@ -19,7 +19,7 @@ const CourseSchema = new Schema(
     instructors: [
       {
         type: Schema.Types.ObjectId,
-        ref: "User",
+        ref: "Instructor",
       },
     ],
     lessons: [
@@ -32,15 +32,19 @@ const CourseSchema = new Schema(
       },
     ],
     image: { type: String },
-
-    // ////////////////////////////
+    price: {
+      type: Number,
+      required: true,
+    },
+    discount: {
+      type: Number,
+      default: 0,
+    },
     status: {
       type: String,
       enum: ["published", "unpublished"],
       default: "unpublished",
     },
-    students: [{ type: Schema.Types.ObjectId, ref: "User" }],
-    // /////////////////////////////
   },
   { timestamps: true }
 );

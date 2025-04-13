@@ -4,7 +4,8 @@ import StudentControlller from "../controllers/student.controller.js";
 
 // ////Admin Authoixzation
 import { protectRoutes, allowTo } from "../middleware/AuthAdmin.middleware.js";
-
+import { UpdateUserPasswordValidation, UpdateUserValidation } from "../middleware/user.middleware.js";
+ 
 // The prefix is /api/student
 const router = express.Router();
 
@@ -16,9 +17,10 @@ router
 router
   .route("/")
   .get(authentication, StudentControlller.getStudent)
-  .patch(authentication, StudentControlller.updateStudent);
+  .patch(authentication ,StudentControlller.updateStudent);
 router.post(
   "/update/password",
+  UpdateUserPasswordValidation,
   authentication,
   StudentControlller.updatePassword
 );

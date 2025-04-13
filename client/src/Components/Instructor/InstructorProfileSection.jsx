@@ -9,11 +9,13 @@ import {
   Typography,
 } from "@mui/material";
 import axios from "axios";
-import React, { useContext, useEffect, useState } from "react";
+import React, { useContext, useEffect, useRef, useState } from "react";
 import { InstructorAuthContext } from "../../contexts/InstructorAuthContext";
+import { AuthContext } from "../../contexts/AuthContext";
 
 export default function InstructorProfileSection() {
-  const { isAuthenticated } = useContext(InstructorAuthContext);
+  // const { isAuthenticated } = useContext(InstructorAuthContext);
+  const { isAuthenticated } = useContext(AuthContext);
   const instructorID = localStorage.getItem("instructorID");
   const [instructorData, setInstructorData] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -25,7 +27,51 @@ export default function InstructorProfileSection() {
   });
   const [isEditing, setIsEditing] = useState(false);
   const [saveSuccess, setSaveSuccess] = useState(false);
+  const [selectedFile, setSelectedFile] = useState(null);
+  const fileInputRef = useRef(null);
 
+  const handleImageClick = () => {
+    fileInputRef.current.click();
+  };
+
+  const handleFileChange = async (event) => {
+    if (event.target.files && event.target.files[0]) {
+      const file = event.target.files[0];
+      setSelectedFile(file);
+      await uploadProfilePicture(file);
+      // Reset the file input element after upload completes
+      if (fileInputRef.current) {
+        fileInputRef.current.value = "";
+      }
+    }
+  };
+
+  async function uploadProfilePicture(imageFile) {
+    const formData = new FormData();
+    formData.append("image", imageFile);
+    await axios
+      .post(
+        `http://localhost:5024/api/instructor/changeInstructorImage/`,
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+          withCredentials: true,
+        }
+      )
+      .then((response) => {
+        setInstructorData((prevData) => ({
+          ...prevData,
+          image: response.data.instructor.image,
+        }));
+        setSelectedFile(null);
+        // console.log(response.data.instructor.image);
+      })
+      .catch((error) => {
+        console.error("Error uploading image:", error);
+      });
+  }
   // Fetch instructor data from the API
   useEffect(() => {
     const fetchInstructorData = async () => {
@@ -39,6 +85,7 @@ export default function InstructorProfileSection() {
           firstName: response.data.firstName,
           lastName: response.data.lastName,
           email: response.data.email,
+          image: response.data.image,
         });
       } catch (error) {
         console.error("Error fetching instructor data:", error);
@@ -94,6 +141,8 @@ export default function InstructorProfileSection() {
     setIsEditing(false);
   };
 
+  console.log(isAuthenticated);
+
   if (!isAuthenticated) {
     return (
       <Box sx={{ textAlign: "center", mt: 5 }}>
@@ -141,6 +190,13 @@ export default function InstructorProfileSection() {
           Profile updated successfully!
         </Alert>
       )}
+      <input
+        type="file"
+        accept="image/*"
+        style={{ display: "none" }}
+        ref={fileInputRef}
+        onChange={handleFileChange}
+      />
 
       <Avatar
         sx={{
@@ -149,10 +205,19 @@ export default function InstructorProfileSection() {
           mb: 4,
           bgcolor: "primary.light",
           fontSize: "4rem",
+          cursor: "pointer",
         }}
         alt={`${instructorData.firstName} ${instructorData.lastName}`}
-        src={`https://ui-avatars.com/api/?name=${instructorData.firstName}+${instructorData.lastName}&background=random&size=200`}
+        src={
+          instructorData.image ||
+          `https://ui-avatars.com/api/?name=${instructorData.firstName}+${instructorData.lastName}&background=random&size=200`
+        }
+        onClick={handleImageClick}
       />
+
+      <Typography variant="caption" color="text.secondary" sx={{ mb: 2 }}>
+        Click to change profile picture
+      </Typography>
 
       {/* Profile Form Fields */}
       <Stack spacing={2} sx={{ width: "100%", maxWidth: 500 }}>

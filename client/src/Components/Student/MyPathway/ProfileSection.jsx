@@ -1,4 +1,4 @@
-import React, { useState, useContext, useEffect } from "react";
+import React, { useState, useContext, useEffect, useRef } from "react";
 import axios from "axios";
 import {
   Avatar,
@@ -25,6 +25,47 @@ export default function ProfileSection() {
   });
   const [isEditing, setIsEditing] = useState(false);
   const [saveSuccess, setSaveSuccess] = useState(false);
+  const [selectedFile, setSelectedFile] = useState(null);
+  const fileInputRef = useRef(null);
+
+  const handleImageClick = () => {
+    fileInputRef.current.click();
+  };
+
+  const handleFileChange = async (event) => {
+    if (event.target.files && event.target.files[0]) {
+      const file = event.target.files[0];
+      setSelectedFile(file);
+      await uploadProfilePicture(file);
+      // Reset the file input element after upload completes
+      if (fileInputRef.current) {
+        fileInputRef.current.value = "";
+      }
+    }
+  };
+
+  async function uploadProfilePicture(imageFile) {
+    const formData = new FormData();
+    formData.append("image", imageFile);
+    await axios
+      .post(`http://localhost:5024/api/user/changUserImage/`, formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+        withCredentials: true,
+      })
+      .then((response) => {
+        setUserData((prevData) => ({
+          ...prevData,
+          image: response.data.user.image,
+        }));
+        setSelectedFile(null);
+        // console.log(response.data.user.image);
+      })
+      .catch((error) => {
+        console.error("Error uploading image:", error);
+      });
+  }
 
   // Fetch user data from the API
   useEffect(() => {
@@ -39,6 +80,7 @@ export default function ProfileSection() {
           firstName: response.data.firstName,
           lastName: response.data.lastName,
           email: response.data.email,
+          image: response.data.image,
         });
       } catch (error) {
         console.error("Error fetching user data:", error);
@@ -142,6 +184,14 @@ export default function ProfileSection() {
         </Alert>
       )}
 
+      <input
+        type="file"
+        accept="image/*"
+        style={{ display: "none" }}
+        ref={fileInputRef}
+        onChange={handleFileChange}
+      />
+
       <Avatar
         sx={{
           width: 200,
@@ -149,10 +199,19 @@ export default function ProfileSection() {
           mb: 4,
           bgcolor: "primary.light",
           fontSize: "4rem",
+          cursor: "pointer",
         }}
         alt={`${userData.firstName} ${userData.lastName}`}
-        src={`https://ui-avatars.com/api/?name=${userData.firstName}+${userData.lastName}&background=random&size=200`}
+        src={
+          userData.image ||
+          `https://ui-avatars.com/api/?name=${userData.firstName}+${userData.lastName}&background=random&size=200`
+        }
+        onClick={handleImageClick}
       />
+
+      <Typography variant="caption" color="text.secondary" sx={{ mb: 2 }}>
+        Click to change profile picture
+      </Typography>
 
       <Typography variant="h5" gutterBottom>
         {userData.track} - Level {userData.level}

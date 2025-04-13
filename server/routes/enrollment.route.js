@@ -2,17 +2,25 @@ import { Router } from "express";
 import { authentication } from "../middleware/auth.middleware.js";
 import EnrollmentController from "../controllers/enrollment.controller.js";
 import verifyInput from "../middleware/verify.middleware.js";
-
+import { authenticationInstructor } from "../middleware/AuthInstructor.middleware.js";
 // The prefix is /api/enrollment
 const router = Router();
 
-router.get("/", EnrollmentController.getAllEnrollments);
+router.get(
+  "/",
+  authenticationInstructor,
+  EnrollmentController.getAllEnrollments
+);
 router.get(
   "/userEnrollments",
   authentication,
   EnrollmentController.getUserEnrollments
 );
-router.get("/:id", EnrollmentController.getEnrollmentById);
+router.get(
+  "/:id",
+  authenticationInstructor,
+  EnrollmentController.getEnrollmentById
+);
 router.post(
   "/createEnrollment",
   verifyInput,
@@ -27,7 +35,7 @@ router.put(
 );
 router.delete(
   "/deleteEnrollment/:id",
-  authentication,
+  authenticationInstructor,
   EnrollmentController.deleteEnrollment
 );
 

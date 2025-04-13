@@ -1,4 +1,5 @@
 import React, { useContext, useState, useEffect } from "react";
+import * as Yup from "yup";
 import {
   Container,
   Typography,
@@ -17,11 +18,13 @@ import ContactInfoSection from "./sectionsPersonal/ContactInfoSection";
 import AddressSection from "./sectionsPersonal/AddressSection";
 import FacultySection from "./sectionsPersonal/FacultySection";
 import MotivationLetterSection from "./sectionsPersonal/MotivationLetterSection";
+
 export default function PersonalDetailsForm() {
-  const { setPersonalDetails } = useContext(EnrollmentContext);
+  const { setPersonalDetails, setStep } = useContext(EnrollmentContext);
   const navigate = useNavigate();
   const [activeStep] = useState(0);
-  const steps = ["Personal Info", "Exam", "Review"];
+  const steps = ["User Info", "Exam", "Result"];
+
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
@@ -29,93 +32,166 @@ export default function PersonalDetailsForm() {
     nationality: "",
     email: "",
     phone: "",
-    country: "",
-    city: "",
-    street: "",
+    address: {
+      country: "",
+      city: "",
+      street: "",
+    },
     faculty: "",
+    facultyName: "",
     GPA: "",
     motivationLetter: "",
+    exam: [],
   });
+
   const [errors, setErrors] = useState({});
+  const [snackbarQueue, setSnackbarQueue] = useState([]);
   const [openSnackbar, setOpenSnackbar] = useState(false);
-  const [snackbarMessage, setSnackbarMessage] = useState(""); 
+
+  const validationSchema = Yup.object({
+    firstName: Yup.string()
+      .required("First name is required")
+      .min(2, "First name must be at least 2 characters")
+      .matches(/^[a-zA-Z]+$/, "First name must contain only letters"),
+    lastName: Yup.string()
+      .required("Last name is required")
+      .min(2, "Last name must be at least 2 characters")
+      .matches(/^[a-zA-Z]+$/, "Last name must contain only letters"),
+    dateOfBirth: Yup.date()
+      .required("Date of birth is required")
+      .min(new Date(1980, 0, 1), "Date of birth must be 1980 or later")
+      .max(new Date(), "Date of birth cannot be in the future")
+      .typeError("Please enter a valid date of birth"),
+    nationality: Yup.string().required("Nationality is required"),
+    email: Yup.string()
+      .required("Email is required")
+      .email("Enter a valid email address"),
+    phone: Yup.string()
+      .required("Phone number is required")
+      .matches(
+        /^(01[0125])\d{8}$|^02\d{8}$/,
+        "Enter a valid Egyptian phone number"
+      ),
+    address: Yup.object().shape({
+      country: Yup.string().required("Country is required"),
+      city: Yup.string(),
+      street: Yup.string(),
+    }),
+    faculty: Yup.string().required("Faculty is required"),
+    facultyName: Yup.string().required("Faculty is required"),
+    GPA: Yup.number()
+      .required("GPA is required")
+      .min(0, "GPA must be between 0-4")
+      .max(4, "GPA must be between 0-4")
+      .typeError("Enter a valid number"),
+    motivationLetter: Yup.string()
+      .required("Motivation letter is required")
+      .min(50, "Motivation letter must be at least 50 characters"),
+  });
+
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setErrors((prev) => ({ ...prev, [name]: undefined })); 
-    setFormData((prev) => ({ ...prev, [name]: value }));
-  };
-  const validatePayload = (payload) => {
-    const newErrors = {};
-    if (!payload.firstName?.trim()) {
-      newErrors.firstName = "First name is required";
-    } else if (!/^[a-zA-Z]+$/.test(payload.firstName)) {
-      newErrors.firstName = "First name should contain only letters";
-    }
-    if (!payload.lastName?.trim()) {
-      newErrors.lastName = "Last name is required";
-    } else if (!/^[a-zA-Z]+$/.test(payload.lastName)) {
-      newErrors.lastName = "Last name should contain only letters";
-    }
-    if (!payload.dateOfBirth) newErrors.dateOfBirth = "Date of birth is required";
-    if (!payload.nationality) newErrors.nationality = "Nationality is required";
-    if (!payload.email?.trim()) {
-      newErrors.email = "Email is required";
-    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(payload.email)) {
-      newErrors.email = "Enter a valid email address";
-    }
-    if (!payload.phone?.trim()) {
-      newErrors.phone = "Phone number is required";
-    } else if (!/^(01[0125])\d{8}$|^02\d{8}$/.test(payload.phone)) {
-      newErrors.phone = "Enter a valid Egyptian phone number";
-    }
-    if (!payload.address?.country?.trim()) newErrors["address.country"] = "Country is required";
-    if (!payload.facultyName) newErrors.faculty = "Faculty is required";
-    if (isNaN(payload.GPA) || payload.GPA < 0 || payload.GPA > 4) {
-      newErrors.GPA = "Please enter a valid GPA (0-4)";
-    }
-    if (!payload.motivationLetter?.trim()) {
-      newErrors.motivationLetter = "Motivation letter is required";
-    } else if (payload.motivationLetter.length < 50) {
-      newErrors.motivationLetter = "Motivation letter should be at least 50 characters";
-    }
-    return newErrors;
-  };
-  const handleNext = () => {
-    const payload = {
-      firstName: formData.firstName,
-      lastName: formData.lastName,
-      dateOfBirth: formData.dateOfBirth,
-      email: formData.email,
-      phone: formData.phone,
-      address: {
-        country: formData.country,
-        city: formData.city,
-        street: formData.street,
-      },
-      motivationLetter: formData.motivationLetter,
-      nationality: formData.nationality,
-      facultyName: formData.faculty,
-      GPA: formData.GPA ? parseFloat(formData.GPA) : undefined,
-    };
-    const validationErrors = validatePayload(payload);
-    if (Object.keys(validationErrors).length > 0) {
-      const firstErrorMessage = validationErrors[Object.keys(validationErrors)[0]];
-      setErrors(validationErrors);
-      setSnackbarMessage(firstErrorMessage);
-      setOpenSnackbar(true); 
-      return;
-    }
 
-    setErrors({});
-    setPersonalDetails(payload);
-    navigate("/enrollment/entryExam");
+    setFormData((prev) => {
+      if (name.includes(".")) {
+        const [parent, child] = name.split(".");
+        return {
+          ...prev,
+          [parent]: {
+            ...prev[parent],
+            [child]: value,
+          },
+        };
+      }
+      if (name === "faculty") {
+        return {
+          ...prev,
+          faculty: value,
+          facultyName: value,
+        };
+      }
+      return { ...prev, [name]: value };
+    });
+
+    setErrors((prev) => {
+      const newErrors = { ...prev };
+      if (name.includes(".")) {
+        const [parent, child] = name.split(".");
+        if (newErrors[parent]?.[child]) delete newErrors[parent][child];
+      } else {
+        delete newErrors[name];
+      }
+      return newErrors;
+    });
+  };
+
+  const handleBlur = async (e) => {
+    const { name, value } = e.target;
+    try {
+      await validationSchema.validateAt(name, { [name]: value });
+      setErrors((prev) => ({ ...prev, [name]: undefined }));
+    } catch (error) {
+      setErrors((prev) => ({ ...prev, [name]: error.message }));
+    }
+  };
+
+  const handleNext = async () => {
+    try {
+      await validationSchema.validate(formData, { abortEarly: false });
+
+      const payload = {
+        ...formData,
+        facultyName: formData.faculty || formData.facultyName,
+        GPA: formData.GPA ? parseFloat(formData.GPA) : undefined,
+        dateOfBirth: new Date(formData.dateOfBirth).toISOString(),
+        address: {
+          country: formData.address.country || "",
+          city: formData.address.city || "",
+          street: formData.address.street || "",
+        },
+      };
+
+      setErrors({});
+      setPersonalDetails(payload);
+      navigate("/enrollment/entryExam");
+    } catch (error) {
+      const validationErrors = {};
+      const errorMessages = [];
+
+      error.inner.forEach((err) => {
+        validationErrors[err.path] = err.message;
+        errorMessages.push(err.message);
+      });
+
+      setErrors(validationErrors);
+      setSnackbarQueue(errorMessages);
+      setOpenSnackbar(true);
+    }
+  };
+
+  const handleSnackbarClose = () => {
+    setSnackbarQueue((prev) => prev.slice(1));
+    setOpenSnackbar(false);
+    if (snackbarQueue.length > 1) {
+      setTimeout(() => setOpenSnackbar(true), 300);
+    }
   };
 
   useEffect(() => {
     const savedData = localStorage.getItem("formData");
     if (savedData) {
       try {
-        setFormData(JSON.parse(savedData));
+        const parsedData = JSON.parse(savedData);
+        setFormData((prev) => ({
+          ...prev,
+          ...parsedData,
+          address: {
+            ...prev.address,
+            ...(parsedData.address || {}),
+          },
+          exam: parsedData.exam || [],
+          facultyName: parsedData.facultyName || parsedData.faculty || "",
+        }));
       } catch (error) {
         console.error("Error parsing saved data", error);
       }
@@ -131,12 +207,44 @@ export default function PersonalDetailsForm() {
       <Typography variant="h5" gutterBottom color="#46C98B">
         Personal Details and Motivation
       </Typography>
+
       <CustomStepper activeStep={activeStep} steps={steps} />
-      <PersonalInfoSection formData={formData} errors={errors} handleChange={handleChange} />
-      <ContactInfoSection formData={formData} errors={errors} handleChange={handleChange} />
-      <AddressSection formData={formData} errors={errors} handleChange={handleChange} />
-      <FacultySection formData={formData} errors={errors} handleChange={handleChange} />
-      <MotivationLetterSection formData={formData} errors={errors} handleChange={handleChange} />
+
+      <PersonalInfoSection
+        formData={formData}
+        errors={errors}
+        handleChange={handleChange}
+        handleBlur={handleBlur}
+      />
+
+      <ContactInfoSection
+        formData={formData}
+        errors={errors}
+        handleChange={handleChange}
+        handleBlur={handleBlur}
+      />
+
+      <AddressSection
+        formData={formData}
+        errors={errors}
+        handleChange={handleChange}
+        handleBlur={handleBlur}
+      />
+
+      <FacultySection
+        formData={formData}
+        errors={errors}
+        handleChange={handleChange}
+        handleBlur={handleBlur}
+      />
+
+      <MotivationLetterSection
+        formData={formData}
+        errors={errors}
+        handleChange={handleChange}
+        handleBlur={handleBlur}
+      />
+
       <Box sx={{ display: "flex", justifyContent: "space-between", mt: 3 }}>
         <Button
           variant="contained"
@@ -155,16 +263,20 @@ export default function PersonalDetailsForm() {
           Next Step
         </Button>
       </Box>
-      {/*notification */}
+
       <Snackbar
-            open={openSnackbar}
-            autoHideDuration={6000}
-            onClose={() => setOpenSnackbar(false)}
-            anchorOrigin={{ vertical: 'top', horizontal: 'right' }} 
-          >
-            <Alert severity="error" onClose={() => setOpenSnackbar(false)} sx={{ width: '100%' }}>
-              {snackbarMessage}
-            </Alert>
+        open={openSnackbar}
+        autoHideDuration={6000}
+        onClose={handleSnackbarClose}
+        anchorOrigin={{ vertical: "top", horizontal: "right" }}
+      >
+        <Alert
+          severity="error"
+          onClose={handleSnackbarClose}
+          sx={{ width: "100%" }}
+        >
+          {snackbarQueue[0] || ""}
+        </Alert>
       </Snackbar>
     </Container>
   );

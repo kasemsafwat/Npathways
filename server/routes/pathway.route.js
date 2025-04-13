@@ -68,9 +68,19 @@ router.delete(
   allowTo("admin"),
   PathwayController.RemoveCourse
 );
-
-router.post("/admin/enroll-Student", PathwayController.enrollUserByAdmin);
-
+// added protected route for enroll user by admin
+router.post(
+  "/admin/enroll-Student",
+  protectRoutes,
+  PathwayController.enrollUserByAdmin
+);
+//  unenroll user by admin
+router.post(
+  "/admin/unEnroll-Student",
+  protectRoutes,
+  PathwayController.unenrollUserByAdmin
+);
+// //////////////////////////
 // By Student
 router.get("/student", authentication, PathwayController.getAllPathwayByUser);
 // //////////////////////////

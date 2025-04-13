@@ -1,21 +1,23 @@
-import axios from "axios";
 import { io } from "socket.io-client";
+
 let userId = localStorage.getItem("userId");
 let userName;
+let socket;
+
 console.log(userId);
+
 if (!userId) {
   userId = "no user found";
   userName = "no user found";
 } else {
-  userName = await axios(`http://localhost:5024/api/user/${userId}`, {
-    withCredentials: true,
-  }).then((response) => {
-    console.log(response.data);
-    return response.data.firstName + " " + response.data.lastName;
-  });
+  userName =
+    localStorage.getItem("firstName") + " " + localStorage.getItem("lastName");
+  if (!userName.trim()) {
+    userName = "no user found";
+  }
 }
 
-const socket = io("http://localhost:5024", {
+socket = io("http://localhost:5024", {
   query: { userId, userName },
 });
 

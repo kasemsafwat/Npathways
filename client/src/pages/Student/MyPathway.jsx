@@ -14,13 +14,15 @@ import CourseSection from "../../Components/Student/MyPathway/CourseSection";
 import CertificatesSection from "../../Components/Student/MyPathway/CertificatesSection";
 import ProfileSection from "../../Components/Student/MyPathway/ProfileSection";
 import { AuthContext } from "../../contexts/AuthContext";
+import { useNavigate } from "react-router";
 
 export default function MyPathway() {
   const { isEnrolled } = useContext(AuthContext);
-  const [tap, setTap] = useState("enrollment");
+  const [tap, setTap] = useState("profile");
+  const navigate = useNavigate();
   return (
     <>
-      <Container sx={{ my: 4 }}>
+      <Container sx={{ my: 4, minHeight: "80vh" }} maxWidth="lg">
         <Typography variant="h4" px={4} fontWeight={"bold"}>
           My Pathway
         </Typography>
@@ -30,13 +32,13 @@ export default function MyPathway() {
           mt={2}
           justifyContent={"space-between"}
         >
-          <Typography
+          {/* <Typography
             color={tap === "enrollment" ? "text.primary" : "text.gray"}
             onClick={() => setTap("enrollment")}
             sx={{ cursor: "pointer" }}
           >
             Enrollment
-          </Typography>
+          </Typography> */}
           <Typography
             color={tap === "pathway" ? "text.primary" : "text.gray"}
             onClick={() => setTap("pathway")}
@@ -72,14 +74,16 @@ export default function MyPathway() {
           sx={{ border: 1, mx: 4, my: 1, borderColor: "text.primary" }}
         ></Divider>
         <Box pl={6} pr={4} mt={2}>
-          {tap === "enrollment" && !isEnrolled && <EnrollmentSection />}
+          {/* {tap === "enrollment" && <EnrollmentSection />} */}
           {tap === "pathway" &&
-            (!isEnrolled ? (
+            (isEnrolled ? (
               <PathwaySection />
             ) : (
               <>
                 <Typography>Please finish your enrollment first</Typography>
-                <Button onClick={() => setTap("enrollment")}>Enrollment</Button>
+                <Button onClick={() => navigate("/enrollment/welcome")}>
+                  Enrollment
+                </Button>
               </>
             ))}
           {tap === "courses" && <CourseSection />}

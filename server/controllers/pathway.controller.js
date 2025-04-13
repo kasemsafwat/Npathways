@@ -153,8 +153,8 @@ const PathwayController = {
         pathway.courses = [];
       }
 
-      console.log("Courses from request:", courses);
-      console.log("Existing pathway courses:", pathway.courses);
+      // console.log("Courses from request:", courses);
+      // console.log("Existing pathway courses:", pathway.courses);
 
       const existingCourses = new Set(pathway.courses.map((c) => c.toString()));
       const newCourses = courses.filter(
@@ -262,24 +262,19 @@ const PathwayController = {
       });
     }
   },
+  // admin get deleted
   enrollUserByAdmin: async (req, res) => {
     try {
-      const { adminId, userId, pathwayId } = req.body;
+      const { userId, pathwayId } = req.body;
       if (
         !userId.match(/^[0-9a-fA-F]{24}$/) &&
-        !pathwayId.match(/^[0-9a-fA-F]{24}$/) &&
-        !adminId.match(/^[0-9a-fA-F]{24}$/)
+        !pathwayId.match(/^[0-9a-fA-F]{24}$/)
       ) {
         return res
           .status(400)
           .send({ message: "Invalid User ID or Pathway ID or Admin ID" });
       }
-      const admin = await Admin.findById(adminId);
-      if (!admin || admin.role !== "admin") {
-        return res
-          .status(403)
-          .send({ message: "Access denied. Only admins can enroll users." });
-      }
+
       const user = await User.findById(userId);
       if (!user) {
         return res.status(404).send({ message: "User not found" });
@@ -298,6 +293,47 @@ const PathwayController = {
 
       res.status(200).send({
         message: "User successfully enrolled in pathway by admin",
+        data: user,
+      });
+    } catch (error) {
+      console.error(`Error in PathWay controller: ${error}`);
+      return res.status(500).send({
+        message: "PathWayController: " + error.message,
+      });
+    }
+  },
+  unenrollUserByAdmin: async (req, res) => {
+    try {
+      const { userId, pathwayId } = req.body;
+      if (
+        !userId.match(/^[0-9a-fA-F]{24}$/) &&
+        !pathwayId.match(/^[0-9a-fA-F]{24}$/)
+      ) {
+        return res
+          .status(400)
+          .send({ message: "Invalid User ID or Pathway ID or Admin ID" });
+      }
+
+      const user = await User.findById(userId);
+      if (!user) {
+        return res.status(404).send({ message: "User not found" });
+      }
+      const pathway = await PathwayModel.findById(pathwayId);
+      if (!pathway) {
+        return res.status(404).send({ message: "Pathway not found" });
+      }
+      if (!user.pathways.includes(pathwayId)) {
+        return res
+          .status(400)
+          .send({ message: "User is not enrolled in this pathway" });
+      }
+      user.pathways = user.pathways.filter(
+        (pathway) => pathway.toString() !== pathwayId
+      );
+      await user.save();
+
+      res.status(200).send({
+        message: "User successfully unenrolled from pathway by admin",
         data: user,
       });
     } catch (error) {
@@ -333,10 +369,14 @@ const PathwayController = {
       if (!id.match(/^[0-9a-fA-F]{24}$/)) {
         return res.status(400).send({ error: "Invalid Pathway ID" });
       }
-      const Pathay = await PathwayModel.findById(id).populate(
-        "courses",
-        "name description requiredExams instructors lessons"
-      );
+      const Pathay = await PathwayModel.findById(id).populate({
+        path: "courses",
+        select: "name description requiredExams instructors lessons",
+        populate: {
+          path: "requiredExams",
+          select: "name description questions totalTime",
+        },
+      });
 
       if (!Pathay) {
         return res.status(404).send({ error: "PathWay not found" });

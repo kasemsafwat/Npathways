@@ -1,1 +1,158 @@
-<p>admin-dashboard works!</p>
+<div class=" ps-3 ">
+  <h1>System Management</h1>
+  <p class="subtitle">Welcome back, Alex! Here's an overview of your platform</p>
+</div>
+<div class="dashboard-container">
+  <!-- Header -->
+
+  <div class="dashboard-header">
+    <h1>Welcome back! Here's an overview of your platform.</h1>
+    <div class="header-actions">
+      <div class="date">{{ currentDate | date : "M/d/yyyy" }}</div>
+      <button class="export-btn">Export</button>
+    </div>
+  </div>
+
+  <!-- Navigation -->
+  <!-- <div class="dashboard-nav">
+    <button class="nav-btn active">Overview</button>
+    <button class="nav-btn">Analytics</button>
+    <button class="nav-btn">Reports</button>
+    <button class="nav-btn">Notifications</button>
+  </div> -->
+
+  <!-- Statistics Cards -->
+  <div class="stats-grid">
+    <div class="stat-card">
+      <div class="stat-header">
+        <span>Total Students</span>
+        <i class="fas fa-user-graduate"></i>
+      </div>
+      <div class="stat-value">{{ totalStudents | number }}</div>
+      <div class="stat-trend up">
+        <i class="fas fa-arrow-up"></i>
+        {{ activeStudents }} active students
+      </div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-header">
+        <span>Total Courses</span>
+        <i class="fas fa-book-open"></i>
+      </div>
+      <div class="stat-value">{{ totalCourses | number }}</div>
+      <div class="stat-trend up">
+        <i class="fas fa-arrow-up"></i>
+        {{ publishedCourses }} published courses
+      </div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-header">
+        <span>Total Instructors</span>
+        <i class="fas fa-chalkboard-teacher"></i>
+      </div>
+      <div class="stat-value">{{ totalInstructors | number }}</div>
+      <div class="stat-trend up">
+        <i class="fas fa-arrow-up"></i>
+        {{ availableInstructors }} available instructors
+      </div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-header">
+        <span>Monthly Revenue</span>
+        <i class="fas fa-chart-line"></i>
+      </div>
+      <div class="stat-value">${{ monthlyRevenue | number }}</div>
+      <div class="stat-trend up">
+        <i class="fas fa-arrow-up"></i>
+        7% from last month
+      </div>
+    </div>
+  </div>
+
+  <!-- Charts Section -->
+  <div class="charts-section">
+    <!-- Revenue Chart -->
+    <div class="chart-card">
+      <h2>Revenue Overview</h2>
+      <p class="subtitle">Monthly revenue breakdown for the current year</p>
+      <canvas
+        baseChart
+        [datasets]="revenueChartData.datasets"
+        [labels]="revenueChartData.labels"
+        [options]="revenueChartOptions"
+        [type]="'bar'"
+      >
+      </canvas>
+    </div>
+
+    <!-- Recent Transactions -->
+    <div class="transactions-card">
+      <h2>Recent Transactions</h2>
+      <p class="subtitle">Latest payments received across the platform</p>
+      <div class="transactions-list">
+        <div
+          class="transaction-item"
+          *ngFor="let transaction of recentTransactions"
+        >
+          <div class="transaction-info">
+            <div class="user-avatar"></div>
+            <div class="transaction-details">
+              <h4>{{ transaction.name }}</h4>
+              <p>{{ transaction.course }}</p>
+            </div>
+          </div>
+          <div class="transaction-amount">${{ transaction.amount }}</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="charts-section">
+    <!-- Enrollment Trends -->
+    <div class="chart-card">
+      <h2>Enrollment Trends</h2>
+      <p class="subtitle">Student enrollment data for the past 12 months</p>
+      <canvas
+        baseChart
+        [datasets]="enrollmentChartData.datasets"
+        [labels]="enrollmentChartData.labels"
+        [options]="enrollmentChartOptions"
+        [type]="'line'"
+      >
+      </canvas>
+    </div>
+
+    <!-- Top Performing Courses -->
+    <div class="courses-card">
+      <h2>Top Performing Courses</h2>
+      <p class="subtitle">
+        Courses with highest enrollment and completion rates
+      </p>
+      <div class="courses-list">
+        <div class="course-item" *ngFor="let course of topCourses">
+          <h3>{{ course.name }}</h3>
+          <div class="course-stats">
+            <div class="stat">
+              <i class="fas fa-users"></i>
+              <span>{{ course.students }} Students</span>
+            </div>
+            <div class="stat">
+              <i class="fas fa-check-circle"></i>
+              <span>{{ course.completion }}% Completion</span>
+            </div>
+            <div class="stat">
+              <i class="fas fa-clock"></i>
+              <span>{{ course.duration }} Duration</span>
+            </div>
+          </div>
+          <div class="course-rating">
+            <span class="rating">{{ course.rating }}/5.0</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

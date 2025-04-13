@@ -1,0 +1,129 @@
+<div class="container-fluid">
+  <h2 class="text-white">Certificate Management</h2>
+
+  <!-- 1. Certificate Creation Form -->
+  <div class="form-section create-section">
+    <h3>Create New Certificate</h3>
+
+    <div>
+      <label for="certificateName">Certificate Name:</label>
+      <input type="text" id="certificateName" [(ngModel)]="certificateName" placeholder="Enter certificate name" required>
+    </div>
+
+    <div>
+      <label for="certificateDescription">Certificate Description:</label>
+      <textarea id="certificateDescription" [(ngModel)]="certificateDescription" placeholder="Enter certificate description" required></textarea>
+    </div>
+
+    <div>
+      <label for="courseSelectCreate">Assign to Course:</label>
+      <select id="courseSelectCreate" [(ngModel)]="selectedCourseId" required>
+        <option [ngValue]="null" disabled>Select a Course</option>
+        <option *ngFor="let course of courses" [value]="course._id">
+          {{ course.name }}
+        </option>
+      </select>
+    </div>
+
+    <button (click)="createCertificate()"
+            [disabled]="!selectedCourseId || !certificateName || !certificateDescription || isCreating">
+      {{ isCreating ? 'Creating...' : 'Create Certificate' }}
+    </button>
+  </div>
+
+  <!-- 2. Existing Certificates List -->
+  <div class="certificate-list-section list-section">
+    <h3>Existing Certificates</h3>
+    <div *ngIf="isLoadingCertificates" class="loading-text">Loading certificates...</div>
+    <div *ngIf="!isLoadingCertificates && certificates.length === 0" class="info-message">No certificates found.</div>
+
+    <!-- Edit Form (shown when editing) -->
+    <div *ngIf="editingCertificate" class="edit-form">
+      <h4>Edit Certificate</h4>
+      <div>
+        <label for="editName">Certificate Name:</label>
+        <input type="text" id="editName" [(ngModel)]="editName" placeholder="Enter certificate name" required>
+      </div>
+      <div>
+        <label for="editDescription">Certificate Description:</label>
+        <textarea id="editDescription" [(ngModel)]="editDescription" placeholder="Enter certificate description" required></textarea>
+      </div>
+      <div class="edit-actions">
+        <button (click)="updateCertificate()"
+                [disabled]="!editName || !editDescription || isUpdating === editingCertificate._id">
+          {{ isUpdating === editingCertificate._id ? 'Updating...' : 'Update' }}
+        </button>
+        <button (click)="cancelEdit()" [disabled]="isUpdating === editingCertificate._id">Cancel</button>
+      </div>
+    </div>
+
+    <!-- Certificates Table -->
+    <table class="text-dark overflow-x-auto" *ngIf="!isLoadingCertificates && certificates.length > 0">
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Description</th>
+          <th>Associated Course</th>
+          <th>Created At</th>
+          <th class="text-center">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let cert of certificates">
+          <td>{{ cert.name }}</td>
+          <td>{{ cert.description }}</td>
+          <td>{{ getCourseName(cert.course) }}</td>
+          <td>{{ cert.createdAt | date:'medium' }}</td>
+          <td class="d-flex gap-2">
+            <button class="edit-button btn "
+                    (click)="startEdit(cert)"
+                    [disabled]="isUpdating === cert._id || editingCertificate?._id === cert._id">
+              Edit
+            </button>
+            <button class="delete-button btn "
+                    (click)="deleteCertificate(cert._id)"
+                    [disabled]="isDeleting === cert._id || editingCertificate?._id === cert._id">
+              {{ isDeleting === cert._id ? 'Deleting...' : 'Delete' }}
+            </button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- 3. Grant Certificate Form -->
+  <div class="form-section grant-section">
+    <h3>Grant Certificate to Student</h3>
+
+    <div>
+      <label for="certificateSelectGrant">Select Certificate:</label>
+      <select id="certificateSelectGrant" [(ngModel)]="selectedCertificateIdForGranting" (change)="onCertificateSelectForGranting($any($event.target).value)" required>
+        <option [ngValue]="null" disabled>Select a Certificate</option>
+        <option *ngFor="let cert of certificates" [value]="cert._id">
+          {{ cert.name }} ({{ getCourseName(cert.course) }})
+        </option>
+      </select>
+    </div>
+
+    <div *ngIf="selectedCertificateIdForGranting">
+      <div *ngIf="isLoadingUsers" class="loading-text">Loading students...</div>
+      <div *ngIf="!isLoadingUsers && users.length > 0">
+        <label for="userSelectGrant">Select Student:</label>
+        <select id="userSelectGrant" [(ngModel)]="selectedUserIdForGranting" required>
+          <option [ngValue]="null" disabled>Select a Student</option>
+          <option *ngFor="let user of users" [value]="user._id">
+            {{ user.firstName + ' ' + user.lastName || user._id }}
+          </option>
+        </select>
+      </div>
+      <div *ngIf="!isLoadingUsers && users.length === 0" class="info-message">
+        No students found for this course.
+      </div>
+    </div>
+
+    <button (click)="grantCertificate()"
+            [disabled]="!selectedCertificateIdForGranting || !selectedUserIdForGranting || isGranting">
+      {{ isGranting ? 'Granting...' : 'Grant Certificate' }}
+    </button>
+  </div>
+</div>

@@ -3,10 +3,12 @@ import React from "react";
 import CourseCard from "./CourseCard";
 import bimManagerImage from "../../../assets/bim-manager.jpeg";
 import axios from "axios";
+import { useNavigate } from "react-router";
 
 export default function CourseSection() {
   const [enrolledCourses, setEnrolledCourses] = React.useState([]);
   const [loading, setLoading] = React.useState(true);
+  const navigate = useNavigate();
 
   React.useEffect(() => {
     const fetchCourses = async () => {
@@ -54,8 +56,9 @@ export default function CourseSection() {
           <CourseCard
             key={course._id}
             title={course.name}
-            image={bimManagerImage}
+            image={course.image || bimManagerImage}
             time={course.time}
+            onClick={() => navigate(`/courseContent/${course._id}`)}
           />
         ))}
       </Stack>

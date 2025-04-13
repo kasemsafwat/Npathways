@@ -11,6 +11,7 @@ import {
   IconButton,
 } from "@mui/material";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
+
 const ARABIC_COUNTRIES = [
   "Algeria",
   "Bahrain",
@@ -35,6 +36,7 @@ const ARABIC_COUNTRIES = [
   "United Arab Emirates",
   "Yemen",
 ];
+
 const styles = {
   input: {
     "& .MuiOutlinedInput-root": {
@@ -89,8 +91,12 @@ const FormSection = ({
     {expanded && <Box sx={{ padding: 2 }}>{children}</Box>}
   </Box>
 );
-
-export default function AddressSection({ formData, errors, handleChange }) {
+export default function AddressSection({
+  formData,
+  errors,
+  handleChange,
+  handleBlur,
+}) {
   const [expandedSections, setExpandedSections] = useState({
     address: true,
   });
@@ -115,15 +121,16 @@ export default function AddressSection({ formData, errors, handleChange }) {
           <Grid item xs={12} md={4}>
             <FormControl
               fullWidth
-              error={Boolean(errors["address.country"])}
+              error={Boolean(errors.address?.country)}
               sx={styles.input}
             >
               <InputLabel>Country *</InputLabel>
               <Select
                 label="Country *"
-                name="country"
-                value={formData.country}
+                name="address.country"
+                value={formData.address?.country || ""}
                 onChange={handleChange}
+                onBlur={handleBlur}
               >
                 {ARABIC_COUNTRIES.map((country) => (
                   <MenuItem key={country} value={country}>
@@ -131,9 +138,9 @@ export default function AddressSection({ formData, errors, handleChange }) {
                   </MenuItem>
                 ))}
               </Select>
-              {errors["address.country"] && (
+              {errors.address?.country && (
                 <Typography variant="caption" color="error">
-                  {errors["address.country"]}
+                  {errors.address.country}
                 </Typography>
               )}
             </FormControl>
@@ -142,9 +149,12 @@ export default function AddressSection({ formData, errors, handleChange }) {
             <TextField
               fullWidth
               label="City"
-              name="city"
-              value={formData.city}
+              name="address.city"
+              value={formData.address?.city || ""}
               onChange={handleChange}
+              onBlur={handleBlur}
+              error={Boolean(errors.address?.city)}
+              helperText={errors.address?.city}
               sx={styles.input}
             />
           </Grid>
@@ -152,9 +162,12 @@ export default function AddressSection({ formData, errors, handleChange }) {
             <TextField
               fullWidth
               label="Street"
-              name="street"
-              value={formData.street}
+              name="address.street"
+              value={formData.address?.street || ""}
               onChange={handleChange}
+              onBlur={handleBlur}
+              error={Boolean(errors.address?.street)}
+              helperText={errors.address?.street}
               sx={styles.input}
             />
           </Grid>

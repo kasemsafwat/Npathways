@@ -1,4 +1,5 @@
 import Instructor from "../models/instructor.model.js";
+import Admin from "../models/admin.model.js";
 import jwt from "jsonwebtoken";
 export const authenticationInstructor = async (req, res, next) => {
   try {
@@ -31,9 +32,12 @@ export const authenticationInstructor = async (req, res, next) => {
     let instructor = await Instructor.findById(valid.id);
     //  console.log("Instructor:", instructor);
     if (!instructor) {
-      return res.status(401).send({
-        message: "Unauthorized Instructor",
-      });
+      instructor = await Admin.findById(valid.id);
+      if (!instructor) {
+        return res.status(401).send({
+          message: "Unauthorized Instructor",
+        });
+      }
     }
 
     delete instructor.tokens;

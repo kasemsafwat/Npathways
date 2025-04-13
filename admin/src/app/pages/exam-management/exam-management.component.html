@@ -1,99 +1,188 @@
-<div class="exam-container">
-  <!-- Create New Exam Section -->
-  <div class="exam-form-section">
-    <h2 class="section-title">Create New Exam</h2>
-    <form
-      [formGroup]="examForm"
-      (ngSubmit)="isEditing ? updateExam() : createExam()"
-    >
-      <div class="form-field">
-        <input
-          class="dark-input"
-          formControlName="name"
-          placeholder="Exam Name*"
-          [class.error]="
-            examForm.get('name')?.invalid && examForm.get('name')?.touched
-          "
-        />
-      </div>
-
-      <div class="form-field">
-        <input
-          class="dark-input"
-          type="number"
-          formControlName="timeLimit"
-          placeholder="Time Limit (minutes)*"
-          [class.error]="
-            examForm.get('timeLimit')?.invalid &&
-            examForm.get('timeLimit')?.touched
-          "
-        />
-      </div>
-
-      <button
-        class="btn btn-primary action-button"
-        type="submit"
-        [disabled]="!examForm.valid"
-      >
-        {{ isEditing ? "Update" : "Create" }}
-      </button>
-      <button
-        *ngIf="isEditing"
-        class="btn btn-secondary action-button ms-2"
-        type="button"
-        (click)="resetForm()"
-      >
-        Cancel
-      </button>
-    </form>
+<div class="exam-management-container">
+  <div class="page-header">
+    <div class="header-content">
+      <h1 class="main-title">
+        <i class="fas fa-tasks me-2"></i>
+        Exam Management
+      </h1>
+      <p class="subtitle">Create, manage, and organize your exams efficiently</p>
+    </div>
   </div>
 
-  <!-- Exams List Section -->
-  <div class="exams-list-section">
-    <h2 class="section-title">Exams List</h2>
-    <table class="dark-table">
-      <thead>
-        <tr>
-          <th class="text-center">Name</th>
-          <th class="text-center">Time Limit</th>
-          <th class="text-center">Questions</th>
-          <th class="text-center">Actions</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr *ngFor="let exam of exams">
-          <td class="text-center">{{ exam.name }}</td>
-          <td class="text-center">{{ exam.timeLimit }} minutes</td>
-          <td class="text-center">{{ getQuestionCount(exam) }}</td>
-          <td class="d-flex justify-content-around align-items-center">
+  <div class="exam-container">
+    <!-- Create New Exam Section -->
+    <div class="exam-form-section card">
+      <div class="card-header">
+        <h2 class="section-title">
+          <i class="fas" [class.fa-edit]="isEditing" [class.fa-plus-circle]="!isEditing"></i>
+          {{ isEditing ? 'Edit Exam' : 'Create New Exam' }}
+        </h2>
+      </div>
+      <div class="card-body">
+        <form
+          [formGroup]="examForm"
+          (ngSubmit)="isEditing ? updateExam() : createExam()"
+          class="exam-form"
+        >
+          <div class="form-field">
+            <label for="examName">
+              <i class="fas fa-file-alt me-2"></i>
+              Exam Name
+            </label>
+            <div class="input-group">
+              <input
+                id="examName"
+                class="form-control"
+                formControlName="name"
+                placeholder="Enter exam name"
+                [class.is-invalid]="examForm.get('name')?.invalid && examForm.get('name')?.touched"
+              />
+              <div class="invalid-feedback" *ngIf="examForm.get('name')?.invalid && examForm.get('name')?.touched">
+                <i class="fas fa-exclamation-circle me-1"></i>
+                Please enter a valid exam name
+              </div>
+            </div>
+          </div>
+
+          <div class="form-field">
+            <label for="timeLimit">
+              <i class="fas fa-clock me-2"></i>
+              Time Limit (minutes)
+            </label>
+            <div class="input-group">
+              <input
+                id="timeLimit"
+                class="form-control"
+                type="number"
+                formControlName="timeLimit"
+                placeholder="Enter time limit in minutes"
+                [class.is-invalid]="examForm.get('timeLimit')?.invalid && examForm.get('timeLimit')?.touched"
+              />
+              <div class="invalid-feedback" *ngIf="examForm.get('timeLimit')?.invalid && examForm.get('timeLimit')?.touched">
+                <i class="fas fa-exclamation-circle me-1"></i>
+                Please enter a valid time limit
+              </div>
+            </div>
+          </div>
+
+          <div class="form-actions">
             <button
-              class="btn btn-outline-primary btn me-2"
-              (click)="viewExamDetails(exam._id)"
+              class="btn btn-primary"
+              type="submit"
+              [disabled]="!examForm.valid"
             >
-              View
+              <i class="fas" [class.fa-save]="isEditing" [class.fa-plus]="!isEditing"></i>
+              {{ isEditing ? "Update Exam" : "Create Exam" }}
             </button>
             <button
-              class="btn btn-outline-danger btn me-2"
-              (click)="deleteExam(exam._id)"
+              *ngIf="isEditing"
+              class="btn btn-outline-secondary"
+              type="button"
+              (click)="resetForm()"
             >
-              Delete
+              <i class="fas fa-times"></i>
+              Cancel
             </button>
-            <!-- <div class="position-relative">
-              <input type="file"
-                     #fileInput
-                     [id]="'fileInput_' + exam._id"
-                     class="file-input"
-                     accept=".xlsx,.xls"
-                     (change)="onFileSelected($event, exam._id)"
-                     hidden>
-              <button class="btn btn-outline-success btn"
-                      (click)="fileInput.click()">
-                Upload Excel
-              </button>
-            </div> -->
-          </td>
-        </tr>
-      </tbody>
-    </table>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Exams List Section -->
+    <div class="exams-list-section card">
+      <div class="card-header">
+        <div class="d-flex justify-content-between align-items-center">
+          <h2 class="section-title">
+            <i class="fas fa-list me-2"></i>
+            Exams List
+          </h2>
+          <div class="header-actions">
+            <div class="search-box d-flex align-items-center">
+              <input type="text" placeholder="Search exams..." class="form-control">
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="table-responsive">
+          <table class="table table-hover">
+            <thead>
+              <tr>
+                <th>
+                  <i class="fas fa-file-alt me-2"></i>
+                  Name
+                </th>
+                <th>
+                  <i class="fas fa-clock me-2"></i>
+                  Time Limit
+                </th>
+                <th>
+                  <i class="fas fa-question-circle me-2"></i>
+                  Questions
+                </th>
+                <th>
+                  <i class="fas fa-cog me-2"></i>
+                  Actions
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let exam of exams">
+                <td>
+                  <div class="exam-name">
+                    <span class="name">{{ exam.name }}</span>
+                  </div>
+                </td>
+                <td>
+                  <div class="time-limit">
+                    <span class="badge bg-info">
+                      <i class="fas fa-clock me-1"></i>
+                      {{ exam.timeLimit }} minutes
+                    </span>
+                  </div>
+                </td>
+                <td>
+                  <div class="question-count">
+                    <span class="badge bg-primary">
+                      <i class="fas fa-list-ol me-1"></i>
+                      {{ getQuestionCount(exam) }}
+                    </span>
+                  </div>
+                </td>
+                <td>
+                  <div class="action-buttons d-flex gap-2">
+                    <button
+                      class="btn btn-primary"
+                      (click)="viewExamDetails(exam._id)"
+                      title="View Exam Details"
+                    >
+                      <i class="fas fa-eye"></i>
+                    </button>
+                    <button
+                      class="btn btn-danger"
+                      (click)="deleteExam(exam._id)"
+                      title="Delete Exam"
+                    >
+                      <i class="fas fa-trash"></i>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+              <tr *ngIf="exams.length === 0">
+                <td colspan="4">
+                  <div class="empty-state">
+                    <div class="empty-state-icon">
+                      <i class="fas fa-clipboard-list"></i>
+                    </div>
+                    <h3>No Exams Yet</h3>
+                    <p>Start by creating your first exam using the form above.</p>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
   </div>
 </div>

@@ -5,6 +5,8 @@ import {
   newAdminValidation,
   loginValidation,
   ResetValidation,
+  updateUserByAdminValidation,
+  updateAdminValidation,
 } from "../middleware/admin.middleware.js";
 
 import { protectRoutes, allowTo } from "../middleware/AuthAdmin.middleware.js";
@@ -12,6 +14,8 @@ import { protectRoutes, allowTo } from "../middleware/AuthAdmin.middleware.js";
 import { CompletStudentValidation } from "../middleware/user.middleware.js";
 import StudentControlller from "../controllers/student.controller.js";
 import { userUpload } from "../middleware/userImage.middleware.js";
+import userController from "../controllers/user.controller.js";
+import { UpdateInstructorValidation } from "../middleware/instructor.middleware.js";
 
 // The prefix is /api/admin
 const router = express.Router();
@@ -28,9 +32,24 @@ router.patch(
 // ////////////////////////////////////
 
 // // Admine
-router
-  .route("/:id")
-  .delete(protectRoutes, allowTo("admin"), AdminControlller.deleteInstructor);
+router.get(
+  "/getAllAdmins",
+  protectRoutes,
+  allowTo("admin"),
+  AdminControlller.getAllAdmins
+);
+router.get(
+  "/getAdminbyId/:id",
+  protectRoutes,
+  allowTo("admin"),
+  AdminControlller.getAdminById
+);
+router.delete(
+  "/:id",
+  protectRoutes,
+  allowTo("admin"),
+  AdminControlller.deleteAdmin
+);
 
 router
   .route("/")
@@ -73,6 +92,13 @@ router.post(
   AdminControlller.createInstructor
 );
 router.post(
+  "/createNewAdmin",
+  protectRoutes,
+  allowTo("admin"),
+  newAdminValidation,
+  AdminControlller.createAdmin
+);
+router.post(
   "/create-NewStudent",
   protectRoutes,
   allowTo("admin"),
@@ -82,16 +108,16 @@ router.post(
 
 router.put(
   "/users/:userId",
+  updateUserByAdminValidation,
   protectRoutes,
   allowTo("admin"),
-  CompletStudentValidation,
   StudentControlller.updateUserByAdmin
 );
 router.put(
   "/updateData/:adminId",
   protectRoutes,
   allowTo("admin"),
-  newAdminValidation,
+  updateAdminValidation,
   AdminControlller.updateAdminData
 );
 
@@ -99,7 +125,7 @@ router.put(
 
 // changUserImage
 router.post(
-  "/changInstructorImage/:id",
+  "/changInstructorImage",
   userUpload.single("image"),
   protectRoutes,
   allowTo("instructor"),
@@ -122,4 +148,28 @@ router.get(
   allowTo("admin"),
   AdminControlller.getAllStudents
 );
+
+//? /////////////////////////
+router.get(
+  "/getUsersInCourse/:courseId",
+  protectRoutes,
+  allowTo("admin"),
+  userController.getUsersInCourse
+);
+router.get(
+  "/getUsersInPathway/:pathwayId",
+  protectRoutes,
+  allowTo("admin"),
+  userController.getUsersInPathway
+);
+//? /////////////////////////
+
+router.put(
+  "/instructors/:id",
+  UpdateInstructorValidation,
+  protectRoutes,
+  allowTo("admin"),
+  AdminControlller.updateInstructor
+);
+
 export default router;

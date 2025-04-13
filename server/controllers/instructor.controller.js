@@ -8,6 +8,8 @@ import fs from "fs";
 import { fileURLToPath } from "url";
 import sendEmail from "../services/email.js";
 import User from "../models/user.model.js";
+import Admin from "../models/admin.model.js";
+import isDuplicatedEmail from "../services/helper.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -15,9 +17,11 @@ const __dirname = path.dirname(__filename);
 const instructorContoller = {
   newInstructor: async (req, res) => {
     try {
-      let data = req.body;
-      let duplicateEmail = await Instructor.findOne({ email: data.email });
-      if (duplicateEmail) {
+      let data = { ...req.body, email: req.body.email.toLowerCase() };
+
+      const isDuplicate = await isDuplicatedEmail(data.email, null);
+
+      if (isDuplicate) {
         return res.status(403).send({
           message:
             "This email is already registered. Please use a different email.",
@@ -35,9 +39,12 @@ const instructorContoller = {
       });
     }
   },
+  // todo optimize login for universal login
   Login: async (req, res) => {
     try {
-      let { email, password } = req.body;
+      let { password } = req.body;
+      let email = req.body.email.toLowerCase();
+
       let instructor = await Instructor.findOne({ email });
       if (!instructor) {
         return res.status(404).send({
@@ -107,6 +114,24 @@ const instructorContoller = {
     try {
       const updateData = { ...req.body };
       delete updateData.password;
+
+      if (req.body.email) updateData.email = req.body.email.toLowerCase();
+
+      // Check if the email is already in use by another instructor
+      if (updateData.email && updateData.email !== req.instructor.email) {
+        const isDuplicate = await isDuplicatedEmail(
+          updateData.email,
+          req.instructor.email
+        );
+
+        if (isDuplicate) {
+          return res.status(403).json({
+            message:
+              "This email is already registered. Please use a different email.",
+          });
+        }
+      }
+
       let instructor = await Instructor.findByIdAndUpdate(
         req.instructor._id,
         updateData,
@@ -160,18 +185,14 @@ const instructorContoller = {
   //  Change Image
   changInstructorImage: async (req, res) => {
     try {
-      const { id } = req.params;
-      if (!id.match(/^[0-9a-fA-F]{24}$/)) {
-        return res.status(400).json({ error: "Invalid Instructor ID" });
-      }
-
-      const instructor = await Instructor.findById(id);
-      if (!instructor) {
-        return res.status(404).json({ message: "Instructor not found" });
-      }
+      const instructorId = req.instructor._id;
 
       if (req.file) {
-        const imageUrl = `${req.file.filename}`;
+        const instructor = await Instructor.findById(instructorId);
+
+        const HOST = process.env.HOST || "http://localhost";
+        const PORT = process.env.PORT || 5024;
+        const imageUrl = `${HOST}:${PORT}/uploads/${req.file.filename}`;
 
         // Remove old image if it exists
         if (instructor.image) {
@@ -180,21 +201,21 @@ const instructorContoller = {
             "../uploads",
             path.basename(instructor.image)
           );
-          console.log("Attempting to delete:", oldImagePath);
+          // console.log("Attempting to delete:", oldImagePath);
 
           if (fs.existsSync(oldImagePath)) {
             try {
               fs.unlinkSync(oldImagePath);
-              console.log("Old image deleted successfully");
+              // console.log("Old image deleted successfully");
             } catch (error) {
-              console.error("Error deleting old image:", error);
+              // console.error("Error deleting old image:", error);
             }
           } else {
-            console.log("Old image not found:", oldImagePath);
+            // console.log("Old image not found:", oldImagePath);
           }
         }
         const updatedInstructor = await Instructor.findByIdAndUpdate(
-          id,
+          instructorId,
           { image: imageUrl },
           { new: true }
         );
@@ -202,6 +223,10 @@ const instructorContoller = {
         if (!updatedInstructor) {
           return res.status(404).json({ message: "Instructor not found" });
         }
+
+        const userResponse = updatedInstructor.toObject();
+        delete userResponse.password;
+        delete userResponse.tokens;
 
         return res.status(200).json({
           message: "Image updated successfully",
@@ -220,7 +245,8 @@ const instructorContoller = {
   // Forget Password
   forgetPassword: async (req, res) => {
     try {
-      let { email } = req.body;
+      let email = req.body.email.toLowerCase();
+
       let instructor = await Instructor.findOne({
         email,
       });
@@ -230,13 +256,13 @@ const instructorContoller = {
         });
       }
       const resetToken = instructor.createResetPasswordToken();
-      console.log(resetToken);
+      // console.log(resetToken);
       await instructor.save({ validateeforeSave: false });
 
       const reseUrl = `${req.protocol}://${req.headers.host}/api/instructor/resetPassword/${resetToken}`;
       const message = `We have received a password reset request. please use the below link to reset password : 
       \n\n ${reseUrl} \n\n This reset Password Link will be valid only for 15 minutes `;
-      console.log(reseUrl);
+      // console.log(reseUrl);
 
       try {
         await sendEmail({
@@ -261,7 +287,9 @@ const instructorContoller = {
   },
   resetPassword: async (req, res) => {
     try {
-      const { email, password, confirmPassword } = req.body;
+      const { password, confirmPassword } = req.body;
+      const email = req.body.email.toLowerCase();
+
       if (!email || !password || !confirmPassword) {
         return res.status(400).send({ message: "All fields are required!" });
       }
@@ -309,29 +337,29 @@ const instructorContoller = {
   },
   // Instructor Permissions
   //   1) Create Course()   ==>  updateMyCourse  ==> getMyCourse(T)  ==>  getCourseStudents (T)
-  createCourse: async (req, res) => {
-    try {
-      const { name, description, requiredExams } = req.body;
-      const newCourse = new CourseModel({
-        name,
-        description,
-        requiredExams,
-        instructors: [req.instructor._id],
-        image: req.file?.filename,
-      });
+  // createCourse: async (req, res) => {
+  //   try {
+  //     const { name, description, requiredExams } = req.body;
+  //     const newCourse = new CourseModel({
+  //       name,
+  //       description,
+  //       requiredExams,
+  //       instructors: [req.instructor._id],
+  //       image: req.file?.filename,
+  //     });
 
-      const savedCourse = await newCourse.save();
-      await Instructor.findByIdAndUpdate(req.instructor._id, {
-        $push: { courses: savedCourse._id },
-      });
+  //     const savedCourse = await newCourse.save();
+  //     await Instructor.findByIdAndUpdate(req.instructor._id, {
+  //       $push: { courses: savedCourse._id },
+  //     });
 
-      res.status(201).json(savedCourse);
-    } catch (error) {
-      res
-        .status(500)
-        .json({ message: "Create Course Error: " + error.message });
-    }
-  },
+  //     res.status(201).json(savedCourse);
+  //   } catch (error) {
+  //     res
+  //       .status(500)
+  //       .json({ message: "Create Course Error: " + error.message });
+  //   }
+  // },
   getMyCourses: async (req, res) => {
     try {
       const courses = await CourseModel.find({
@@ -345,28 +373,28 @@ const instructorContoller = {
         .json({ message: "Get My Courses Error: " + error.message });
     }
   },
-  getCourseStudents: async (req, res) => {
-    try {
-      const courseId = req.params.id;
-      const course = await CourseModel.findOne({
-        _id: courseId,
-        instructors: req.instructor._id,
-      }).populate("students", "firstName lastName email");
+  // getCourseStudents: async (req, res) => {
+  //   try {
+  //     const courseId = req.params.id;
+  //     const course = await CourseModel.findOne({
+  //       _id: courseId,
+  //       instructors: req.instructor._id,
+  //     }).populate("students", "firstName lastName email");
 
-      if (!course) {
-        return res.status(404).json({ message: "Course not found " });
-      }
-      res.status(200).json({
-        courseName: course.name,
-        totalStudents: course.students.length,
-        students: course.students,
-      });
-    } catch (error) {
-      res
-        .status(500)
-        .json({ message: "Get Course Students Error: " + error.message });
-    }
-  },
+  //     if (!course) {
+  //       return res.status(404).json({ message: "Course not found " });
+  //     }
+  //     res.status(200).json({
+  //       courseName: course.name,
+  //       totalStudents: course.students.length,
+  //       students: course.students,
+  //     });
+  //   } catch (error) {
+  //     res
+  //       .status(500)
+  //       .json({ message: "Get Course Students Error: " + error.message });
+  //   }
+  // },
 
   //* Added these points to finish the page, feel free to edit it
 
@@ -412,6 +440,32 @@ const instructorContoller = {
       return res.status(200).send(users);
     } catch (error) {
       console.error("Get Users In Course Error:", error);
+      return res.status(500).send({
+        message: error.message,
+      });
+    }
+  },
+  getAllInstructors: async (req, res) => {
+    try {
+      const instructors = await Instructor.find().select("-password");
+      res.status(200).send(instructors);
+    } catch (error) {
+      console.error("Get All Instructors Error:", error);
+      return res.status(500).send({
+        message: error.message,
+      });
+    }
+  },
+  deleteInstructor: async (req, res) => {
+    try {
+      const instructorId = req.params.id;
+      const instructor = await Instructor.findByIdAndDelete(instructorId);
+      if (!instructor) {
+        return res.status(404).send({ message: "Instructor not found" });
+      }
+      res.status(200).send({ message: "Instructor deleted successfully" });
+    } catch (error) {
+      console.error("Delete Instructor Error:", error);
       return res.status(500).send({
         message: error.message,
       });

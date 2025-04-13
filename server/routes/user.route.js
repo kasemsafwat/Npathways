@@ -13,7 +13,7 @@ const router = express.Router();
 
 router.post("/signup", newUserValidation, userController.newUser);
 router.post("/login", loginValidation, userController.login);
-
+router.get("/VerifyEmail/:token",userController.VerifyEmail);
 router.post("/forgetPassword", userController.forgetPassword);
 router.patch(
   "/resetPassword/:token",
@@ -24,12 +24,12 @@ router.patch(
 router.get("/all", authentication, userController.getAllUsers);
 router.get("/search", authentication, userController.searchUser);
 router.get("/verify", authentication, userController.verifyUser);
-router.delete("/logout", authentication, userController.logout);
+router.delete("/logout", userController.logout);
 router.get("/:id", authentication, userController.getUserById);
 
 // changUserImage
 router.post(
-  "/changUserImage/:id",
+  "/changUserImage/",
   userUpload.single("image"),
   authentication,
   userController.changUserImage

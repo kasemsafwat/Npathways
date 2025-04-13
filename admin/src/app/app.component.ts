@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterModule } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 import { AuthService } from './services/auth.service';
 
 @Component({
@@ -15,13 +15,12 @@ export class AppComponent {
   userName = '';
   userRole = '';
 
-  constructor(private authService: AuthService) {
-    // Initialize from current auth state
+  constructor(private authService: AuthService, private router: Router) {
+
     this.updateAuthState();
-    
-    // Subscribe to auth state changes
+
+
     this.authService.isAuthenticated$.subscribe(() => {
-      console.log('auth state changed');
       this.updateAuthState();
     });
   }
@@ -29,11 +28,9 @@ export class AppComponent {
   private updateAuthState() {
     this.isLoggedIn = this.authService.hasToken();
 
-    console.log('updateAuthState called');
     if (this.isLoggedIn) {
       this.authService.getProfile().subscribe({
         next: (profile) => {
-          console.log('Profile:', profile);
           this.userName = `${profile.firstName} ${profile.lastName}`;
           this.userRole = profile?.role || '';
         },
@@ -43,14 +40,15 @@ export class AppComponent {
           this.userRole = '';
         },
       });
-      console.log('updateAuthState called');
     } else {
       this.userName = '';
       this.userRole = '';
+      this.router.navigate(['/admin-login']);
     }
   }
 
   logout() {
     this.authService.logout();
+    this.router.navigate(['/admin-login']);
   }
 }
