@@ -108,4 +108,23 @@
   .btn-outline-danger {
     height: 38px;
   }
+}
+
+/* Alert styles */
+.alert {
+  border-radius: 8px;
+  padding: 1rem;
+  margin-bottom: 1rem;
+}
+
+.alert-danger {
+  background-color: #FEF2F2;
+  border: 1px solid #FECACA;
+  color: #DC2626;
+}
+
+.alert-success {
+  background-color: #F0FDF4;
+  border: 1px solid #BBF7D0;
+  color: #16A34A;
 } 

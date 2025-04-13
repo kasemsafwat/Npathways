@@ -1,6 +1,6 @@
 import { Component, OnInit, HostListener } from '@angular/core';
 import { CommonModule, DatePipe } from '@angular/common';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { StudentService } from '../../services/student.service';
 import { InstructorService } from '../../services/instructor.service';
 import { AuthService } from '../../services/auth.service';
@@ -23,7 +23,7 @@ interface User {
   templateUrl: './user-management.component.html',
   styleUrls: ['./user-management.component.css'],
   standalone: true,
-  imports: [CommonModule, FormsModule, DatePipe],
+  imports: [CommonModule, FormsModule, DatePipe, ReactiveFormsModule],
 })
 export class UserManagementComponent implements OnInit {
   users: User[] = [];
@@ -32,6 +32,7 @@ export class UserManagementComponent implements OnInit {
   showCreateAdminModal: boolean = false;
   showCreateInstructorModal: boolean = false;
   showEditModal: boolean = false;
+  showPassword: boolean = false;
   userToEdit: any = null;
   newAdmin = {
     firstName: '',
@@ -39,21 +40,101 @@ export class UserManagementComponent implements OnInit {
     email: '',
     password: '',
   };
-    newInstructor = {
+  newInstructor = {
     firstName: '',
     lastName: '',
     email: '',
     password: '',
-    role: 'instructor'
+    role: 'instructor',
   };
+  createAdminForm: FormGroup;
+  createInstructorForm: FormGroup;
+  emailError: string | null = null;
 
   constructor(
+    private fb: FormBuilder,
     private studentService: StudentService,
     private instructorService: InstructorService,
     private authService: AuthService,
     private router: Router,
     private route: ActivatedRoute
-  ) {}
+  ) {
+    this.createAdminForm = this.fb.group({
+      firstName: [
+        '',
+        [
+          Validators.required,
+          Validators.pattern(/^[A-Za-z]+$/),
+          Validators.minLength(2),
+          Validators.maxLength(15),
+        ],
+      ],
+      lastName: [
+        '',
+        [
+          Validators.required,
+          Validators.pattern(/^[A-Za-z]+$/),
+          Validators.minLength(2),
+          Validators.maxLength(15),
+        ],
+      ],
+      email: [
+        '',
+        [
+          Validators.required,
+          Validators.email,
+          Validators.pattern(/^[^\s@]+@[^\s@]+\.[^\s@]+$/),
+        ],
+      ],
+      password: [
+        '',
+        [
+          Validators.required,
+          Validators.pattern(
+            /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/
+          ),
+        ],
+      ],
+    });
+
+    this.createInstructorForm = this.fb.group({
+      firstName: [
+        '',
+        [
+          Validators.required,
+          Validators.pattern(/^[A-Za-z]+$/),
+          Validators.minLength(2),
+          Validators.maxLength(15),
+        ],
+      ],
+      lastName: [
+        '',
+        [
+          Validators.required,
+          Validators.pattern(/^[A-Za-z]+$/),
+          Validators.minLength(2),
+          Validators.maxLength(15),
+        ],
+      ],
+      email: [
+        '',
+        [
+          Validators.required,
+          Validators.email,
+          Validators.pattern(/^[^\s@]+@[^\s@]+\.[^\s@]+$/),
+        ],
+      ],
+      password: [
+        '',
+        [
+          Validators.required,
+          Validators.pattern(
+            /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/
+          ),
+        ],
+      ],
+    });
+  }
 
   ngOnInit(): void {
     // Load users data
@@ -183,47 +264,113 @@ export class UserManagementComponent implements OnInit {
     user.showActions = !user.showActions;
   }
 
+  // Getter methods for form controls for admin
+  get firstName() {
+    return this.createAdminForm.get('firstName');
+  }
 
-  //create admin user
-  createAdmin(form: any): void {
-    this.authService.createAdmin(this.newAdmin).subscribe({
+  get lastName() {
+    return this.createAdminForm.get('lastName');
+  }
+
+  get email() {
+    return this.createAdminForm.get('email');
+  }
+
+  get password() {
+    return this.createAdminForm.get('password');
+  }
+
+  togglePasswordVisibility() {
+    this.showPassword = !this.showPassword;
+  }
+
+  // Getter methods for form controls for instructor
+  get firstNameInstructor() {
+    return this.createInstructorForm.get('firstName');
+  }
+
+  get lastNameInstructor() {
+    return this.createInstructorForm.get('lastName');
+  }
+
+  get emailInstructor() {
+    return this.createInstructorForm.get('email');
+  }
+
+  get passwordInstructor() {
+    return this.createInstructorForm.get('password');
+  }
+
+  // create admin user
+  createAdmin(): void {
+    if (this.createAdminForm.invalid) {
+      // Mark all fields as touched to trigger validation display
+      Object.keys(this.createAdminForm.controls).forEach((key) => {
+        const control = this.createAdminForm.get(key);
+        control?.markAsTouched();
+        control?.markAsDirty();
+      });
+      return;
+    }
+
+    this.emailError = null; // Reset error message
+    const adminData = this.createAdminForm.value;
+    this.authService.createAdmin(adminData).subscribe({
       next: () => {
         this.showCreateAdminModal = false;
-        this.newAdmin = {
-          firstName: '',
-          lastName: '',
-          email: '',
-          password: '',
-        };
-        this.loadUsers(); // Reload users to show the new admin
+        this.createAdminForm.reset();
+        this.loadUsers();
       },
       error: (error) => {
         console.error('Error creating admin:', error);
+        if (error.status === 409) {
+          // Assuming 409 is the status code for duplicate email
+          this.emailError =
+            'This email is already registered. Please use a different email.';
+        } else {
+          this.emailError =
+            'An error occurred while creating the admin. Please try again.';
+        }
       },
     });
   }
 
   //create instructors user
-  createInstructor(form: any): void {
-    this.instructorService.createInstructor(this.newInstructor).subscribe({
+  createInstructor(): void {
+    if (this.createInstructorForm.invalid) {
+      Object.keys(this.createInstructorForm.controls).forEach((key) => {
+        const control = this.createInstructorForm.get(key);
+        control?.markAsTouched();
+        control?.markAsDirty();
+      });
+      return;
+    }
+
+    this.emailError = null; // Reset error message
+    const instructorData = {
+      ...this.createInstructorForm.value,
+      role: 'instructor', // add role if needed
+    };
+
+    this.instructorService.createInstructor(instructorData).subscribe({
       next: () => {
         this.showCreateInstructorModal = false;
-        this.newInstructor = {
-          firstName: '',
-          lastName: '',
-          email: '',
-          password: '',
-          role: 'instructor'
-        };
+        this.createInstructorForm.reset();
         this.loadUsers();
       },
       error: (error) => {
         console.error('Error creating instructor:', error);
+        if (error.status === 409) {
+          this.emailError =
+            'This email is already registered. Please use a different email.';
+        } else {
+          this.emailError =
+            'An error occurred while creating the instructor. Please try again.';
+        }
       },
     });
   }
-
-
 
   editUser(user: User): void {
     // Split the name into first and last name

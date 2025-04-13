@@ -26,11 +26,11 @@ export let newUserSchema = Joi.object({
       "any.required": "Last name is required.",
     }),
   email: Joi.string()
-    .email({ minDomainSegments: 2 })
     .trim()
     .required()
+    .pattern(/^[^\s@]+@[^\s@]+\.[^\s@]+$/)
     .messages({
-      "string.email": "Please enter a valid email address.",
+      "string.pattern.base": "Email must be a valid address and end with .com",
       "string.empty": "Email is required and cannot be empty.",
       "any.required": "Email is a required field.",
     }),
