@@ -229,8 +229,8 @@ const createEnrollmentSchema = Joi.object({
       "string.empty": "Country is required",
       "any.required": "Country is required",
     }),
-    city: Joi.string(),
-    street: Joi.string(),
+    city: Joi.string().optional().allow(""),
+    street: Joi.string().optional().allow(""),
   })
     .required()
     .messages({
