@@ -200,20 +200,24 @@
       </button>
     </div>
     <div class="modal-body">
-      <form #adminForm="ngForm" (ngSubmit)="createAdmin(adminForm)" novalidate>
+      <form [formGroup]="createAdminForm" (ngSubmit)="createAdmin()" novalidate>
         <div class="form-group">
           <label for="firstName">First Name</label>
           <input
             type="text"
             id="firstName"
-            [(ngModel)]="newAdmin.firstName"
-            name="firstName"
-            required
-            #firstName="ngModel"
+            formControlName="firstName"
             class="form-control"
+            [class.is-invalid]="firstName?.invalid && firstName?.touched"
           />
-          <div *ngIf="firstName.touched && firstName.invalid" class="error-message">
-            <div *ngIf="firstName.errors?.['required']">First Name is required.</div>
+          <div class="invalid-feedback" *ngIf="firstName?.invalid && firstName?.touched">
+            <div *ngIf="firstName?.errors">
+              <div *ngIf="firstName?.errors?.['required']">First Name is required</div>
+              <div *ngIf="firstName?.errors?.['pattern']">First name must contain only letters</div>
+              <div *ngIf="firstName?.errors?.['minlength'] || firstName?.errors?.['maxlength']">
+                First name must be 2-15 characters long
+              </div>
+            </div>
           </div>
         </div>
 
@@ -222,14 +226,18 @@
           <input
             type="text"
             id="lastName"
-            [(ngModel)]="newAdmin.lastName"
-            name="lastName"
-            required
-            #lastName="ngModel"
+            formControlName="lastName"
             class="form-control"
+            [class.is-invalid]="lastName?.invalid && lastName?.touched"
           />
-          <div *ngIf="lastName.touched && lastName.invalid" class="error-message">
-            <div *ngIf="lastName.errors?.['required']">Last Name is required.</div>
+          <div class="invalid-feedback" *ngIf="lastName?.invalid && lastName?.touched">
+            <div *ngIf="lastName?.errors">
+              <div *ngIf="lastName?.errors?.['required']">Last Name is required</div>
+              <div *ngIf="lastName?.errors?.['pattern']">Last name must contain only letters</div>
+              <div *ngIf="lastName?.errors?.['minlength'] || lastName?.errors?.['maxlength']">
+                Last name must be 2-15 characters long
+              </div>
+            </div>
           </div>
         </div>
 
@@ -238,36 +246,45 @@
           <input
             type="email"
             id="email"
-            [(ngModel)]="newAdmin.email"
-            name="email"
-            required
-            email
-            #email="ngModel"
+            formControlName="email"
             class="form-control"
+            [class.is-invalid]="(email?.invalid && email?.touched) || emailError"
           />
-          <div *ngIf="email.touched && email.invalid" class="error-message">
-            <div *ngIf="email.errors?.['required']">Email is required.</div>
-            <div *ngIf="email.errors?.['email']">Please enter a valid email address.</div>
+          <div class="invalid-feedback" *ngIf="(email?.invalid && email?.touched) || emailError">
+            <div *ngIf="email?.errors">
+              <div *ngIf="email?.errors?.['required']">Email is required</div>
+              <div *ngIf="email?.errors?.['pattern']">Email must be a valid address</div>
+            </div>
+            <div *ngIf="emailError" class="text-danger">
+              {{ emailError }}
+            </div>
           </div>
         </div>
 
         <div class="form-group">
           <label for="password">Password</label>
           <input
-            type="password"
+            [type]="showPassword ? 'text' : 'password'"
             id="password"
-            [(ngModel)]="newAdmin.password"
-            name="password"
-            required
-            minlength="6"
-            #password="ngModel"
+            formControlName="password"
             class="form-control"
+            [class.is-invalid]="password?.invalid && password?.touched"
           />
-          <div *ngIf="password.touched && password.invalid" class="error-message">
-            <div *ngIf="password.errors?.['required']">Password is required.</div>
-            <div *ngIf="password.errors?.['minlength']">
-              Password must be at least 6 characters long.
+          <div class="invalid-feedback" *ngIf="password?.invalid && password?.touched">
+            <div *ngIf="password?.errors">
+              <div *ngIf="password?.errors?.['required']">Password is required</div>
+              <div *ngIf="password?.errors?.['pattern']">
+                Password must contain at least 8 characters, including an
+                uppercase letter, a lowercase letter, a number, and a special
+                character.
+              </div>
             </div>
+          </div>
+                <div class="password-toggle">
+            <a href="javascript:void(0)" (click)="togglePasswordVisibility()">
+              <i class="fas" [class]="showPassword ? 'fa-eye-slash' : 'fa-eye'"></i>
+              {{ showPassword ? 'Hide' : 'Show' }} Password
+            </a>
           </div>
         </div>
 
@@ -279,7 +296,7 @@
           >
             Cancel
           </button>
-          <button type="submit" [disabled]="adminForm.invalid" class="create-btn">
+          <button type="submit" [disabled]="createAdminForm.invalid" class="create-btn">
             Create Admin
           </button>
         </div>
@@ -299,20 +316,24 @@
       </button>
     </div>
     <div class="modal-body">
-      <form #instructorForm="ngForm" (ngSubmit)="createInstructor(instructorForm)" novalidate>
+      <form [formGroup]="createInstructorForm" (ngSubmit)="createInstructor()" novalidate>
         <div class="form-group">
           <label for="firstName">First Name</label>
           <input
             type="text"
             id="firstName"
-            [(ngModel)]="newInstructor.firstName"
-            name="firstName"
-            required
-            #firstName="ngModel"
+            formControlName="firstName"
             class="form-control"
+            [class.is-invalid]="firstNameInstructor?.invalid && firstNameInstructor?.touched"
           />
-          <div *ngIf="firstName.touched && firstName.invalid" class="error-message">
-            <div *ngIf="firstName.errors?.['required']">First Name is required.</div>
+          <div class="invalid-feedback" *ngIf="firstNameInstructor?.invalid && firstNameInstructor?.touched">
+            <div *ngIf="firstNameInstructor?.errors">
+              <div *ngIf="firstNameInstructor?.errors?.['required']">First Name is required</div>
+              <div *ngIf="firstNameInstructor?.errors?.['pattern']">First name must contain only letters</div>
+              <div *ngIf="firstNameInstructor?.errors?.['minlength'] || firstNameInstructor?.errors?.['maxlength']">
+                First name must be 2-15 characters long
+              </div>
+            </div>
           </div>
         </div>
 
@@ -321,14 +342,18 @@
           <input
             type="text"
             id="lastName"
-            [(ngModel)]="newInstructor.lastName"
-            name="lastName"
-            required
-            #lastName="ngModel"
+            formControlName="lastName"
             class="form-control"
+            [class.is-invalid]="lastNameInstructor?.invalid && lastNameInstructor?.touched"
           />
-          <div *ngIf="lastName.touched && lastName.invalid" class="error-message">
-            <div *ngIf="lastName.errors?.['required']">Last Name is required.</div>
+          <div class="invalid-feedback" *ngIf="lastNameInstructor?.invalid && lastNameInstructor?.touched">
+            <div *ngIf="lastNameInstructor?.errors">
+              <div *ngIf="lastNameInstructor?.errors?.['required']">Last Name is required</div>
+              <div *ngIf="lastNameInstructor?.errors?.['pattern']">Last name must contain only letters</div>
+              <div *ngIf="lastNameInstructor?.errors?.['minlength'] || lastNameInstructor?.errors?.['maxlength']">
+                Last name must be 2-15 characters long
+              </div>
+            </div>
           </div>
         </div>
 
@@ -337,36 +362,45 @@
           <input
             type="email"
             id="email"
-            [(ngModel)]="newInstructor.email"
-            name="email"
-            required
-            email
-            #email="ngModel"
+            formControlName="email"
             class="form-control"
+            [class.is-invalid]="(emailInstructor?.invalid && emailInstructor?.touched) || emailError"
           />
-          <div *ngIf="email.touched && email.invalid" class="error-message">
-            <div *ngIf="email.errors?.['required']">Email is required.</div>
-            <div *ngIf="email.errors?.['email']">Please enter a valid email address.</div>
+          <div class="invalid-feedback" *ngIf="(emailInstructor?.invalid && emailInstructor?.touched) || emailError">
+            <div *ngIf="emailInstructor?.errors">
+              <div *ngIf="emailInstructor?.errors?.['required']">Email is required</div>
+              <div *ngIf="emailInstructor?.errors?.['pattern']">Email must be a valid address</div>
+            </div>
+            <div *ngIf="emailError" class="text-danger">
+              {{ emailError }}
+            </div>
           </div>
         </div>
 
         <div class="form-group">
           <label for="password">Password</label>
           <input
-            type="password"
+            [type]="showPassword ? 'text' : 'password'"
             id="password"
-            [(ngModel)]="newInstructor.password"
-            name="password"
-            required
-            minlength="6"
-            #password="ngModel"
+            formControlName="password"
             class="form-control"
+            [class.is-invalid]="passwordInstructor?.invalid && passwordInstructor?.touched"
           />
-          <div *ngIf="password.touched && password.invalid" class="error-message">
-            <div *ngIf="password.errors?.['required']">Password is required.</div>
-            <div *ngIf="password.errors?.['minlength']">
-              Password must be at least 6 characters long.
+          <div class="invalid-feedback" *ngIf="passwordInstructor?.invalid && passwordInstructor?.touched">
+            <div *ngIf="passwordInstructor?.errors">
+              <div *ngIf="passwordInstructor?.errors?.['required']">Password is required</div>
+              <div *ngIf="passwordInstructor?.errors?.['pattern']">
+                Password must contain at least 8 characters, including an
+                uppercase letter, a lowercase letter, a number, and a special
+                character.
+              </div>
             </div>
+          </div>
+          <div class="password-toggle">
+            <a href="javascript:void(0)" (click)="togglePasswordVisibility()">
+              <i class="fas" [class]="showPassword ? 'fa-eye-slash' : 'fa-eye'"></i>
+              {{ showPassword ? 'Hide' : 'Show' }} Password
+            </a>
           </div>
         </div>
 
@@ -378,7 +412,7 @@
           >
             Cancel
           </button>
-          <button type="submit" [disabled]="instructorForm.invalid" class="create-btn">
+          <button type="submit" [disabled]="createInstructorForm.invalid" class="create-btn">
             Create Instructor
           </button>
         </div>
@@ -386,6 +420,7 @@
     </div>
   </div>
 </div>
+
 
 <!-- Delete Confirmation Modal -->
 <div

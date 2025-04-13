@@ -1,6 +1,6 @@
 import { Component, EventEmitter, OnInit, Output } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, FormBuilder, FormGroup, Validators, ReactiveFormsModule, FormArray } from '@angular/forms';
 import { CoursesService, Course } from '../../../services/course.service';
 import { InstructorService, Instructor } from '../../../services/instructor.service';
 
@@ -37,24 +37,13 @@ interface ValidationErrors {
   templateUrl: './create-course-dialog.component.html',
   styleUrls: ['./create-course-dialog.component.css'],
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, ReactiveFormsModule],
 })
 export class CreateCourseDialogComponent implements OnInit {
   @Output() close = new EventEmitter<void>();
   @Output() courseCreated = new EventEmitter<void>();
 
-  course: CreateCourse = {
-    name: '',
-    description: '',
-    requiredExams: [],
-    instructors: [],
-    lessons: [],
-    status: 'unpublished',
-    price: 0,
-    discount: 0,
-    category: ''
-  };
-
+  courseForm: FormGroup;
   showDialog = false;
   isSubmitting = false;
   error: string | null = null;
@@ -64,15 +53,59 @@ export class CreateCourseDialogComponent implements OnInit {
   instructors: Instructor[] = [];
   selectedInstructors: string[] = [];
   newInstructor: string = '';
-  validationErrors: ValidationErrors = {};
 
   constructor(
+    private fb: FormBuilder,
     private coursesService: CoursesService,
     private instructorService: InstructorService
-  ) {}
+  ) {
+    this.courseForm = this.fb.group({
+      name: ['', [
+        Validators.required,
+        Validators.minLength(3),
+        Validators.maxLength(100)
+      ]],
+      description: ['', [
+        Validators.required,
+        Validators.minLength(10),
+        Validators.maxLength(1000)
+      ]],
+      price: [0, [
+        Validators.min(0)
+      ]],
+      discount: [0, [
+        Validators.min(0),
+        Validators.max(100)
+      ]],
+      status: ['unpublished'],
+      image: [null],
+      instructors: [[], Validators.required],
+      lessons: this.fb.array([], Validators.required)
+    });
+
+    // Add initial lesson
+    this.addLesson();
+  }
 
   ngOnInit() {
     this.loadInstructors();
+  }
+
+  // Getter methods for form controls
+  get name() { return this.courseForm.get('name'); }
+  get description() { return this.courseForm.get('description'); }
+  get price() { return this.courseForm.get('price'); }
+  get discount() { return this.courseForm.get('discount'); }
+  get image() { return this.courseForm.get('image'); }
+  get instructorsControl() { return this.courseForm.get('instructors'); }
+  get lessons() { return this.courseForm.get('lessons') as FormArray; }
+
+  // Helper method to create a lesson form group
+  private createLessonGroup(): FormGroup {
+    return this.fb.group({
+      name: ['', [Validators.required, Validators.minLength(2)]],
+      duration: [30, [Validators.required, Validators.min(1)]]
+    });
   }
 
   loadInstructors() {
@@ -99,12 +132,14 @@ export class CreateCourseDialogComponent implements OnInit {
   addInstructor() {
     if (this.newInstructor && !this.selectedInstructors.includes(this.newInstructor)) {
       this.selectedInstructors.push(this.newInstructor);
+      this.instructorsControl?.setValue(this.selectedInstructors);
       this.newInstructor = '';
     }
   }
 
   removeInstructor(instructorId: string) {
     this.selectedInstructors = this.selectedInstructors.filter(id => id !== instructorId);
+    this.instructorsControl?.setValue(this.selectedInstructors);
   }
 
   onImageSelected(event: Event) {
@@ -115,8 +150,8 @@ export class CreateCourseDialogComponent implements OnInit {
       // Check file type
       const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
       if (!validTypes.includes(file.type)) {
-        this.validationErrors.image = 'Please select a valid image file (PNG, JPEG, JPG, or WEBP)';
-        input.value = ''; // Clear the input
+        this.image?.setErrors({ invalidType: true });
+        input.value = '';
         this.imagePreview = null;
         this.courseImage = null;
         return;
@@ -125,15 +160,16 @@ export class CreateCourseDialogComponent implements OnInit {
       // Check file size (max 5MB)
       const maxSize = 5 * 1024 * 1024; // 5MB in bytes
       if (file.size > maxSize) {
-        this.validationErrors.image = 'Image size should be less than 5MB';
-        input.value = ''; // Clear the input
+        this.image?.setErrors({ maxSize: true });
+        input.value = '';
         this.imagePreview = null;
         this.courseImage = null;
         return;
       }
 
       this.courseImage = file;
-      this.validationErrors.image = undefined;
+      this.image?.setValue(file);
+      this.image?.setErrors(null);
       
       // Create preview URL
       const reader = new FileReader();
@@ -145,93 +181,26 @@ export class CreateCourseDialogComponent implements OnInit {
   }
 
   addLesson() {
-    this.course.lessons.push({
-      name: '',
-      duration: 30
-    });
+    const lessonGroup = this.createLessonGroup();
+    this.lessons.push(lessonGroup);
   }
 
   removeLesson(index: number) {
-    this.course.lessons.splice(index, 1);
-  }
-
-  validateForm(): boolean {
-    this.validationErrors = {};
-    let isValid = true;
-
-    // Validate course name
-    if (!this.course.name.trim()) {
-      this.validationErrors.name = 'Course name is required';
-      isValid = false;
-    } else if (this.course.name.trim().length < 3) {
-      this.validationErrors.name = 'Course name must be at least 3 characters long';
-      isValid = false;
+    this.lessons.removeAt(index);
+    // Ensure there's always at least one lesson
+    if (this.lessons.length === 0) {
+      this.addLesson();
     }
-
-    // Validate description
-    if (!this.course.description.trim()) {
-      this.validationErrors.description = 'Course description is required';
-      isValid = false;
-    } else if (this.course.description.trim().length < 10) {
-      this.validationErrors.description = 'Description must be at least 10 characters long';
-      isValid = false;
-    }
-
-    // Validate price
-    if (this.course.price !== undefined && this.course.price < 0) {
-      this.validationErrors.price = 'Price cannot be negative';
-      isValid = false;
-    }
-
-    // Validate discount
-    if (this.course.discount !== undefined) {
-      if (this.course.discount < 0) {
-        this.validationErrors.discount = 'Discount cannot be negative';
-        isValid = false;
-      } else if (this.course.discount > 100) {
-        this.validationErrors.discount = 'Discount cannot be more than 100%';
-        isValid = false;
-      }
-    }
-
-    // Validate image
-    if (!this.courseImage && !this.imagePreview) {
-      this.validationErrors.image = 'Course image is required';
-      isValid = false;
-    }
-
-    // Validate instructors
-    if (this.selectedInstructors.length === 0) {
-      this.validationErrors.instructors = 'At least one instructor is required';
-      isValid = false;
-    }
-
-    // Validate lessons
-    if (this.course.lessons.length === 0) {
-      this.validationErrors.lessons = { 0: { name: 'At least one lesson is required' } };
-      isValid = false;
-    } else {
-      this.course.lessons.forEach((lesson, index) => {
-        if (!lesson.name.trim()) {
-          this.validationErrors.lessons = this.validationErrors.lessons || {};
-          this.validationErrors.lessons[index] = this.validationErrors.lessons[index] || {};
-          this.validationErrors.lessons[index].name = 'Lesson name is required';
-          isValid = false;
-        }
-        if (typeof lesson.duration === 'number' && lesson.duration <= 0) {
-          this.validationErrors.lessons = this.validationErrors.lessons || {};
-          this.validationErrors.lessons[index] = this.validationErrors.lessons[index] || {};
-          this.validationErrors.lessons[index].duration = 'Duration must be greater than 0';
-          isValid = false;
-        }
-      });
-    }
-
-    return isValid;
   }
 
   async saveCourse() {
-    if (!this.validateForm()) {
+    if (this.courseForm.invalid) {
+      // Mark all fields as touched to trigger validation display
+      Object.keys(this.courseForm.controls).forEach(key => {
+        const control = this.courseForm.get(key);
+        control?.markAsTouched();
+        control?.markAsDirty();
+      });
       return;
     }
 
@@ -241,38 +210,28 @@ export class CreateCourseDialogComponent implements OnInit {
       this.success = null;
 
       const formData = new FormData();
-      formData.append('name', this.course.name.trim());
-      formData.append('description', this.course.description.trim());
-      formData.append('status', this.course.status || 'unpublished');
+      formData.append('name', this.courseForm.get('name')?.value.trim());
+      formData.append('description', this.courseForm.get('description')?.value.trim());
+      formData.append('status', this.courseForm.get('status')?.value);
       
       if (this.courseImage) {
         formData.append('image', this.courseImage);
       }
 
-      if (this.course.price !== undefined) {
-        formData.append('price', this.course.price.toString());
+      if (this.courseForm.get('price')?.value !== undefined) {
+        formData.append('price', this.courseForm.get('price')?.value.toString());
       }
 
-      if (this.course.discount !== undefined) {
-        formData.append('discount', this.course.discount.toString());
-      }
-
-      if (this.course.category) {
-        formData.append('category', this.course.category);
+      if (this.courseForm.get('discount')?.value !== undefined) {
+        formData.append('discount', this.courseForm.get('discount')?.value.toString());
       }
 
       // Add instructors
       formData.append('instructors', JSON.stringify(this.selectedInstructors));
 
-      // Add lessons - create new objects without any _id fields
-      const validLessons = this.course.lessons
-        .filter(lesson => lesson.name.trim())
-        .map(lesson => ({
-          name: lesson.name.trim(),
-          duration: lesson.duration
-        }));
-      
-      formData.append('lessons', JSON.stringify(validLessons));
+      // Add lessons
+      const lessons = this.lessons.value;
+      formData.append('lessons', JSON.stringify(lessons));
 
       const response = await this.coursesService.createCourse(formData).toPromise();
       this.success = 'Course created successfully!';
@@ -302,23 +261,23 @@ export class CreateCourseDialogComponent implements OnInit {
   }
 
   private resetForm() {
-    this.course = {
+    this.courseForm.reset({
       name: '',
       description: '',
-      requiredExams: [],
-      instructors: [],
-      lessons: [],
-      status: 'unpublished',
       price: 0,
       discount: 0,
-      category: ''
-    };
+      status: 'unpublished'
+    });
     this.selectedInstructors = [];
     this.courseImage = null;
     this.imagePreview = null;
     this.error = null;
     this.success = null;
-    this.validationErrors = {};
-    this.isSubmitting = false;
+    
+    // Clear and reinitialize lessons
+    while (this.lessons.length !== 0) {
+      this.lessons.removeAt(0);
+    }
+    this.addLesson(); // Add initial lesson
   }
 }

@@ -31,9 +31,16 @@ export class AdminLoginComponent implements OnInit {
     private router: Router
   ) {
     this.loginForm = this.fb.group({
-      email: ['', [Validators.required, Validators.email]],
+      email: [
+        'kasem@gmail.com',
+        [
+          Validators.email,
+          Validators.required,
+          Validators.pattern(/^[^\s@]+@[^\s@]+\.[^\s@]+$/),
+        ],
+      ],
       password: [
-        '',
+        '1234@asdASD',
         [
           Validators.required,
           Validators.pattern(

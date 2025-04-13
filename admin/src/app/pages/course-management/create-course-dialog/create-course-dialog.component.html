@@ -6,7 +6,7 @@
         <button type="button" class="btn-close" (click)="closeDialog()"></button>
       </div>
       <div class="modal-body">
-        <form #courseForm="ngForm">
+        <form [formGroup]="courseForm" (ngSubmit)="saveCourse()">
           <!-- Course Image -->
           <div class="mb-4">
             <label class="form-label">Course Image *</label>
@@ -18,10 +18,13 @@
                 <input type="file" 
                        class="form-control" 
                        accept="image/png, image/jpeg, image/jpg, image/webp"
-                       (change)="onImageSelected($event)">
+                       (change)="onImageSelected($event)"
+                       [class.is-invalid]="image?.invalid && image?.touched">
                 <small class="text-muted d-block mt-1">Recommended size: 1280x720 pixels. Accepted formats: PNG, JPEG, JPG, WEBP</small>
-                <div class="text-danger" *ngIf="validationErrors.image">
-                  {{ validationErrors.image }}
+                <div class="invalid-feedback" *ngIf="image?.invalid && image?.touched">
+                  <div *ngIf="image?.errors?.['required']">Course image is required</div>
+                  <div *ngIf="image?.errors?.['invalidType']">Please select a valid image file (PNG, JPEG, JPG, or WEBP)</div>
+                  <div *ngIf="image?.errors?.['maxSize']">Image size should be less than 5MB</div>
                 </div>
               </div>
             </div>
@@ -33,11 +36,12 @@
             <input type="text" 
                    class="form-control" 
                    id="courseName" 
-                   name="name"
-                   [(ngModel)]="course.name" 
-                   required>
-            <div class="text-danger" *ngIf="validationErrors.name">
-              {{ validationErrors.name }}
+                   formControlName="name"
+                   [class.is-invalid]="name?.invalid && name?.touched">
+            <div class="invalid-feedback" *ngIf="name?.invalid && name?.touched">
+              <div *ngIf="name?.errors?.['required']">Course name is required</div>
+              <div *ngIf="name?.errors?.['minlength']">Course name must be at least 3 characters long</div>
+              <div *ngIf="name?.errors?.['maxlength']">Course name cannot exceed 100 characters</div>
             </div>
           </div>
 
@@ -45,12 +49,13 @@
             <label for="courseDescription" class="form-label">Description *</label>
             <textarea class="form-control" 
                       id="courseDescription" 
-                      name="description"
-                      [(ngModel)]="course.description" 
+                      formControlName="description"
                       rows="3"
-                      required></textarea>
-            <div class="text-danger" *ngIf="validationErrors.description">
-              {{ validationErrors.description }}
+                      [class.is-invalid]="description?.invalid && description?.touched"></textarea>
+            <div class="invalid-feedback" *ngIf="description?.invalid && description?.touched">
+              <div *ngIf="description?.errors?.['required']">Course description is required</div>
+              <div *ngIf="description?.errors?.['minlength']">Description must be at least 10 characters long</div>
+              <div *ngIf="description?.errors?.['maxlength']">Description cannot exceed 1000 characters</div>
             </div>
           </div>
 
@@ -61,12 +66,12 @@
               <input type="number" 
                      class="form-control" 
                      id="coursePrice" 
-                     name="price"
-                     [(ngModel)]="course.price" 
+                     formControlName="price"
                      min="0"
-                     step="0.01">
-              <div class="text-danger" *ngIf="validationErrors.price">
-                {{ validationErrors.price }}
+                     step="0.01"
+                     [class.is-invalid]="price?.invalid && price?.touched">
+              <div class="invalid-feedback" *ngIf="price?.invalid && price?.touched">
+                <div *ngIf="price?.errors?.['min']">Price cannot be negative</div>
               </div>
             </div>
             <div class="col-md-6">
@@ -74,40 +79,23 @@
               <input type="number" 
                      class="form-control" 
                      id="courseDiscount" 
-                     name="discount"
-                     [(ngModel)]="course.discount" 
+                     formControlName="discount"
                      min="0"
-                     max="100">
-              <div class="text-danger" *ngIf="validationErrors.discount">
-                {{ validationErrors.discount }}
+                     max="100"
+                     [class.is-invalid]="discount?.invalid && discount?.touched">
+              <div class="invalid-feedback" *ngIf="discount?.invalid && discount?.touched">
+                <div *ngIf="discount?.errors?.['min']">Discount cannot be negative</div>
+                <div *ngIf="discount?.errors?.['max']">Discount cannot be more than 100%</div>
               </div>
             </div>
           </div>
-
-          <!-- Category -->
-<!--           <div class="mb-4">
-            <label for="courseCategory" class="form-label">Category</label>
-            <select class="form-select" 
-                    id="courseCategory" 
-                    name="category"
-                    [(ngModel)]="course.category">
-              <option value="">Select Category</option>
-              <option value="Development">Development</option>
-              <option value="Business">Business</option>
-              <option value="Design">Design</option>
-              <option value="Marketing">Marketing</option>
-              <option value="IT & Software">IT & Software</option>
-              <option value="Personal Development">Personal Development</option>
-            </select>
-          </div> -->
 
           <!-- Status -->
           <div class="mb-4">
             <label for="courseStatus" class="form-label">Status</label>
             <select class="form-select" 
                     id="courseStatus" 
-                    name="status"
-                    [(ngModel)]="course.status">
+                    formControlName="status">
               <option value="unpublished">Unpublished</option>
               <option value="published">Published</option>
             </select>
@@ -125,29 +113,31 @@
             <select class="form-select" 
                     name="instructor" 
                     [(ngModel)]="newInstructor"
-                    (change)="addInstructor()">
+                    [ngModelOptions]="{standalone: true}"
+                    (change)="addInstructor()"
+                    [class.is-invalid]="instructorsControl?.invalid && instructorsControl?.touched">
               <option value="">Select Instructor</option>
               <option *ngFor="let instructor of getAvailableInstructors()" [value]="instructor._id">
                 {{ instructor.firstName }} {{ instructor.lastName }}
               </option>
             </select>
             <small class="text-muted d-block mt-1">Select at least one instructor</small>
-            <div class="text-danger" *ngIf="validationErrors.instructors">
-              {{ validationErrors.instructors }}
+            <div class="invalid-feedback" *ngIf="instructorsControl?.invalid && instructorsControl?.touched">
+              <div *ngIf="instructorsControl?.errors?.['required']">At least one instructor is required</div>
             </div>
           </div>
 
           <!-- Lessons Section -->
           <div class="mb-4">
             <div class="d-flex justify-content-between align-items-center mb-3">
-              <label class="form-label mb-0">Lessons</label>
+              <label class="form-label mb-0">Lessons *</label>
               <button type="button" class="btn btn-outline-primary btn-sm" (click)="addLesson()">
                 <i class="bi bi-plus"></i> Add Lesson
               </button>
             </div>
 
-            <div class="lessons-list">
-              <div class="lesson-item mb-3" *ngFor="let lesson of course.lessons; let i = index">
+            <div class="lessons-list" formArrayName="lessons">
+              <div class="lesson-item mb-3" *ngFor="let lesson of lessons.controls; let i = index" [formGroupName]="i">
                 <div class="card">
                   <div class="card-body">
                     <div class="row g-3">
@@ -156,29 +146,31 @@
                         <input type="text" 
                                class="form-control" 
                                [id]="'lessonName' + i"
-                               [(ngModel)]="lesson.name" 
-                               [name]="'lessonName' + i"
-                               required>
-                        <div class="text-danger" *ngIf="validationErrors.lessons && validationErrors.lessons[i]?.name">
-                          {{ validationErrors.lessons[i].name }}
+                               formControlName="name"
+                               [class.is-invalid]="lessons.at(i).get('name')?.invalid && lessons.at(i).get('name')?.touched">
+                        <div class="invalid-feedback" *ngIf="lessons.at(i).get('name')?.invalid && lessons.at(i).get('name')?.touched">
+                          <div *ngIf="lessons.at(i).get('name')?.errors?.['required']">Lesson name is required</div>
+                          <div *ngIf="lessons.at(i).get('name')?.errors?.['minlength']">Lesson name must be at least 2 characters long</div>
                         </div>
                       </div>
                       <div class="col-md-4">
-                        <label [for]="'lessonDuration' + i" class="form-label">Duration (minutes)</label>
+                        <label [for]="'lessonDuration' + i" class="form-label">Duration (minutes) *</label>
                         <input type="number" 
                                class="form-control" 
                                [id]="'lessonDuration' + i"
-                               [(ngModel)]="lesson.duration" 
-                               [name]="'lessonDuration' + i"
-                               min="1">
-                        <div class="text-danger" *ngIf="validationErrors.lessons && validationErrors.lessons[i]?.duration">
-                          {{ validationErrors.lessons[i].duration }}
+                               formControlName="duration"
+                               min="1"
+                               [class.is-invalid]="lessons.at(i).get('duration')?.invalid && lessons.at(i).get('duration')?.touched">
+                        <div class="invalid-feedback" *ngIf="lessons.at(i).get('duration')?.invalid && lessons.at(i).get('duration')?.touched">
+                          <div *ngIf="lessons.at(i).get('duration')?.errors?.['required']">Duration is required</div>
+                          <div *ngIf="lessons.at(i).get('duration')?.errors?.['min']">Duration must be greater than 0</div>
                         </div>
                       </div>
                       <div class="col-md-2 d-flex align-items-end">
                         <button type="button" 
                                 class="btn btn-outline-danger w-100" 
-                                (click)="removeLesson(i)">
+                                (click)="removeLesson(i)"
+                                [disabled]="lessons.length === 1">
                           <i class="bi bi-trash"></i>
                         </button>
                       </div>
@@ -187,31 +179,33 @@
                 </div>
               </div>
             </div>
-            <div class="text-danger" *ngIf="validationErrors.lessons && validationErrors.lessons[0]?.name">
-              {{ validationErrors.lessons[0].name }}
+            <div class="invalid-feedback" *ngIf="lessons.invalid && lessons.touched">
+              <div *ngIf="lessons.errors?.['required']">At least one lesson is required</div>
             </div>
           </div>
 
           <!-- Error Message -->
-          <div class="alert alert-danger mt-3" *ngIf="error">
+          <div class="alert alert-danger mt-3 mb-3" *ngIf="error" style="position: relative; z-index: 1000;">
+            <i class="bi bi-exclamation-triangle-fill me-2"></i>
             {{ error }}
           </div>
 
           <!-- Success Message -->
-          <div class="alert alert-success mt-3" *ngIf="success">
+          <div class="alert alert-success mt-3 mb-3" *ngIf="success" style="position: relative; z-index: 1000;">
+            <i class="bi bi-check-circle-fill me-2"></i>
             {{ success }}
           </div>
+
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" (click)="closeDialog()">Cancel</button>
+            <button type="submit" 
+                    class="btn btn-primary" 
+                    [disabled]="courseForm.invalid || isSubmitting">
+              <span class="spinner-border spinner-border-sm me-1" *ngIf="isSubmitting"></span>
+              {{ isSubmitting ? 'Creating...' : 'Create Course' }}
+            </button>
+          </div>
         </form>
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" (click)="closeDialog()">Cancel</button>
-        <button type="button" 
-                class="btn btn-primary" 
-                (click)="saveCourse()"
-                [disabled]="!courseForm.form.valid || isSubmitting">
-          <span class="spinner-border spinner-border-sm me-1" *ngIf="isSubmitting"></span>
-          {{ isSubmitting ? 'Creating...' : 'Create Course' }}
-        </button>
       </div>
     </div>
   </div>

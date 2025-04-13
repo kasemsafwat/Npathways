@@ -39,8 +39,8 @@
         <div class="invalid-feedback" *ngIf="email?.invalid && email?.touched">
           <div *ngIf="email?.errors">
             <div *ngIf="email?.errors?.['required']">Email is required</div>
-            <div *ngIf="email?.errors?.['email']">
-              Please enter a valid email
+            <div *ngIf="email?.errors?.['pattern']">
+              Email must be a valid address
             </div>
           </div>
         </div>
@@ -94,5 +94,4 @@
       {{ errorMessage }}
     </div>
   </div>
-
 </div>
